@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import logoUrl from '../assets/logo.svg';
-import securityUrl from '../assets/security.svg';
 import './Login.css';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -72,6 +72,8 @@ const Login = () => {
                   placeholder="••••••••" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onFocus={() => setIsPasswordFocused(true)}
+                  onBlur={() => setIsPasswordFocused(false)}
                   required
                 />
                 <button 
@@ -110,28 +112,32 @@ const Login = () => {
       </div>
       
       <div className="login-right">
-        <div className="right-content">
-          <img src={securityUrl} alt="Security Shield" width="120" height="120" style={{marginBottom: '2rem'}} />
-          <h1>Welcome back!<br/>Please sign in to your<br/>Bank Of Captcha account</h1>
-          <p>Experience seamless and secure banking with our modern platform.</p>
-          
-          <div className="dashboard-preview">
-            <div className="preview-header">
-              <span>Sales Report</span>
-              <div className="legend">
-                <span className="dot blue"></span> Profit
-                <span className="dot gray"></span> Expenses
-              </div>
-            </div>
-            <div className="chart-bars">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="bar-group">
-                  <div className="bar gray-bar" style={{ height: `${Math.random() * 60 + 20}%` }}></div>
-                  <div className="bar blue-bar" style={{ height: `${Math.random() * 80 + 20}%` }}></div>
+        <div className="phone-scene">
+
+            <div className={`phone ${isPasswordFocused ? "zoom" : ""}`}>
+
+                <div className="phone-notch"></div>
+
+                <div className="phone-screen">
+
+                    <div className="phone-header">
+                        BANK OF CAPTCHA
+                    </div>
+
+                    <div className="screen-content">
+                        <div className="card">
+                            <div className="wrapper">
+                                <img src="https://ggayane.github.io/css-experiments/cards/dark_rider-cover.jpg" className="cover-image" alt="cover" />
+                            </div>
+                            <img src="https://ggayane.github.io/css-experiments/cards/dark_rider-title.png" className="title" alt="title" />
+                            <img src="https://ggayane.github.io/css-experiments/cards/dark_rider-character.webp" className="character" alt="character" />
+                        </div>
+                    </div>
+
                 </div>
-              ))}
+
             </div>
-          </div>
+
         </div>
       </div>
     </div>
