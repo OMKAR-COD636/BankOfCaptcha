@@ -33,7 +33,24 @@ This document provides a step-by-step guide to starting both the backend and fro
    ```
 4. The terminal will display the local URL for the frontend, typically `http://localhost:5173`.
 
-## Step 3: Access the Application
+## Step 3: Start the AI Misuse Detection Module (Python)
+
+1. Open a third terminal window.
+2. Navigate to the AI module directory:
+   ```cmd
+   cd d:\finspark26\BankOfCaptcha\ai
+   ```
+3. Install dependencies (you must have Python installed):
+   ```cmd
+   pip install -r requirements.txt
+   ```
+4. Run the AI engine:
+   ```cmd
+   python main.py
+   ```
+5. The engine will run in the background, analyzing backend API logs for misuse every minute.
+
+## Step 4: Access the Application
 
 1. Open your web browser and navigate to `http://localhost:5173`.
 2. You should see the **BANK OF CAPTCHA** login screen.
@@ -41,7 +58,10 @@ This document provides a step-by-step guide to starting both the backend and fro
 ## Demo Credentials
 The backend uses an in-memory database and pre-populates these demo accounts on startup:
 - **Customer Account**: `customer` / `password`
-- **Admin Account**: `admin` / `password`
+- **Teller Account**: `teller` / `password`
+- **Branch Manager**: `branch_manager` / `password`
+- **Compliance Officer**: `compliance` / `password`
+- **IT Admin**: `it_admin` / `password`
 - **Super Admin Account**: `superadmin` / `password`
 
 ## Shutting Down

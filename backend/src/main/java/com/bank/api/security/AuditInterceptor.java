@@ -24,10 +24,8 @@ public class AuditInterceptor implements HandlerInterceptor {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
             String role = auth.getAuthorities().iterator().next().getAuthority();
-            if (role.equals("ROLE_ADMIN") || role.equals("ROLE_SUPER_ADMIN")) {
-                String action = request.getMethod() + " " + request.getRequestURI();
-                auditLogRepository.save(new AuditLog(auth.getName(), action, LocalDateTime.now()));
-            }
+            String action = request.getMethod() + " " + request.getRequestURI();
+            auditLogRepository.save(new AuditLog(auth.getName(), action, LocalDateTime.now()));
         }
         return true;
     }
