@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface AiAlertRepository extends JpaRepository<AiAlert, Long> {
     List<AiAlert> findAllByOrderByTimestampDesc();
+    List<AiAlert> findByFlaggedUsernameAndStatus(String flaggedUsername, String status);
 }
