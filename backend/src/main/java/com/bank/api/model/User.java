@@ -18,6 +18,9 @@ public class User {
     @Column(nullable = false)
     private String role;
 
+    @Column(nullable = false)
+    private boolean accessSuspended = false;
+
     public User() {}
 
     public User(String username, String password, String role) {
@@ -34,4 +37,6 @@ public class User {
     public void setPassword(String password) { this.password = password; }
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
+    public boolean isAccessSuspended() { return accessSuspended; }
+    public void setAccessSuspended(boolean accessSuspended) { this.accessSuspended = accessSuspended; }
 }

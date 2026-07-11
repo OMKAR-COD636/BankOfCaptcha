@@ -2,6 +2,8 @@ package com.bank.api.security;
 
 import java.util.List;
 
+import com.bank.api.repository.UserRepository;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -20,9 +22,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private final JwtUtils jwtUtils;
+    private final UserRepository userRepository;
 
-    public SecurityConfig(JwtUtils jwtUtils) {
+    public SecurityConfig(JwtUtils jwtUtils, UserRepository userRepository) {
         this.jwtUtils = jwtUtils;
+        this.userRepository = userRepository;
     }
 
     @Bean
@@ -39,7 +43,12 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/api/audit/**")
+                        .hasAnyRole("COMPLIANCE_OFFICER", "SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/ai/alerts").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/ai/audit-events").permitAll()
+                        .requestMatchers("/api/ai/**")
+                        .hasAnyRole("COMPLIANCE_OFFICER", "SUPER_ADMIN")
 
                         .requestMatchers("/api/admin/**")
                         .hasAnyRole("ADMIN", "SUPER_ADMIN")
@@ -50,11 +59,10 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
-                .headers(headers ->
-                        headers.frameOptions(frame -> frame.disable()));
+                .headers(Customizer.withDefaults());
 
         http.addFilterBefore(
-                new JwtAuthenticationFilter(jwtUtils),
+                new JwtAuthenticationFilter(jwtUtils, userRepository),
                 UsernamePasswordAuthenticationFilter.class
         );
 

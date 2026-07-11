@@ -28,6 +28,9 @@ public class AuthController {
         Optional<User> userOpt = userRepository.findByUsername(username);
         if (userOpt.isPresent() && userOpt.get().getPassword().equals(password)) {
             User user = userOpt.get();
+            if (user.isAccessSuspended()) {
+                return ResponseEntity.status(403).body(Map.of("error", "Access is suspended pending a security review"));
+            }
             String token = jwtUtils.generateJwtToken(user.getUsername(), user.getRole());
             return ResponseEntity.ok(Map.of(
                     "token", token,

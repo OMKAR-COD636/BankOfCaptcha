@@ -1,7 +1,6 @@
 package com.bank.api.security;
 
-import com.bank.api.model.AuditLog;
-import com.bank.api.repository.AuditLogRepository;
+import com.bank.api.service.PqcAuditService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
@@ -13,10 +12,10 @@ import java.time.LocalDateTime;
 
 @Component
 public class AuditInterceptor implements HandlerInterceptor {
-    private final AuditLogRepository auditLogRepository;
+    private final PqcAuditService pqcAuditService;
 
-    public AuditInterceptor(AuditLogRepository auditLogRepository) {
-        this.auditLogRepository = auditLogRepository;
+    public AuditInterceptor(PqcAuditService pqcAuditService) {
+        this.pqcAuditService = pqcAuditService;
     }
 
     @Override
@@ -24,10 +23,8 @@ public class AuditInterceptor implements HandlerInterceptor {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
             String role = auth.getAuthorities().iterator().next().getAuthority();
-            if (role.equals("ROLE_ADMIN") || role.equals("ROLE_SUPER_ADMIN")) {
-                String action = request.getMethod() + " " + request.getRequestURI();
-                auditLogRepository.save(new AuditLog(auth.getName(), action, LocalDateTime.now()));
-            }
+            String action = request.getMethod() + " " + request.getRequestURI();
+            pqcAuditService.record(auth.getName(), action, LocalDateTime.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS));
         }
         return true;
     }
