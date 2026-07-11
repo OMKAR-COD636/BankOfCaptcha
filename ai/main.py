@@ -1,14 +1,18 @@
-import time
+import os
 import requests
 import pandas as pd
 from sklearn.ensemble import IsolationForest
 from datetime import datetime
 
 JAVA_BACKEND_URL = "http://localhost:8080/api"
+AI_SERVICE_KEY = os.getenv("AI_SERVICE_KEY", "bankofcaptcha-local-ai-service-key-change-before-deployment")
+
+def ai_headers():
+    return {"X-AI-Service-Key": AI_SERVICE_KEY}
 
 def fetch_audit_logs():
     try:
-        response = requests.get(f"{JAVA_BACKEND_URL}/audit/logs")
+        response = requests.get(f"{JAVA_BACKEND_URL}/ai/audit-events", headers=ai_headers())
         if response.status_code == 200:
             return response.json()
     except Exception as e:
@@ -22,7 +26,7 @@ def send_alert(username, description, severity):
         "severity": severity
     }
     try:
-        requests.post(f"{JAVA_BACKEND_URL}/ai/alerts", json=alert_payload)
+        requests.post(f"{JAVA_BACKEND_URL}/ai/alerts", json=alert_payload, headers=ai_headers())
         print(f"Sent alert for {username}: {description}")
     except Exception as e:
         print(f"Error sending alert: {e}")

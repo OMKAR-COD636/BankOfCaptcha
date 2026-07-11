@@ -21,6 +21,14 @@ public class AiAlert {
 
     private LocalDateTime timestamp;
 
+    @Column(nullable = false)
+    private String status = "OPEN"; // OPEN, INVESTIGATING, CONTAINED, RESOLVED
+
+    @Column(nullable = false)
+    private String detectionSource = "RULE_ENGINE"; // RULE_ENGINE or AI_SERVICE
+
+    private Integer riskScore;
+
     public AiAlert() {}
 
     public AiAlert(String flaggedUsername, String description, String severity) {
@@ -40,4 +48,10 @@ public class AiAlert {
     public void setSeverity(String severity) { this.severity = severity; }
     public LocalDateTime getTimestamp() { return timestamp; }
     public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+    public String getDetectionSource() { return detectionSource; }
+    public void setDetectionSource(String detectionSource) { this.detectionSource = detectionSource; }
+    public Integer getRiskScore() { return riskScore; }
+    public void setRiskScore(Integer riskScore) { this.riskScore = riskScore; }
 }
