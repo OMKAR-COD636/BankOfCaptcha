@@ -8,7 +8,6 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -49,8 +48,8 @@ const Login = () => {
         </div>
         
         <div className="login-form-container">
-          <h2>Sign In</h2>
-          <p className="subtitle">Welcome back! Please enter your details</p>
+          <h2>Sign In to Your Account</h2>
+          <p className="subtitle">Secure Government Banking Portal</p>
           
           <form onSubmit={handleLogin}>
             <div className="form-group">
@@ -72,8 +71,6 @@ const Login = () => {
                   placeholder="••••••••" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  onFocus={() => setIsPasswordFocused(true)}
-                  onBlur={() => setIsPasswordFocused(false)}
                   required
                 />
                 <button 
@@ -90,9 +87,9 @@ const Login = () => {
               <label className="checkbox-container">
                 <input type="checkbox" />
                 <span className="checkmark"></span>
-                Remember for 30 Days
+                Remember me
               </label>
-              <a href="#" className="forgot-password">Forgot password</a>
+              <a href="#" className="forgot-password">Forgot password?</a>
             </div>
 
             {error && <div className="error-message">{error}</div>}
@@ -101,7 +98,7 @@ const Login = () => {
           </form>
 
           <div className="demo-credentials">
-            <p>Demo Accounts:</p>
+            <p><strong>Demo Accounts:</strong></p>
             <ul>
               <li>Customer: <code>customer</code> / <code>password</code></li>
               <li>Admin: <code>admin</code> / <code>password</code></li>
@@ -112,32 +109,23 @@ const Login = () => {
       </div>
       
       <div className="login-right">
-        <div className="phone-scene">
-
-            <div className={`phone ${isPasswordFocused ? "zoom" : ""}`}>
-
-                <div className="phone-notch"></div>
-
-                <div className="phone-screen">
-
-                    <div className="phone-header">
-                        BANK OF CAPTCHA
-                    </div>
-
-                    <div className="screen-content">
-                        <div className="card">
-                            <div className="wrapper">
-                                <img src="https://ggayane.github.io/css-experiments/cards/dark_rider-cover.jpg" className="cover-image" alt="cover" />
-                            </div>
-                            <img src="https://ggayane.github.io/css-experiments/cards/dark_rider-title.png" className="title" alt="title" />
-                            <img src="https://ggayane.github.io/css-experiments/cards/dark_rider-character.webp" className="character" alt="character" />
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
+        <div className="info-panel">
+          <h3>Official Government Service</h3>
+          <p>
+            This is a secure portal for the Bank of Captcha. Unauthorized access is strictly prohibited and monitored.
+          </p>
+          
+          <div className="security-notice">
+            <h4>Security Notice</h4>
+            <p>
+              We use advanced Post-Quantum Cryptography (PQC) to protect your audit records. Your sessions are securely encrypted.
+            </p>
+          </div>
+          
+          <div className="contact-info">
+            <h4>Need Help?</h4>
+            <p>Contact the IT Service Desk at 1-800-GOV-BANK.</p>
+          </div>
         </div>
       </div>
     </div>
