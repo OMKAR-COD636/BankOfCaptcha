@@ -1,3 +1,4 @@
 .env
 ai/__pycache__/
 LATEST_RESPONSE.md
+workflow.md
