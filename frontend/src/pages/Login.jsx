@@ -9,7 +9,19 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [branches, setBranches] = useState([]);
+  const [regForm, setRegForm] = useState({ fullName: '', aadhaarNumber: '', mobileNumber: '', email: '', branchId: '' });
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (isRegistering && branches.length === 0) {
+      fetch('http://localhost:8080/api/branches')
+        .then(res => res.json())
+        .then(data => setBranches(data))
+        .catch(err => console.error("Failed to load branches"));
+    }
+  }, [isRegistering, branches.length]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -39,6 +51,30 @@ const Login = () => {
     }
   };
 
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setError('');
+    
+    try {
+      const response = await fetch('http://localhost:8080/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, ...regForm }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(data.message);
+        setIsRegistering(false);
+      } else {
+        const errData = await response.json().catch(() => ({}));
+        setError(errData.error || 'Registration failed');
+      }
+    } catch (err) {
+      setError('Failed to connect to the server.');
+    }
+  };
+
   return (
     <div className="login-container">
       <div className="login-left">
@@ -48,56 +84,76 @@ const Login = () => {
         </div>
         
         <div className="login-form-container">
-          <h2>Sign In to Your Account</h2>
+          <h2>{isRegistering ? 'Apply for an Account (KYC)' : 'Sign In to Your Account'}</h2>
           <p className="subtitle">Secure Government Banking Portal</p>
           
-          <form onSubmit={handleLogin}>
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+            <button type="button" onClick={() => setIsRegistering(false)} style={{ padding: '8px', background: !isRegistering ? '#2563eb' : '#e5e7eb', color: !isRegistering ? 'white' : 'black', border: 'none', borderRadius: '4px', cursor: 'pointer', flex: 1 }}>Login</button>
+            <button type="button" onClick={() => setIsRegistering(true)} style={{ padding: '8px', background: isRegistering ? '#2563eb' : '#e5e7eb', color: isRegistering ? 'white' : 'black', border: 'none', borderRadius: '4px', cursor: 'pointer', flex: 1 }}>Apply for Account</button>
+          </div>
+
+          <form onSubmit={isRegistering ? handleRegister : handleLogin}>
             <div className="form-group">
               <label>Username</label>
-              <input 
-                type="text" 
-                placeholder="Enter your username" 
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-              />
+              <input type="text" placeholder="Enter your username" value={username} onChange={(e) => setUsername(e.target.value)} required />
             </div>
             
             <div className="form-group">
               <label>Password</label>
               <div className="password-input-wrapper">
-                <input 
-                  type={showPassword ? "text" : "password"} 
-                  placeholder="••••••••" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <button 
-                  type="button" 
-                  className="icon-button"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
+                <input type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                <button type="button" className="icon-button" onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? <EyeOff size={20} color="#6c757d"/> : <Eye size={20} color="#6c757d"/>}
                 </button>
               </div>
             </div>
+
+            {isRegistering && (
+              <>
+                <div className="form-group">
+                  <label>Full Name</label>
+                  <input type="text" placeholder="John Doe" value={regForm.fullName} onChange={e => setRegForm({...regForm, fullName: e.target.value})} required />
+                </div>
+                <div className="form-group">
+                  <label>Aadhaar Number</label>
+                  <input type="text" placeholder="1234 5678 9012" value={regForm.aadhaarNumber} onChange={e => setRegForm({...regForm, aadhaarNumber: e.target.value})} required />
+                </div>
+                <div className="form-group">
+                  <label>Mobile Number</label>
+                  <input type="text" placeholder="9876543210" value={regForm.mobileNumber} onChange={e => setRegForm({...regForm, mobileNumber: e.target.value})} required />
+                </div>
+                <div className="form-group">
+                  <label>Email ID</label>
+                  <input type="email" placeholder="john@example.com" value={regForm.email} onChange={e => setRegForm({...regForm, email: e.target.value})} required />
+                </div>
+                <div className="form-group">
+                  <label>Preferred Branch</label>
+                  <select value={regForm.branchId} onChange={e => setRegForm({...regForm, branchId: e.target.value})} required style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}>
+                    <option value="">-- Select a Branch --</option>
+                    {branches.map(b => <option key={b.id} value={b.branchId}>{b.name} ({b.location})</option>)}
+                  </select>
+                </div>
+              </>
+            )}
             
-            <div className="form-options">
-              <label className="checkbox-container">
-                <input type="checkbox" />
-                <span className="checkmark"></span>
-                Remember me
-              </label>
-              <a href="#" className="forgot-password">Forgot password?</a>
-            </div>
+            {!isRegistering && (
+              <div className="form-options">
+                <label className="checkbox-container">
+                  <input type="checkbox" />
+                  <span className="checkmark"></span>
+                  Remember me
+                </label>
+                <a href="#" className="forgot-password">Forgot password?</a>
+              </div>
+            )}
 
             {error && <div className="error-message">{error}</div>}
 
-            <button type="submit" className="login-btn">Sign In</button>
+            <button type="submit" className="login-btn">{isRegistering ? 'Submit KYC Application' : 'Sign In'}</button>
           </form>
 
-          <div className="demo-credentials">
+          {!isRegistering && (
+            <div className="demo-credentials">
             <p><strong>Demo Accounts:</strong></p>
             <ul>
               <li>Customer: <code>customer</code> / <code>password</code></li>
@@ -105,6 +161,7 @@ const Login = () => {
               <li>Super Admin: <code>superadmin</code> / <code>password</code></li>
             </ul>
           </div>
+          )}
         </div>
       </div>
       
