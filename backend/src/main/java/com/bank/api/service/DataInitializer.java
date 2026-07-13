@@ -28,7 +28,8 @@ public class DataInitializer implements CommandLineRunner {
             userRepository.save(new User("it_admin", "password", "ROLE_IT_ADMIN"));
             userRepository.save(new User("superadmin", "password", "ROLE_SUPER_ADMIN"));
             
-            accountRepository.save(new Account("1000000001", customer, new BigDecimal("1500.00")));
+            Account acc1 = accountRepository.save(new Account("1000000001", customer, new BigDecimal("50000.00")));
+            Account acc2 = accountRepository.save(new Account("1000000002", customer, new BigDecimal("5000.00")));
         }
     }
 }
