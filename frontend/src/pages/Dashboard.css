@@ -264,3 +264,44 @@
 .mb-4 {
   margin-bottom: 2rem;
 }
+
+/* Alert Filters */
+.alert-filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0 10px;
+  flex: 1;
+}
+
+.filter-icon {
+  color: var(--text-light);
+  margin-right: 8px;
+}
+
+.filter-input, .filter-select {
+  border: none;
+  background: transparent;
+  padding: 10px 0;
+  width: 100%;
+  color: var(--text-color);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.filter-select {
+  cursor: pointer;
+}
