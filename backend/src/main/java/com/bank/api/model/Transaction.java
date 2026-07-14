@@ -28,6 +28,19 @@ public class Transaction {
     @Column(nullable = false)
     private LocalDateTime timestamp;
 
+    // Phase 2: Transaction-Level PQC Fields
+    @Column(nullable = true)
+    private String signatureAlgorithm;
+
+    @Column(nullable = true)
+    private String encryptionAlgorithm;
+
+    @Column(nullable = true, columnDefinition = "TEXT")
+    private String pqcSignature;
+
+    @Column(nullable = true, columnDefinition = "TEXT")
+    private String encapsulatedKey;
+
     public Transaction() {}
 
     public Transaction(String type, BigDecimal amount, Account sourceAccount, Account destAccount) {
@@ -50,5 +63,17 @@ public class Transaction {
     public void setDestAccount(Account destAccount) { this.destAccount = destAccount; }
     public LocalDateTime getTimestamp() { return timestamp; }
     public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+    
+    public String getSignatureAlgorithm() { return signatureAlgorithm; }
+    public void setSignatureAlgorithm(String signatureAlgorithm) { this.signatureAlgorithm = signatureAlgorithm; }
+    
+    public String getEncryptionAlgorithm() { return encryptionAlgorithm; }
+    public void setEncryptionAlgorithm(String encryptionAlgorithm) { this.encryptionAlgorithm = encryptionAlgorithm; }
+    
+    public String getPqcSignature() { return pqcSignature; }
+    public void setPqcSignature(String pqcSignature) { this.pqcSignature = pqcSignature; }
+    
+    public String getEncapsulatedKey() { return encapsulatedKey; }
+    public void setEncapsulatedKey(String encapsulatedKey) { this.encapsulatedKey = encapsulatedKey; }
 }
 

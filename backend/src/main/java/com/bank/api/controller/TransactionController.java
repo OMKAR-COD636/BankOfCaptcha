@@ -57,7 +57,11 @@ public class TransactionController {
         boolean isOwner = source.getUser().getId().equals(currentUser.getId());
         if (!isOwner) {
             String role = currentUser.getRole();
-            if (!role.equals("ROLE_TELLER") && !role.equals("ROLE_BRANCH_MANAGER") && !role.equals("ROLE_SUPER_ADMIN")) {
+            if (role.equals("ROLE_TELLER") || role.equals("ROLE_BRANCH_MANAGER")) {
+                if (currentUser.getBranch() == null || source.getUser().getBranch() == null || !currentUser.getBranch().getId().equals(source.getUser().getBranch().getId())) {
+                    return ResponseEntity.status(403).body("You can only initiate transfers for accounts in your assigned branch.");
+                }
+            } else if (!role.equals("ROLE_SUPER_ADMIN")) {
                 return ResponseEntity.status(403).body("You do not have permission to transfer from this account.");
             }
         }
@@ -97,7 +101,10 @@ public class TransactionController {
         if (currentUser == null || !currentUser.getRole().equals("ROLE_BRANCH_MANAGER")) {
             return ResponseEntity.status(403).body("Only Branch Managers can view transaction requests.");
         }
-        return ResponseEntity.ok(transactionRequestRepository.findByStatus("PENDING"));
+        if (currentUser.getBranch() == null) {
+            return ResponseEntity.badRequest().body("Manager is not assigned to any branch.");
+        }
+        return ResponseEntity.ok(transactionRequestRepository.findByStatusAndInitiatorBranchId("PENDING", currentUser.getBranch().getId()));
     }
 
     @PostMapping("/requests/{id}/approve")

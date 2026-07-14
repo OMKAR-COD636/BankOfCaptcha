@@ -8,8 +8,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.bank.api.model.User;
+import com.bank.api.model.Branch;
+import com.bank.api.repository.UserRepository;
+import com.bank.api.repository.BranchRepository;
 
 import java.util.List;
 import java.util.Map;
@@ -19,15 +25,39 @@ import java.util.Map;
 public class AdminController {
     private final AuditLogRepository auditLogRepository;
     private final AlertService alertService;
+    private final UserRepository userRepository;
+    private final BranchRepository branchRepository;
 
-    public AdminController(AuditLogRepository auditLogRepository, AlertService alertService) {
+    public AdminController(AuditLogRepository auditLogRepository, AlertService alertService, UserRepository userRepository, BranchRepository branchRepository) {
         this.auditLogRepository = auditLogRepository;
         this.alertService = alertService;
+        this.userRepository = userRepository;
+        this.branchRepository = branchRepository;
     }
 
     @GetMapping("/audit-logs")
     public ResponseEntity<List<AuditLog>> getAuditLogs() {
         return ResponseEntity.ok(auditLogRepository.findAllByOrderByTimestampDesc());
+    }
+
+    @PostMapping("/staff")
+    public ResponseEntity<?> createStaff(@RequestBody Map<String, String> payload) {
+        String username = payload.get("username");
+        String password = payload.get("password");
+        String role = payload.get("role"); // e.g. ROLE_TELLER, ROLE_BRANCH_MANAGER
+        String branchId = payload.get("branchId");
+
+        if (userRepository.findByUsername(username).isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Username already exists"));
+        }
+
+        Branch branch = branchRepository.findById(Long.parseLong(branchId)).orElse(null);
+        if (branch == null) return ResponseEntity.badRequest().body(Map.of("error", "Invalid branch selected"));
+
+        User staff = new User(username, password, role, branch);
+        userRepository.save(staff);
+
+        return ResponseEntity.ok(Map.of("message", "Staff created successfully!"));
     }
 
     @PostMapping("/alerts/{id}/contain")

@@ -32,13 +32,25 @@ public class AccountController {
             return ResponseEntity.status(401).body("Unauthorized");
         }
         
-        // If SUPER_ADMIN, BRANCH_MANAGER, TELLER, they can see all accounts or search
-        if (user.getRole().equals("ROLE_SUPER_ADMIN") || user.getRole().equals("ROLE_BRANCH_MANAGER") || user.getRole().equals("ROLE_TELLER")) {
+        // If SUPER_ADMIN, they can see all accounts
+        if (user.getRole().equals("ROLE_SUPER_ADMIN")) {
             RiskEngineService.RiskEvaluation risk = riskEngineService.evaluateBulkDataAccess(user, "/api/accounts");
             if (!risk.allowed()) {
                 return ResponseEntity.status(403).body(risk.message());
             }
             return ResponseEntity.ok(accountRepository.findAll());
+        }
+
+        // If TELLER or BRANCH_MANAGER, they can only see accounts in their assigned branch
+        if (user.getRole().equals("ROLE_BRANCH_MANAGER") || user.getRole().equals("ROLE_TELLER")) {
+            RiskEngineService.RiskEvaluation risk = riskEngineService.evaluateBulkDataAccess(user, "/api/accounts");
+            if (!risk.allowed()) {
+                return ResponseEntity.status(403).body(risk.message());
+            }
+            if (user.getBranch() == null) {
+                return ResponseEntity.badRequest().body("Staff member is not assigned to any branch.");
+            }
+            return ResponseEntity.ok(accountRepository.findByUserBranchId(user.getBranch().getId()));
         }
         
         List<Account> accounts = accountRepository.findByUserId(user.getId());
