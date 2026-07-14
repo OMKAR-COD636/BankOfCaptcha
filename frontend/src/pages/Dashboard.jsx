@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, User, ShieldAlert, AlertTriangle, Building, FileText, Users } from 'lucide-react';
+import { LogOut, User, ShieldAlert, AlertTriangle, Building, FileText, Users, Search, Filter } from 'lucide-react';
 import logoUrl from '../assets/logo.svg';
 import './Dashboard.css';
+import RiskActivityGraph from '../components/RiskActivityGraph';
+import RiskHeatmap from '../components/RiskHeatmap';
 
 const Dashboard = () => {
   const [logs, setLogs] = useState([]);
@@ -17,6 +19,10 @@ const Dashboard = () => {
   const [assignForm, setAssignForm] = useState({ userId: '', branchId: '' });
   const [createBranchForm, setCreateBranchForm] = useState({ name: '', location: '' });
   const [createStaffForm, setCreateStaffForm] = useState({ username: '', password: '', role: 'ROLE_TELLER', branchId: '' });
+  
+  const [alertFilter, setAlertFilter] = useState({ search: '', severity: '', status: '' });
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedMatrix, setSelectedMatrix] = useState(null);
   
   const navigate = useNavigate();
   const role = localStorage.getItem('role');
@@ -293,12 +299,50 @@ const Dashboard = () => {
           </div>
         ) : role === 'ROLE_SUPER_ADMIN' ? (
           <div className="admin-view">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 className="section-title"><AlertTriangle size={24} className="icon-yellow" /> AI Security Alerts</h2>
+            <div className="risk-intelligence-center" style={{ display: 'flex', gap: '20px', marginBottom: '30px' }}>
+              <RiskActivityGraph 
+                alerts={aiAlerts} 
+                onDateSelect={setSelectedDate} 
+                selectedDate={selectedDate} 
+              />
+              <RiskHeatmap 
+                alerts={aiAlerts} 
+                onMatrixSelect={setSelectedMatrix} 
+                selectedMatrix={selectedMatrix} 
+              />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '30px' }}>
+              <h2 className="section-title" style={{ marginBottom: 0 }}><AlertTriangle size={24} className="icon-yellow" /> AI Security Alerts</h2>
               <button onClick={handleResolveAllAlerts} style={{ padding: '8px 16px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
                 Resolve & Unfreeze All
               </button>
             </div>
+            
+            <div className="alert-filters">
+              <div className="filter-group">
+                <Search size={16} className="filter-icon" />
+                <input type="text" placeholder="Search by username..." value={alertFilter.search} onChange={e => setAlertFilter({...alertFilter, search: e.target.value})} className="filter-input" />
+              </div>
+              <div className="filter-group">
+                <Filter size={16} className="filter-icon" />
+                <select value={alertFilter.severity} onChange={e => setAlertFilter({...alertFilter, severity: e.target.value})} className="filter-select">
+                  <option value="">All Severities</option>
+                  <option value="HIGH">High</option>
+                  <option value="MEDIUM">Medium</option>
+                  <option value="LOW">Low</option>
+                </select>
+              </div>
+              <div className="filter-group">
+                <Filter size={16} className="filter-icon" />
+                <select value={alertFilter.status} onChange={e => setAlertFilter({...alertFilter, status: e.target.value})} className="filter-select">
+                  <option value="">All Statuses</option>
+                  <option value="OPEN">Open</option>
+                  <option value="RESOLVED">Resolved</option>
+                </select>
+              </div>
+            </div>
+
             <div className="logs-table-container">
               <table className="logs-table">
                 <thead>
@@ -313,7 +357,18 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {aiAlerts.map(alert => (
+                  {aiAlerts.filter(a => {
+                    const matchesSearch = !alertFilter.search || a.flaggedUsername.toLowerCase().includes(alertFilter.search.toLowerCase());
+                    const matchesSeverity = !alertFilter.severity || a.severity === alertFilter.severity;
+                    const matchesStatus = !alertFilter.status || a.status === alertFilter.status;
+                    
+                    const alertDate = new Date(a.timestamp);
+                    const alertDateStr = alertDate.getFullYear() + '-' + String(alertDate.getMonth() + 1).padStart(2, '0') + '-' + String(alertDate.getDate()).padStart(2, '0');
+                    const matchesDate = !selectedDate || (alertDateStr === selectedDate);
+                    
+                    const matchesMatrix = !selectedMatrix || a.severity === selectedMatrix.severity;
+                    return matchesSearch && matchesSeverity && matchesStatus && matchesDate && matchesMatrix;
+                  }).map(alert => (
                     <tr key={alert.id} className={alert.severity === 'HIGH' ? 'row-danger' : ''}>
                       <td>{alert.id}</td>
                       <td><strong>{alert.flaggedUsername}</strong></td>
@@ -328,9 +383,20 @@ const Dashboard = () => {
                       </td>
                     </tr>
                   ))}
-                  {aiAlerts.length === 0 && (
+                  {aiAlerts.filter(a => {
+                    const matchesSearch = !alertFilter.search || a.flaggedUsername.toLowerCase().includes(alertFilter.search.toLowerCase());
+                    const matchesSeverity = !alertFilter.severity || a.severity === alertFilter.severity;
+                    const matchesStatus = !alertFilter.status || a.status === alertFilter.status;
+                    
+                    const alertDate = new Date(a.timestamp);
+                    const alertDateStr = alertDate.getFullYear() + '-' + String(alertDate.getMonth() + 1).padStart(2, '0') + '-' + String(alertDate.getDate()).padStart(2, '0');
+                    const matchesDate = !selectedDate || (alertDateStr === selectedDate);
+                    
+                    const matchesMatrix = !selectedMatrix || a.severity === selectedMatrix.severity;
+                    return matchesSearch && matchesSeverity && matchesStatus && matchesDate && matchesMatrix;
+                  }).length === 0 && (
                     <tr>
-                      <td colSpan="5" className="empty-table">No AI alerts generated. System is secure.</td>
+                      <td colSpan="7" style={{ textAlign: 'center', color: '#6b7280' }}>No alerts found matching the current filters.</td>
                     </tr>
                   )}
                 </tbody>

@@ -14,20 +14,24 @@ def ai_headers():
 
 # --- 1. LSTM Architecture ---
 class LSTMAutoencoder(nn.Module):
-    def __init__(self, seq_len, n_features, embedding_dim=16, hidden_dim=32):
+    def __init__(self, seq_len, n_features, embedding_dim=16, hidden_dim=64, num_layers=2):
         super(LSTMAutoencoder, self).__init__()
         self.seq_len = seq_len
         self.n_features = n_features
         self.embedding = nn.Embedding(n_features, embedding_dim, padding_idx=0)
-        self.encoder_lstm = nn.LSTM(embedding_dim, hidden_dim, batch_first=True)
-        self.decoder_lstm = nn.LSTM(hidden_dim, hidden_dim, batch_first=True)
+        self.encoder_lstm = nn.LSTM(embedding_dim, hidden_dim, num_layers=num_layers, batch_first=True, dropout=0.2 if num_layers > 1 else 0)
+        self.decoder_lstm = nn.LSTM(hidden_dim, hidden_dim, num_layers=num_layers, batch_first=True, dropout=0.2 if num_layers > 1 else 0)
         self.output_layer = nn.Linear(hidden_dim, n_features)
 
     def forward(self, x):
         embedded = self.embedding(x)
         _, (hidden, cell) = self.encoder_lstm(embedded)
-        # Repeat hidden state for seq_len to decode
-        decoder_input = hidden[-1].unsqueeze(1).repeat(1, self.seq_len, 1)
+        
+        # Take the top layer's hidden state, expand and repeat for the sequence length
+        top_hidden = hidden[-1]
+        decoder_input = top_hidden.unsqueeze(1).repeat(1, self.seq_len, 1)
+        
+        # Pass the full state (hidden, cell) to decoder so it starts where encoder left off
         decoder_output, _ = self.decoder_lstm(decoder_input, (hidden, cell))
         out = self.output_layer(decoder_output)
         return out
@@ -80,9 +84,9 @@ def initialize_ai():
     criterion = nn.CrossEntropyLoss(ignore_index=0, reduction='none')
     optimizer = torch.optim.Adam(GLOBAL_MODEL.parameters(), lr=0.005)
     
-    print("Training PyTorch LSTM Autoencoder (20 Epochs)...")
+    print("Training PyTorch LSTM Autoencoder (30 Epochs)...")
     GLOBAL_MODEL.train()
-    for epoch in range(20):
+    for epoch in range(30):
         optimizer.zero_grad()
         output = GLOBAL_MODEL(X_train)
         
@@ -97,7 +101,7 @@ def initialize_ai():
         optimizer.step()
         
         if (epoch + 1) % 5 == 0:
-            print(f"Epoch {epoch+1}/20 - Loss: {batch_loss.item():.4f}")
+            print(f"Epoch {epoch+1}/30 - Loss: {batch_loss.item():.4f}")
             
     # Calculate Dynamic Threshold based on 99th percentile of training data
     GLOBAL_MODEL.eval()
@@ -108,8 +112,8 @@ def initialize_ai():
         mask = (X_train != 0).float()
         seq_losses = (loss_matrix * mask).sum(dim=1) / (mask.sum(dim=1) + 1e-8)
         
-        # Use 99th percentile to tolerate normal variations but catch true anomalies
-        GLOBAL_THRESHOLD = torch.quantile(seq_losses[seq_losses > 0], 0.99).item()
+        # Use 90th percentile to increase sensitivity to anomalous behavior
+        GLOBAL_THRESHOLD = torch.quantile(seq_losses[seq_losses > 0], 0.90).item()
         
     print(f"Training complete! Dynamic Alert Threshold set to: {GLOBAL_THRESHOLD:.2f}")
     print("Stateless Inference Engine Ready.")
@@ -195,9 +199,17 @@ def analyze_logs():
             
             # If a user spams actions or does weird sequences, it won't reconstruct well
             if avg_reconstruction_error > GLOBAL_THRESHOLD and valid_elements >= 3:
+                # Classify severity based on how far the error exceeds the threshold
+                if avg_reconstruction_error >= GLOBAL_THRESHOLD * 1.5:
+                    severity = "HIGH"
+                elif avg_reconstruction_error >= GLOBAL_THRESHOLD * 1.2:
+                    severity = "MEDIUM"
+                else:
+                    severity = "LOW"
+                    
                 desc = f"LSTM Autoencoder detected anomalous behavioral sequence. Reconstruction Error: {avg_reconstruction_error:.2f} (Threshold: {GLOBAL_THRESHOLD:.2f})"
-                print(f"[!] THREAT DETECTED: {username} - {desc}")
-                send_alert(username, desc, "CRITICAL")
+                print(f"[!] THREAT DETECTED: {username} - Severity: {severity} - Error: {avg_reconstruction_error:.2f}")
+                send_alert(username, desc, severity)
             else:
                 print(f"[+] Normal sequence for {username}. Error: {avg_reconstruction_error:.2f} (Threshold: {GLOBAL_THRESHOLD:.2f})")
 
