@@ -9,6 +9,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -71,6 +72,8 @@ const Login = () => {
                   placeholder="••••••••" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onFocus={() => setIsPasswordFocused(true)}
+                  onBlur={() => setIsPasswordFocused(false)}
                   required
                 />
                 <button 
@@ -109,22 +112,43 @@ const Login = () => {
       </div>
       
       <div className="login-right">
-        <div className="info-panel">
-          <h3>Official Government Service</h3>
-          <p>
-            This is a secure portal for the Bank of Captcha. Unauthorized access is strictly prohibited and monitored.
-          </p>
-          
-          <div className="security-notice">
-            <h4>Security Notice</h4>
-            <p>
-              We use advanced Post-Quantum Cryptography (PQC) to protect your audit records. Your sessions are securely encrypted.
-            </p>
-          </div>
-          
-          <div className="contact-info">
-            <h4>Need Help?</h4>
-            <p>Contact the IT Service Desk at 1-800-GOV-BANK.</p>
+        <div className={`phone-mockup-container ${isPasswordFocused ? 'active' : ''}`}>
+          <div className="phone-mockup">
+            <div className="phone-screen">
+              <div className="app-header">
+                <img src={logoUrl} alt="Bank Of Captcha Logo" className="app-logo" />
+                <span>Bank of Captcha</span>
+              </div>
+              <div className="app-content">
+                <div className="app-card">
+                  <div className="card-balance">$24,500.00</div>
+                  <div className="card-number">**** **** **** 1234</div>
+                </div>
+                <div className="app-actions">
+                  <div className="action-btn">Send</div>
+                  <div className="action-btn">Pay</div>
+                  <div className="action-btn">More</div>
+                </div>
+                <div className="app-transactions">
+                  <div className="transaction">
+                    <div className="tx-icon"></div>
+                    <div className="tx-details">
+                      <div className="tx-title">Grocery Store</div>
+                      <div className="tx-date">Today, 2:30 PM</div>
+                    </div>
+                    <div className="tx-amount negative">-$45.00</div>
+                  </div>
+                  <div className="transaction">
+                    <div className="tx-icon"></div>
+                    <div className="tx-details">
+                      <div className="tx-title">Salary Deposit</div>
+                      <div className="tx-date">Yesterday, 9:00 AM</div>
+                    </div>
+                    <div className="tx-amount positive">+$3,200.00</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
