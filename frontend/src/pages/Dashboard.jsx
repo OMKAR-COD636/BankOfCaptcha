@@ -167,6 +167,25 @@ const Dashboard = () => {
     }
   };
 
+  const handleResolveAllAlerts = async () => {
+    try {
+      const res = await fetch(`http://localhost:8080/api/admin/alerts/resolve-all`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message);
+        // Update all alerts in local state to RESOLVED
+        setAiAlerts(prev => prev.map(a => ({ ...a, status: 'RESOLVED' })));
+      } else {
+        alert(data.error || "Failed to resolve all alerts.");
+      }
+    } catch (err) {
+      alert("Failed to resolve all alerts.");
+    }
+  };
+
   const handleApproveKyc = async (id) => {
     try {
       const res = await fetch(`http://localhost:8080/api/kyc/${id}/approve`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
@@ -274,7 +293,12 @@ const Dashboard = () => {
           </div>
         ) : role === 'ROLE_SUPER_ADMIN' ? (
           <div className="admin-view">
-            <h2 className="section-title"><AlertTriangle size={24} className="icon-yellow" /> AI Security Alerts</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 className="section-title"><AlertTriangle size={24} className="icon-yellow" /> AI Security Alerts</h2>
+              <button onClick={handleResolveAllAlerts} style={{ padding: '8px 16px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                Resolve & Unfreeze All
+              </button>
+            </div>
             <div className="logs-table-container">
               <table className="logs-table">
                 <thead>
