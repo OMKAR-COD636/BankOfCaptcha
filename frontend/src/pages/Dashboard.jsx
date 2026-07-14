@@ -11,6 +11,12 @@ const Dashboard = () => {
   const [transactionRequests, setTransactionRequests] = useState([]);
   const [transferForm, setTransferForm] = useState({ source: '', dest: '', amount: '' });
   const [transferMsg, setTransferMsg] = useState('');
+  const [kycRequests, setKycRequests] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [assignForm, setAssignForm] = useState({ userId: '', branchId: '' });
+  const [createBranchForm, setCreateBranchForm] = useState({ name: '', location: '' });
+  const [createStaffForm, setCreateStaffForm] = useState({ username: '', password: '', role: 'ROLE_TELLER', branchId: '' });
   
   const navigate = useNavigate();
   const role = localStorage.getItem('role');
@@ -38,7 +44,24 @@ const Dashboard = () => {
         .then(res => res.json())
         .then(data => setAiAlerts(data))
         .catch(err => console.error(err));
+
+        fetch('http://localhost:8080/api/branches', { headers: { 'Authorization': `Bearer ${token}` } })
+        .then(res => res.json())
+        .then(data => setBranches(data))
+        .catch(err => console.error(err));
+
+        fetch('http://localhost:8080/api/branches/users', { headers: { 'Authorization': `Bearer ${token}` } })
+        .then(res => res.json())
+        .then(data => setUsers(data))
+        .catch(err => console.error(err));
       }
+    }
+
+    if (role === 'ROLE_TELLER') {
+      fetch('http://localhost:8080/api/kyc/queue', { headers: { 'Authorization': `Bearer ${token}` } })
+      .then(res => res.json())
+      .then(data => setKycRequests(data))
+      .catch(err => console.error(err));
     }
 
     if (role === 'ROLE_CUSTOMER' || role === 'ROLE_TELLER' || role === 'ROLE_BRANCH_MANAGER') {
@@ -144,6 +167,59 @@ const Dashboard = () => {
     }
   };
 
+  const handleApproveKyc = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:8080/api/kyc/${id}/approve`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+      const data = await res.json();
+      alert(data.message + (data.accountNumber ? ` (Acc: ${data.accountNumber})` : ''));
+      setKycRequests(prev => prev.filter(r => r.id !== id));
+    } catch (err) { alert('Failed to approve KYC'); }
+  };
+
+  const handleAssignStaff = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`http://localhost:8080/api/branches/${assignForm.branchId}/assign/${assignForm.userId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+      const data = await res.json();
+      if (res.ok) alert(data.message);
+      else alert(data.error);
+    } catch (err) { alert('Failed to assign staff'); }
+  };
+
+  const handleCreateBranch = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`http://localhost:8080/api/branches`, { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(createBranchForm)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert("Branch created: " + data.branchId);
+        setBranches([...branches, data]);
+        setCreateBranchForm({ name: '', location: '' });
+      } else { alert(data.error); }
+    } catch (err) { alert('Failed to create branch'); }
+  };
+
+  const handleCreateStaff = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`http://localhost:8080/api/admin/staff`, { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(createStaffForm)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message);
+        setCreateStaffForm({ username: '', password: '', role: 'ROLE_TELLER', branchId: '' });
+        // Optionally refresh users
+      } else { alert(data.error); }
+    } catch (err) { alert('Failed to create staff'); }
+  };
+
   const handleLogout = () => {
     localStorage.clear();
     navigate('/login');
@@ -237,6 +313,53 @@ const Dashboard = () => {
               </table>
             </div>
 
+            <h2 className="section-title"><Users size={24} className="icon-blue" /> Assign Staff to Branch</h2>
+            <div className="card mb-4" style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
+              <form onSubmit={handleAssignStaff} style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                <select value={assignForm.userId} onChange={e => setAssignForm({...assignForm, userId: e.target.value})} required style={{ padding: '8px', flex: 1 }}>
+                  <option value="">Select Staff Member</option>
+                  {users.filter(u => u.role !== 'ROLE_CUSTOMER').map(u => (
+                    <option key={u.id} value={u.id}>{u.username} ({u.role.replace('ROLE_', '')}) - Branch: {u.branch?.name || 'None'}</option>
+                  ))}
+                </select>
+                <select value={assignForm.branchId} onChange={e => setAssignForm({...assignForm, branchId: e.target.value})} required style={{ padding: '8px', flex: 1 }}>
+                  <option value="">Select Branch</option>
+                  {branches.map(b => (
+                    <option key={b.id} value={b.id}>{b.name} ({b.location})</option>
+                  ))}
+                </select>
+                <button type="submit" style={{ padding: '8px 16px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Assign Staff</button>
+              </form>
+            </div>
+
+            <h2 className="section-title"><Building size={24} className="icon-blue" /> Create New Branch</h2>
+            <div className="card mb-4" style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
+              <form onSubmit={handleCreateBranch} style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                <input type="text" placeholder="Branch Name (e.g. South End)" value={createBranchForm.name} onChange={e => setCreateBranchForm({...createBranchForm, name: e.target.value})} required style={{ padding: '8px', flex: 1 }} />
+                <input type="text" placeholder="Location (e.g. Mumbai)" value={createBranchForm.location} onChange={e => setCreateBranchForm({...createBranchForm, location: e.target.value})} required style={{ padding: '8px', flex: 1 }} />
+                <button type="submit" style={{ padding: '8px 16px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Create Branch</button>
+              </form>
+            </div>
+
+            <h2 className="section-title"><Users size={24} className="icon-blue" /> Create New Staff</h2>
+            <div className="card mb-4" style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
+              <form onSubmit={handleCreateStaff} style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                <input type="text" placeholder="Username" value={createStaffForm.username} onChange={e => setCreateStaffForm({...createStaffForm, username: e.target.value})} required style={{ padding: '8px', flex: 1 }} />
+                <input type="text" placeholder="Password" value={createStaffForm.password} onChange={e => setCreateStaffForm({...createStaffForm, password: e.target.value})} required style={{ padding: '8px', flex: 1 }} />
+                <select value={createStaffForm.role} onChange={e => setCreateStaffForm({...createStaffForm, role: e.target.value})} required style={{ padding: '8px', flex: 1 }}>
+                  <option value="ROLE_TELLER">Teller</option>
+                  <option value="ROLE_BRANCH_MANAGER">Branch Manager</option>
+                </select>
+                <select value={createStaffForm.branchId} onChange={e => setCreateStaffForm({...createStaffForm, branchId: e.target.value})} required style={{ padding: '8px', flex: 1 }}>
+                  <option value="">Select Branch</option>
+                  {branches.map(b => (
+                    <option key={b.id} value={b.id}>{b.name} ({b.location})</option>
+                  ))}
+                </select>
+                <button type="submit" style={{ padding: '8px 16px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Create Staff</button>
+              </form>
+            </div>
+
             <h2 className="section-title"><ShieldAlert size={24} className="icon-blue" /> System Audit Logs</h2>
             <div className="logs-table-container">
               <table className="logs-table">
@@ -319,6 +442,41 @@ const Dashboard = () => {
                   <input type="number" placeholder="Amount" value={transferForm.amount} onChange={e => setTransferForm({...transferForm, amount: e.target.value})} required style={{ padding: '8px' }} />
                   <button type="submit" style={{ padding: '8px 16px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Submit Transfer</button>
                 </form>
+              </div>
+            )}
+
+            {role === 'ROLE_TELLER' && (
+              <div className="logs-table-container mb-4">
+                <div className="table-header">
+                  <h3>New Account Applications (KYC Queue)</h3>
+                </div>
+                <table className="logs-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Aadhaar (Encrypted)</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {kycRequests.map(req => (
+                      <tr key={req.id}>
+                        <td><strong>{req.fullName}</strong></td>
+                        <td>{req.email}</td>
+                        <td><code style={{fontSize: '0.8em'}}>{req.encryptedAadhaar}</code></td>
+                        <td>
+                          <button onClick={() => handleApproveKyc(req.id)} style={{ padding: '4px 8px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Approve Account</button>
+                        </td>
+                      </tr>
+                    ))}
+                    {kycRequests.length === 0 && (
+                      <tr>
+                        <td colSpan="4" className="empty-table">No pending KYC applications.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
             )}
 
