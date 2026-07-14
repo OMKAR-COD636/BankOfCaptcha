@@ -70,6 +70,12 @@ public class AdminController {
         return updateContainment(id, false);
     }
 
+    @PostMapping("/alerts/resolve-all")
+    public ResponseEntity<?> resolveAll() {
+        alertService.resolveAll();
+        return ResponseEntity.ok(Map.of("message", "All users have been unfrozen and all alerts resolved."));
+    }
+
     private ResponseEntity<?> updateContainment(Long id, boolean contain) {
         try {
             AiAlert alert = contain ? alertService.contain(id) : alertService.release(id);

@@ -58,6 +58,21 @@ public class AlertService {
         return aiAlertRepository.save(alert);
     }
 
+    @Transactional
+    public void resolveAll() {
+        List<User> suspendedUsers = userRepository.findAll().stream()
+                .filter(User::isAccessSuspended)
+                .toList();
+        suspendedUsers.forEach(user -> user.setAccessSuspended(false));
+        userRepository.saveAll(suspendedUsers);
+
+        List<AiAlert> activeAlerts = aiAlertRepository.findAll().stream()
+                .filter(alert -> !alert.getStatus().equals("RESOLVED"))
+                .toList();
+        activeAlerts.forEach(alert -> alert.setStatus("RESOLVED"));
+        aiAlertRepository.saveAll(activeAlerts);
+    }
+
     private AiAlert findAlert(Long alertId) {
         return aiAlertRepository.findById(alertId)
                 .orElseThrow(() -> new IllegalArgumentException("Alert not found"));
