@@ -1,0 +1,156 @@
+.risk-heatmap-container {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+    margin-bottom: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.risk-heatmap-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.risk-heatmap-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #1a1a2e;
+    font-weight: 600;
+}
+
+.heatmap-matrix {
+    display: grid;
+    grid-template-columns: 100px repeat(3, 1fr);
+    grid-template-rows: auto repeat(3, 1fr);
+    gap: 8px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.matrix-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #64748b;
+    text-align: center;
+}
+
+.matrix-label.y-axis {
+    justify-content: flex-end;
+    padding-right: 16px;
+}
+
+.matrix-cell {
+    aspect-ratio: 2/1;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    background: #f8fafc;
+}
+
+.matrix-cell:hover {
+    transform: scale(1.05);
+    z-index: 10;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.matrix-cell .cell-count {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.matrix-cell .cell-desc {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+/* Base Risk Colors */
+.risk-low {
+    background: #f0fdf4;
+    color: #166534;
+}
+.risk-med {
+    background: #fffbeb;
+    color: #b45309;
+}
+.risk-high {
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+/* Active Glow States */
+.matrix-cell.active.risk-low {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+    border: none;
+}
+
+.matrix-cell.active.risk-med {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+    border: none;
+}
+
+.matrix-cell.active.risk-high {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+    border: none;
+    animation: pulse-danger 2s infinite;
+}
+
+@keyframes pulse-danger {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Tooltip */
+.cell-tooltip {
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: #1e293b;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    pointer-events: none;
+}
+
+.cell-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #1e293b transparent transparent transparent;
+}
+
+.matrix-cell:hover .cell-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
