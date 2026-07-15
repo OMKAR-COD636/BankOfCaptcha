@@ -1,8 +1,9 @@
 import requests
 import time
 import random
+import os
 
-BASE_URL = "http://localhost:8080/api"
+BASE_URL = os.environ.get("JAVA_BACKEND_URL", "http://localhost:8080/api")
 
 def login(username, password="password"):
     try:
