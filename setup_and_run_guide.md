@@ -30,51 +30,40 @@ To run this project on your machine (Windows, macOS, or Linux), ensure you have 
 
 ## 3. How to Set Up and Run the Project
 
-Since the database schema was recently updated, you must reset any old Docker volumes first to apply the new schema.
+We have drastically simplified the local development environment. You now have two ways to run the entire stack (PostgreSQL, Java Backend, React Frontend, and Python AI Engine).
 
-### Step 1: Start the PostgreSQL Database
-Open your terminal (Command Prompt/PowerShell on Windows, Terminal on macOS/Linux) in the root `BankOfCaptcha` directory and run:
+### Option A: Full Docker Containerization (Recommended)
+This runs everything in completely isolated, pre-configured containers, meaning you don't even need Java, Node.js, or Conda installed on your host machine.
 
-```bash
-# 1. Stop any running instances and remove the old incorrect database volume
-docker compose down -v
-
-# 2. Start the PostgreSQL database in the background
-docker compose up -d postgres
-
-# 3. Verify it's running (Look for port mapping to 5433)
-docker compose ps
-```
-
-### Step 2: Start the Spring Boot Backend
-Open a second terminal window, navigate to the `backend` directory, and start the application:
+Open your terminal in the root `BankOfCaptcha` directory and run:
 
 ```bash
-cd backend
-mvn spring-boot:run
+docker compose -f docker-compose.full.yml up --build
 ```
-*Wait until you see `Started ApiApplication` in the terminal logs.*
+*Note: Ensure you are using `docker compose` (with a space) and not `docker-compose` (with a hyphen) to utilize Docker Compose V2.*
 
-### Step 3: Test the Setup
-Once the backend is running, verify that the authentication and audit logs are working correctly. 
-*Note for Windows users: You can use these `curl` commands in Git Bash, or translate them into Postman/PowerShell if curl is acting up.*
+Once built, you can access the frontend instantly at:
+👉 **http://localhost:5173**
 
-**1. Log in and get a JWT token:**
+*(To stop the containers, press `Ctrl+C`)*
+
+### Option B: The Native Bash Script (Best for Active Development)
+If you are actively editing the code and prefer running it natively on your machine, you can use the startup script. This will only run PostgreSQL in Docker, while running the Frontend, Backend, and AI natively in the background.
+
+Make sure you have Java 17, Node.js, and your Python `FinSpark` Conda environment ready.
+
 ```bash
-curl -sS -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d "{\"username\":\"compliance\",\"password\":\"password\"}"
-```
-*Copy the `token` string from the JSON response.*
+# Make the script executable (only needed once)
+chmod +x start_all.sh
 
-**2. Access the protected audit logs using the token:**
-*Replace `YOUR_TOKEN_HERE` with the token copied from the previous step.*
-```bash
-curl -i http://localhost:8080/api/audit/logs \
-  -H "Authorization: Bearer YOUR_TOKEN_HERE"
+# Run all services
+./start_all.sh
 ```
 
-**Expected Outcome:** You should receive an `HTTP/1.1 200 OK` response followed by a JSON array of the audit logs, proving that the database schema is correct and role-based access is working.
+Once running, navigate to:
+👉 **http://localhost:5173**
+
+*(To stop all services, press `Ctrl+C`. The script will cleanly kill all background processes for you).*
 
 ---
 
