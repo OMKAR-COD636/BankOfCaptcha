@@ -1,167 +1,108 @@
-# BankOfCaptcha
+# 🏦 BankOfCaptcha
 
-BankOfCaptcha is a demo-ready banking portal that combines customer onboarding, branch operations, audit logging, and AI-assisted anomaly detection in a single workspace. The project is built as a full-stack application with a Java Spring Boot backend, a React/Vite frontend, a PostgreSQL database, and a Python-based AI monitoring module.
+<div align="center">
+  <h3>The Quantum-Resistant, AI-Self-Analysing Core Banking Platform</h3>
+</div>
 
-## Project overview
+BankOfCaptcha is a next-generation banking prototype that unifies customer onboarding, branch operations, audit logging, and AI-assisted anomaly detection into a single, highly secure workspace. 
 
-This application demonstrates:
-- A secure login experience for customers and staff
-- Role-based access for customer, teller, branch manager, compliance officer, IT admin, and super admin users
-- KYC application handling for account creation
-- Transfer and maker-checker workflows for branch-level operations
-- Audit logging with tamper-evident verification using post-quantum cryptography primitives
-- AI-driven alert ingestion and containment for suspicious activity
+Designed to defend against both today's **Insider Threats** and tomorrow's **Quantum Decryption (Q-Day)**, this platform combines a PyTorch LSTM Autoencoder with NIST-standardized Post-Quantum Cryptography (PQC).
 
-## Tech stack
+---
 
-### Backend
-- Java 17
-- Spring Boot 3.2.4
-- Spring Security
-- Spring Data JPA
-- PostgreSQL
-- JWT-based authentication
-- Bouncy Castle post-quantum cryptography support
+## 🏗 Architecture & Tech Stack
 
-### Frontend
-- React 19
-- Vite
-- React Router
-- Lucide icons
+BankOfCaptcha is built on a modern, decoupled microservices architecture designed for extreme security and ease of maintenance.
 
-### AI module
-- Python 3
-- Requests
-- scikit-learn
-- pandas
-- APScheduler
+### The Three Pillars
+1. **Frontend (React 19 / Vite):** A blazing fast, role-adaptive dashboard serving 6 distinct user roles (from Customer to Super Admin) through a single responsive interface.
+2. **Backend (Java 17 / Spring Boot):** A robust REST API layer handling RBAC, Maker-Checker compliance workflows, and executing Post-Quantum cryptographic sealing on every transaction.
+3. **AI Engine (Python / PyTorch):** A stateless LSTM Autoencoder that acts as a continuous behavioral biometric monitor, capable of auto-freezing compromised accounts in real-time.
 
-## Project structure
+**Database:** PostgreSQL 16
+**Deployment:** Fully Containerized (Docker Compose)
 
-- backend/: Spring Boot API and business logic
-- backend/src/main/java/: controllers, services, repositories, models, security configuration
-- backend/src/main/resources/application.properties: backend configuration
-- frontend/: React dashboard and login UI
-- ai/: Python service for misuse detection and AI alerting
-- docker-compose.yml: PostgreSQL container setup
-- test_pqc.py, test_maker_checker.py, test_risk_engine.py: validation and demo scripts
+---
 
-## Prerequisites
+## ✨ Key Features
 
-Make sure the following tools are installed:
-- Docker Desktop or Docker Engine with Compose
-- Java 17 and Maven
-- Node.js 18+ and npm
-- Python 3.10+ and pip
+### 🛡️ Quantum-Proof Audit Trails (Q-PAT)
+Every single API request that mutates data (transfers, approvals, user creations) is intercepted globally. The system uses **Bouncy Castle PQC** to cryptographically seal the audit logs:
+*   **ML-DSA-65:** Used to digitally sign every audit event, guaranteeing mathematically that logs have never been tampered with.
+*   **ML-KEM-768:** Used to securely encrypt the audit logs (AES-256-GCM) against future "Harvest Now, Decrypt Later" quantum attacks.
 
-## Quick start
+### 🧠 Zero-Trust Behavioral AI Containment
+Instead of static rules (e.g., "flag if > ₹50,000"), the PyTorch LSTM Autoencoder learns the normal baseline behavior of every user. If a teller or customer begins acting suspiciously (e.g., a smurfing attack or bulk data exfiltration), the AI engine instantly detects the anomaly and automatically suspends the account, sending an alert to the Super Admin Dashboard.
 
-### 1. Start the database
+### 👥 Native Compliance & RBAC
+Built-in support for 6 distinct user roles:
+*   **Customer:** Can view accounts and balances.
+*   **Teller:** Can initiate transfers and approve KYC queues.
+*   **Branch Manager:** Maker-Checker approval. Automatically receives alerts for high-value transfers initiated by tellers.
+*   **Compliance Officer / IT Admin:** Can verify the cryptographic integrity of the system audit logs.
+*   **Super Admin:** Has access to the Risk Intelligence Center (Heatmaps, 90-day activity calendars) to resolve AI alerts and manage global branch/staff assignments.
 
-From the project root, start PostgreSQL:
+---
 
-```bash
-docker compose down -v
-docker compose up -d postgres
-docker compose ps
-```
+## 🚀 Quick Start (Running the App)
 
-The default development database is available at localhost:5433.
+We have drastically simplified the local development environment. You do not need Java, Node.js, or Python installed on your machine if you use the recommended Docker method!
 
-### 2. Start the backend
+### Option A: Full Docker Deployment (Recommended)
+This method runs the entire 4-tier stack (PostgreSQL, Java Backend, React Frontend, and Python AI Engine) in isolated, pre-configured containers.
 
-```bash
-cd backend
-mvn spring-boot:run
-```
+1. Ensure [Docker Desktop](https://www.docker.com/products/docker-desktop/) is installed and running.
+2. Open your terminal in the root `BankOfCaptcha` directory and run:
+   ```bash
+   docker compose -f docker-compose.full.yml up --build
+   ```
+3. Once the build is complete and the containers start, open your browser and navigate to:
+   👉 **http://localhost:5173**
 
-The backend runs on http://localhost:8080.
+*(To stop the containers, simply press `Ctrl+C`)*
 
-### 3. Start the frontend
+---
 
-In a second terminal:
+### Option B: The Native Bash Script (For Active Developers)
+If you are actively modifying the code and prefer hot-reloading (without waiting for Docker image rebuilds), use the native startup script. 
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
+*Prerequisites: Java 17, Node.js 18+, and a Python Conda environment named `FinSpark`.*
 
-The frontend runs on http://localhost:5173.
+1. Open your terminal in the root directory.
+2. Make the script executable (only needed once):
+   ```bash
+   chmod +x start_all.sh
+   ```
+3. Run all services:
+   ```bash
+   ./start_all.sh
+   ```
+4. Navigate to: 👉 **http://localhost:5173**
 
-### 4. Start the AI monitoring module
+*(To stop all services and cleanly kill background processes, press `Ctrl+C`)*
 
-In a third terminal:
+---
 
-```bash
-cd ai
-pip install -r requirements.txt
-```
+## 🔑 Demo Accounts
 
-Set the shared AI service key before launching the module:
-
-```bash
-set AI_SERVICE_KEY=bankofcaptcha-local-ai-service-key-change-before-deployment
-```
-
-On macOS/Linux, use export instead of set.
-
-```bash
-python main.py
-```
-
-## Demo accounts
-
-The backend seeds the following demo users on first startup:
+On the very first startup, the Java backend automatically seeds the database with the following demo users so you can test the different role dashboards immediately:
 
 | Role | Username | Password |
-| --- | --- | --- |
-| Customer | customer | password |
-| Teller | teller | password |
-| Branch Manager | branch_manager | password |
-| Compliance Officer | compliance | password |
-| IT Admin | it_admin | password |
-| Super Admin | superadmin | password |
+| :--- | :--- | :--- |
+| **Customer** | `customer` | `password` |
+| **Teller** | `teller` | `password` |
+| **Branch Manager** | `branch_manager` | `password` |
+| **Compliance Officer** | `compliance` | `password` |
+| **IT Admin** | `it_admin` | `password` |
+| **Super Admin** | `superadmin` | `password` |
 
-## Key features in the current implementation
+---
 
-- Login and registration flow with KYC submission
-- Customer account dashboard with balance view
-- Teller workflow for transfer submissions and KYC approval
-- Branch manager workflow for transfer request approval and rejection
-- Super admin dashboard for AI alerts, branch management, staff assignment, and audit logs
-- Compliance and admin access to audit logs and integrity verification
-- AI integration endpoints protected with an X-AI-Service-Key header
-- PQC-backed audit signing and verification flow
+## 📁 Directory Structure
+*   `/backend` - Java Spring Boot API and business logic.
+*   `/frontend` - React 19 UI, Dashboard, and Login portal.
+*   `/ai` - PyTorch LSTM Autoencoder and traffic generation scripts.
+*   `/diagrams` - Draw.io architecture, user flow, and business model diagrams.
 
-## Important environment variables
-
-The backend reads configuration from backend/src/main/resources/application.properties. The most relevant variables are:
-
-- DB_URL, DB_USERNAME, DB_PASSWORD, DB_PORT
-- PQC_MASTER_KEY
-- AI_SERVICE_KEY
-
-These default to local development values, but they should be changed before any non-demo deployment.
-
-## API highlights
-
-The backend exposes the following main API groups:
-
-- /api/auth/login and /api/auth/register
-- /api/accounts
-- /api/transactions/transfer and /api/transactions/requests
-- /api/audit/logs and /api/audit/logs/{id}/verify
-- /api/ai/audit-events and /api/ai/alerts
-- /api/admin/staff and /api/admin/alerts/{id}/contain
-
-## Notes for development and testing
-
-- If you need to reset the database, run docker compose down -v before starting it again.
-- The frontend currently targets the backend at http://localhost:8080.
-- test_pqc.py is intended to confirm that PQC signing and encryption flows are working.
-- test_maker_checker.py and test_risk_engine.py are lightweight validation scripts for the transfer and risk evaluation workflows.
-
-## Getting started in the browser
-
-Open http://localhost:5173 after the frontend and backend are running. Use the login form to sign in with one of the seeded demo accounts.
+---
+*Developed for the post-quantum, AI-driven future of banking.*
