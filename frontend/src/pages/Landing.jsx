@@ -44,7 +44,7 @@ const Landing = () => {
           <span className="contact-item"><Mail size={14} /> support@bankofcaptcha.com</span>
         </div>
         <div className="utility-right">
-          <span className="lang-switcher">English | Español | Français</span>
+          <span className="lang-switcher">English | हिन्दी | मराठी</span>
         </div>
       </div>
 

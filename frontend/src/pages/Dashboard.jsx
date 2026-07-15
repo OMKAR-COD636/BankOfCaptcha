@@ -104,7 +104,12 @@ const Dashboard = () => {
       });
       const text = await res.text();
       setTransferMsg(text);
-      if (res.ok) setTransferForm({ source: '', dest: '', amount: '' });
+      if (res.ok) {
+        setTransferForm({ source: '', dest: '', amount: '' });
+        fetch('http://localhost:8080/api/accounts', { headers: { 'Authorization': `Bearer ${token}` } })
+          .then(res => res.json())
+          .then(data => setAccounts(data));
+      }
     } catch (err) {
       setTransferMsg("Transfer failed.");
     }
@@ -119,6 +124,9 @@ const Dashboard = () => {
       const text = await res.text();
       alert(text);
       setTransactionRequests(prev => prev.filter(req => req.id !== id));
+      fetch('http://localhost:8080/api/accounts', { headers: { 'Authorization': `Bearer ${token}` } })
+        .then(res => res.json())
+        .then(data => setAccounts(data));
     } catch (err) {
       alert("Approval failed");
     }
@@ -133,6 +141,9 @@ const Dashboard = () => {
       const text = await res.text();
       alert(text);
       setTransactionRequests(prev => prev.filter(req => req.id !== id));
+      fetch('http://localhost:8080/api/accounts', { headers: { 'Authorization': `Bearer ${token}` } })
+        .then(res => res.json())
+        .then(data => setAccounts(data));
     } catch (err) {
       alert("Rejection failed");
     }
@@ -285,7 +296,7 @@ const Dashboard = () => {
                     <span className="account-number">#{acc.accountNumber}</span>
                   </div>
                   <div className="balance-amount">
-                    <span className="currency">$</span>{acc.balance}
+                    <span className="currency">₹</span>{acc.balance}
                   </div>
                   <div className="card-footer">
                     Available Balance
@@ -507,7 +518,7 @@ const Dashboard = () => {
                       <tr key={acc.id}>
                         <td><strong>{acc.accountNumber}</strong></td>
                         <td>{acc.user?.id}</td>
-                        <td>${acc.balance}</td>
+                        <td>₹{acc.balance}</td>
                       </tr>
                     ))}
                     {accounts.length === 0 && (
@@ -593,7 +604,7 @@ const Dashboard = () => {
                         <td>{req.initiator?.username}</td>
                         <td>{req.sourceAccount?.accountNumber}</td>
                         <td>{req.destAccount?.accountNumber}</td>
-                        <td>${req.amount}</td>
+                        <td>₹{req.amount}</td>
                         <td>
                           <button onClick={() => handleApprove(req.id)} style={{ padding: '4px 8px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', marginRight: '5px' }}>Approve</button>
                           <button onClick={() => handleReject(req.id)} style={{ padding: '4px 8px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Reject</button>

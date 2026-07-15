@@ -188,7 +188,7 @@ const Login = () => {
               </div>
               <div className="app-content">
                 <div className="app-card">
-                  <div className="card-balance">$24,500.00</div>
+                  <div className="card-balance">₹24,500.00</div>
                   <div className="card-number">**** **** **** 1234</div>
                 </div>
                 <div className="app-actions">
@@ -203,7 +203,7 @@ const Login = () => {
                       <div className="tx-title">Grocery Store</div>
                       <div className="tx-date">Today, 2:30 PM</div>
                     </div>
-                    <div className="tx-amount negative">-$45.00</div>
+                    <div className="tx-amount negative">-₹45.00</div>
                   </div>
                   <div className="transaction">
                     <div className="tx-icon"></div>
@@ -211,7 +211,7 @@ const Login = () => {
                       <div className="tx-title">Salary Deposit</div>
                       <div className="tx-date">Yesterday, 9:00 AM</div>
                     </div>
-                    <div className="tx-amount positive">+$3,200.00</div>
+                    <div className="tx-amount positive">+₹3,200.00</div>
                   </div>
                 </div>
               </div>
