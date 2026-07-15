@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 
-JAVA_BACKEND_URL = "http://localhost:8080/api"
+JAVA_BACKEND_URL = os.getenv("JAVA_BACKEND_URL", "http://localhost:8080/api")
 AI_SERVICE_KEY = os.getenv("AI_SERVICE_KEY", "bankofcaptcha-local-ai-service-key-change-before-deployment")
 
 def ai_headers():
