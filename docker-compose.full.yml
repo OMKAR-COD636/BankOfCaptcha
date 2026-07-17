@@ -56,6 +56,9 @@ services:
       - AI_SERVICE_KEY=bankofcaptcha-local-ai-service-key-change-before-deployment
     depends_on:
       - backend
+    volumes:
+      - boc_ai_data:/app/data
 
 volumes:
   boc_postgres_data:
+  boc_ai_data:
