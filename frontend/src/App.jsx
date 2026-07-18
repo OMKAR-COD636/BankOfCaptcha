@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import DarkModeToggle from './components/DarkModeToggle';
 import './App.css';
 
 function App() {
@@ -14,7 +13,6 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
-      <DarkModeToggle />
     </BrowserRouter>
   );
 }

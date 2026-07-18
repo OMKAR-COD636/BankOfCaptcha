@@ -15,15 +15,15 @@ const Pagination = ({ currentPage, totalItems, itemsPerPage, onPageChange }) => 
       <button 
         onClick={() => onPageChange(currentPage - 1)} 
         disabled={currentPage === 1}
-        style={{ padding: '5px 10px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', background: 'var(--card-bg)', color: 'var(--text-color)', border: '1px solid var(--border-color)', borderRadius: '4px' }}
+        style={{ padding: '5px 10px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px' }}
       >
         Previous
       </button>
-      <span style={{ padding: '5px', fontSize: '14px', color: 'var(--text-light)' }}>Page {currentPage} of {totalPages}</span>
+      <span style={{ padding: '5px', fontSize: '14px', color: '#475569' }}>Page {currentPage} of {totalPages}</span>
       <button 
         onClick={() => onPageChange(currentPage + 1)} 
         disabled={currentPage === totalPages}
-        style={{ padding: '5px 10px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', background: 'var(--card-bg)', color: 'var(--text-color)', border: '1px solid var(--border-color)', borderRadius: '4px' }}
+        style={{ padding: '5px 10px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px' }}
       >
         Next
       </button>
@@ -415,26 +415,26 @@ const Dashboard = () => {
             </div>
 
             <div className="summary-cards-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '30px' }}>
-              <div className="summary-card" style={{ background: 'var(--card-bg)', padding: '20px', borderRadius: '8px', border: '1px solid var(--card-border)', boxShadow: '0 4px 6px -1px var(--shadow-color)' }}>
+              <div className="summary-card" style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                   <AlertTriangle size={20} className="icon-yellow" />
-                  <h3 style={{ margin: 0, color: 'var(--text-light)', fontSize: '1rem' }}>Filtered Alerts</h3>
+                  <h3 style={{ margin: 0, color: '#475569', fontSize: '1rem' }}>Filtered Alerts</h3>
                 </div>
-                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-color)' }}>{filteredAlerts.length}</div>
+                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#0f172a' }}>{filteredAlerts.length}</div>
               </div>
-              <div className="summary-card" style={{ background: 'var(--card-bg)', padding: '20px', borderRadius: '8px', border: '1px solid var(--card-border)', boxShadow: '0 4px 6px -1px var(--shadow-color)' }}>
+              <div className="summary-card" style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                   <FileText size={20} className="icon-blue" />
-                  <h3 style={{ margin: 0, color: 'var(--text-light)', fontSize: '1rem' }}>Filtered Audit Logs</h3>
+                  <h3 style={{ margin: 0, color: '#475569', fontSize: '1rem' }}>Filtered Audit Logs</h3>
                 </div>
-                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-color)' }}>{filteredLogs.length}</div>
+                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#0f172a' }}>{filteredLogs.length}</div>
               </div>
-              <div className="summary-card" style={{ background: 'var(--card-bg)', padding: '20px', borderRadius: '8px', border: '1px solid var(--card-border)', boxShadow: '0 4px 6px -1px var(--shadow-color)' }}>
+              <div className="summary-card" style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                   <Activity size={20} className="icon-blue" />
-                  <h3 style={{ margin: 0, color: 'var(--text-light)', fontSize: '1rem' }}>Pending Requests</h3>
+                  <h3 style={{ margin: 0, color: '#475569', fontSize: '1rem' }}>Pending Requests</h3>
                 </div>
-                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-color)' }}>{transactionRequests.length}</div>
+                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#0f172a' }}>{transactionRequests.length}</div>
               </div>
             </div>
 
@@ -529,7 +529,7 @@ const Dashboard = () => {
             {activeAdminTab === 'staff' && (
               <div className="admin-tab-content animated-fade-in">
                 <h2 className="section-title"><Users size={24} className="icon-blue" /> Create New Staff</h2>
-                <div className="card mb-4" style={{ padding: '20px', background: 'var(--card-bg)', borderRadius: '8px' }}>
+                <div className="card mb-4" style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
                   <form onSubmit={handleCreateStaff} style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
                     <input type="text" placeholder="Username" value={createStaffForm.username} onChange={e => setCreateStaffForm({...createStaffForm, username: e.target.value})} required style={{ padding: '8px', flex: 1 }} />
                     <input type="text" placeholder="Password" value={createStaffForm.password} onChange={e => setCreateStaffForm({...createStaffForm, password: e.target.value})} required style={{ padding: '8px', flex: 1 }} />
@@ -548,7 +548,7 @@ const Dashboard = () => {
                 </div>
 
                 <h2 className="section-title"><Users size={24} className="icon-blue" /> Assign Staff to Branch</h2>
-                <div className="card mb-4" style={{ padding: '20px', background: 'var(--card-bg)', borderRadius: '8px' }}>
+                <div className="card mb-4" style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
                   <form onSubmit={handleAssignStaff} style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
                     <select value={assignForm.userId} onChange={e => setAssignForm({...assignForm, userId: e.target.value})} required style={{ padding: '8px', flex: 1 }}>
                       <option value="">Select Staff Member</option>
@@ -571,7 +571,7 @@ const Dashboard = () => {
             {activeAdminTab === 'branch' && (
               <div className="admin-tab-content animated-fade-in">
                 <h2 className="section-title"><Building size={24} className="icon-blue" /> Create New Branch</h2>
-                <div className="card mb-4" style={{ padding: '20px', background: 'var(--card-bg)', borderRadius: '8px' }}>
+                <div className="card mb-4" style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
                   <form onSubmit={handleCreateBranch} style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
                     <input type="text" placeholder="Branch Name (e.g. South End)" value={createBranchForm.name} onChange={e => setCreateBranchForm({...createBranchForm, name: e.target.value})} required style={{ padding: '8px', flex: 1 }} />
                     <input type="text" placeholder="Location (e.g. Mumbai)" value={createBranchForm.location} onChange={e => setCreateBranchForm({...createBranchForm, location: e.target.value})} required style={{ padding: '8px', flex: 1 }} />
@@ -680,7 +680,7 @@ const Dashboard = () => {
             ) : null}
 
             {role === 'ROLE_TELLER' && (
-              <div className="transfer-portal card mb-4" style={{ padding: '20px', background: 'var(--card-bg)', borderRadius: '8px' }}>
+              <div className="transfer-portal card mb-4" style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
                 <div className="table-header">
                   <h3>Teller Transfer Portal</h3>
                 </div>
