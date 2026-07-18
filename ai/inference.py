@@ -79,7 +79,7 @@ GLOBAL_MODEL = None
 GLOBAL_THRESHOLD = 0.8
 LAST_SEEN_LOG_ID = 0
 MODEL_DIR = os.path.join(os.path.dirname(__file__), "data")
-MODEL_PATH = os.path.join(MODEL_DIR, "model_state.pth")
+MODEL_PATH = os.path.join(MODEL_DIR, "model_state.pt")
 
 
 def load_model():
@@ -170,72 +170,65 @@ class TransactionProfiler:
         self.min_history = self.config["min_history_for_stats"]
         self.freq_window = self.config["frequency_window_minutes"]
 
-    def analyze(self, username, role, transactions_df):
-        """Analyze a user's transactions and return an anomaly score [0.0, 1.0] with explanation."""
-        if transactions_df.empty:
-            return 0.0, None
-
-        # Filter to this user's outgoing transactions
-        user_txs = transactions_df[transactions_df['sourceUsername'] == username].copy()
-        if user_txs.empty:
-            return 0.0, None
-
-        user_txs['amount'] = pd.to_numeric(user_txs['amount'], errors='coerce')
-        user_txs['timestamp'] = pd.to_datetime(user_txs['timestamp'], errors='coerce')
-        user_txs = user_txs.dropna(subset=['amount', 'timestamp'])
-
-        if len(user_txs) < self.min_history:
-            # We don't have enough history to profile Z-score reliably,
-            # but we can still hard-flag absolutely massive transactions.
-            max_recent = np.max(user_txs['amount'].values)
-            if max_recent >= 100000:
-                return 0.9, f"Massive transaction of ${max_recent:,.2f} detected with insufficient history"
-            return 0.0, None  # Not enough history to profile
-
-        amounts = user_txs['amount'].values
-        timestamps = user_txs['timestamp'].values
-        
-        # We need to evaluate the most recent transactions (say, last 10) against the historical mean
-        history_amt = amounts[10:] if len(amounts) > 15 else amounts[len(amounts)//2:]
-        recent_amts = amounts[:10] if len(amounts) > 15 else amounts[:len(amounts)//2]
-
-        if len(history_amt) == 0:
-            history_amt = amounts # Fallback
-
-        mean_amt = np.mean(history_amt)
-        std_amt = np.std(history_amt)
-        max_amt = np.max(history_amt)
-
+    def analyze(self, username, role, transactions_df, user_audit_df):
+        """Analyze a user's transactions and audit logs and return an anomaly score [0.0, 1.0] with explanation."""
         anomaly_score = 0.0
         explanations = []
-
-        # --- Signal 1: Z-Score on Amount (Check max of recent amounts) ---
-        if std_amt > 0:
-            max_recent_amt = np.max(recent_amts)
-            z_score = (max_recent_amt - mean_amt) / std_amt
-            if z_score > self.z_threshold:
-                # Normalize to [0, 1] range
-                amount_score = min(1.0, 0.3 + 0.7 * ((z_score - self.z_threshold) / (self.z_threshold * 2)))
-                if amount_score > anomaly_score:
-                    anomaly_score = amount_score
-                    explanations.append(
-                        f"Transfer of ${max_recent_amt:,.2f} is {z_score:.1f} std deviations above historical mean of ${mean_amt:,.2f} (max historical: ${max_amt:,.2f})"
-                    )
-
-        # --- Signal 2: Frequency Burst Detection ---
-        now = pd.to_datetime(timestamps[0])
-        freq_cutoff = now - pd.Timedelta(minutes=5) # 5 minute burst window
-        recent_burst_count = len(user_txs[user_txs['timestamp'] >= freq_cutoff])
         
-        # Hard threshold for bursts (e.g. > 5 transfers in 5 mins is anomalous for a retail user)
-        if recent_burst_count > 5:
-            freq_score = min(1.0, 0.3 + 0.7 * ((recent_burst_count - 5) / 10.0))
-            if freq_score > anomaly_score:
-                anomaly_score = freq_score
-                explanations.append(f"Burst detected: {recent_burst_count} transactions in <5 minutes")
+        # --- Signal 1: Z-Score on Amount (Requires transactions_df) ---
+        user_txs = pd.DataFrame()
+        if not transactions_df.empty:
+            user_txs = transactions_df[transactions_df['sourceUsername'] == username].copy()
+            
+        if not user_txs.empty:
+            user_txs['amount'] = pd.to_numeric(user_txs['amount'], errors='coerce')
+            amounts = user_txs['amount'].dropna().values
+            if len(amounts) >= self.min_history:
+                history_amt = amounts[10:] if len(amounts) > 15 else amounts[len(amounts)//2:]
+                recent_amts = amounts[:10] if len(amounts) > 15 else amounts[:len(amounts)//2]
+                if len(history_amt) == 0:
+                    history_amt = amounts
+                mean_amt = np.mean(history_amt)
+                std_amt = np.std(history_amt)
+                if std_amt > 0:
+                    max_recent_amt = np.max(recent_amts)
+                    z_score = (max_recent_amt - mean_amt) / std_amt
+                    if z_score > self.z_threshold:
+                        amount_score = min(1.0, 0.3 + 0.7 * ((z_score - self.z_threshold) / (self.z_threshold * 2)))
+                        if amount_score > anomaly_score:
+                            anomaly_score = amount_score
+                            explanations.append(f"Transfer of ${max_recent_amt:,.2f} is {z_score:.1f} std deviations above historical mean")
+            else:
+                max_recent = np.max(amounts)
+                if max_recent >= 100000:
+                    anomaly_score = 0.9
+                    explanations.append(f"Massive transaction of ${max_recent:,.2f} detected with insufficient history")
 
-        # --- Signal 3: Role-Inappropriate Category Penalty ---
-        # (This is handled by the LSTM side via category permissions, not here)
+        # --- Signal 2: Frequency Burst Detection (Using Audit Logs!) ---
+        # By using audit logs, we correctly track the INITIATOR of the action, catching
+        # rogue Tellers/Managers who are manipulating other people's accounts.
+        now = pd.Timestamp.now(tz='UTC')
+        freq_cutoff = now - pd.Timedelta(minutes=5)
+        
+        # Filter audit logs to high-risk actions (financial or write) in the last 5 minutes
+        if not user_audit_df.empty:
+            # First, ensure timestamp is a datetime object
+            user_audit_df['timestamp'] = pd.to_datetime(user_audit_df['timestamp'])
+            
+            if user_audit_df['timestamp'].dt.tz is None:
+                user_audit_df['timestamp'] = user_audit_df['timestamp'].dt.tz_localize('UTC')
+                
+            recent_audit = user_audit_df[user_audit_df['timestamp'] >= freq_cutoff]
+            # Count actions that are financial or write
+            burst_actions = recent_audit[recent_audit['action'].apply(lambda x: get_action_category(x) in ['financial', 'write'])]
+            recent_burst_count = len(burst_actions)
+            
+            # Threshold for insider threat bursts
+            if recent_burst_count > 5:
+                freq_score = min(1.0, 0.3 + 0.7 * ((recent_burst_count - 5) / 10.0))
+                if freq_score > anomaly_score:
+                    anomaly_score = freq_score
+                    explanations.append(f"Insider Burst: {recent_burst_count} high-risk actions in <5 minutes")
 
         explanation = " | ".join(explanations) if explanations else None
         return anomaly_score, explanation
@@ -302,13 +295,22 @@ def fuse_risk_scores(lstm_error, lstm_threshold, stat_score):
     lstm_weight = AI_CONFIG["lstm"]["anomaly_weight"]
     stat_weight = AI_CONFIG["statistical_profiler"]["anomaly_weight"]
 
-    # Normalize LSTM error: threshold maps to ~0.5, 2*threshold maps to ~1.0
+    # Normalize LSTM error: if it hits threshold, it's 0.5. If it's 1.5x threshold, it's 1.0.
     if lstm_threshold > 0:
-        lstm_normalized = min(1.0, lstm_error / (2.0 * lstm_threshold))
+        if lstm_error <= lstm_threshold:
+            lstm_normalized = (lstm_error / lstm_threshold) * 0.5
+        else:
+            # Scale aggressively past the threshold
+            lstm_normalized = min(1.0, 0.5 + ((lstm_error - lstm_threshold) / lstm_threshold))
     else:
         lstm_normalized = 0.0
 
-    fused = (lstm_weight * lstm_normalized) + (stat_weight * stat_score)
+    # Boost the LSTM weight dynamically if it's a severe sequence anomaly
+    # so it can independently trigger a HIGH alert without the stat profiler.
+    actual_lstm_weight = lstm_weight if lstm_normalized < 0.8 else 0.8
+    actual_stat_weight = 1.0 - actual_lstm_weight
+
+    fused = (actual_lstm_weight * lstm_normalized) + (actual_stat_weight * stat_score)
     return min(1.0, fused)
 
 
@@ -398,8 +400,11 @@ def analyze_logs():
             violation_boost = 1.0 + (1.0 * category_violations)
             avg_reconstruction_error *= violation_boost
 
+        # Filter user's audit logs
+        user_audit_df = df[df['username'] == username].copy()
+
         # --- Signal 2: Statistical Transaction Profiler ---
-        stat_score, stat_explanation = profiler.analyze(username, user_role, tx_df)
+        stat_score, stat_explanation = profiler.analyze(username, user_role, tx_df, user_audit_df)
 
         # --- Fuse Signals ---
         fused_score = fuse_risk_scores(avg_reconstruction_error, GLOBAL_THRESHOLD, stat_score)

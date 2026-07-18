@@ -8,7 +8,7 @@ ACTION_MAP, VOCAB_SIZE, ROLE_PERMISSIONS = load_action_registry()
 AI_CONFIG = load_ai_config()
 
 MODEL_DIR = os.path.join(os.path.dirname(__file__), "data")
-MODEL_PATH = os.path.join(MODEL_DIR, "model_state.pth")
+MODEL_PATH = os.path.join(MODEL_DIR, "model_state.pt")
 
 
 # ---------------------------------------------------------------------------
