@@ -5,6 +5,7 @@
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     flex: 1;
     min-width: 300px;
+    transition: background 0.2s, border-color 0.2s;
 }
 
 .risk-visualizer-header {
@@ -125,3 +126,41 @@
 .legend-label {
     margin-right: 10px;
 }
+
+/* ─── Dark Mode ───────────────────────────────────── */
+[data-theme="dark"] .risk-visualizer-card {
+    background: #1E2433;
+    border: 1px solid #2D3748;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+[data-theme="dark"] .risk-visualizer-header h3 {
+    color: #E2E8F0;
+}
+
+[data-theme="dark"] .activity-graph-y-labels {
+    color: #94A3B8;
+}
+
+[data-theme="dark"] .activity-legend {
+    color: #94A3B8;
+}
+
+[data-theme="dark"] .color-empty {
+    background-color: #2D3748;
+}
+
+[data-theme="dark"] .clear-filter-btn {
+    background-color: #2D3748;
+    color: #94A3B8;
+    border-color: #3D4A5C;
+}
+
+[data-theme="dark"] .clear-filter-btn:hover {
+    background-color: #3D4A5C;
+}
+
+[data-theme="dark"] .activity-cell.selected {
+    border-color: #E2E8F0;
+}
+
