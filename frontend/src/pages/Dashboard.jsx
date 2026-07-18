@@ -48,6 +48,7 @@ const Dashboard = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedMatrix, setSelectedMatrix] = useState(null);
   const [selectedAlertForReview, setSelectedAlertForReview] = useState(null);
+  const [activeAdminTab, setActiveAdminTab] = useState('security');
   
   const [alertPage, setAlertPage] = useState(1);
   const [logPage, setLogPage] = useState(1);
@@ -376,7 +377,24 @@ const Dashboard = () => {
           </div>
         ) : role === 'ROLE_SUPER_ADMIN' ? (
           <div className="admin-view">
-            <div className="risk-intelligence-center" style={{ display: 'flex', gap: '20px', marginBottom: '30px' }}>
+            <div className="admin-tabs">
+              <button className={`admin-tab ${activeAdminTab === 'security' ? 'active' : ''}`} onClick={() => setActiveAdminTab('security')}>
+                Security & Intelligence
+              </button>
+              <button className={`admin-tab ${activeAdminTab === 'staff' ? 'active' : ''}`} onClick={() => setActiveAdminTab('staff')}>
+                Staff Management
+              </button>
+              <button className={`admin-tab ${activeAdminTab === 'branch' ? 'active' : ''}`} onClick={() => setActiveAdminTab('branch')}>
+                Branch Operations
+              </button>
+              <button className={`admin-tab ${activeAdminTab === 'compliance' ? 'active' : ''}`} onClick={() => setActiveAdminTab('compliance')}>
+                Compliance & Audit
+              </button>
+            </div>
+
+            {activeAdminTab === 'security' && (
+              <div className="admin-tab-content animated-fade-in">
+                <div className="risk-intelligence-center" style={{ display: 'flex', gap: '20px', marginBottom: '30px' }}>
               <RiskActivityGraph 
                 alerts={aiAlerts} 
                 onDateSelect={setSelectedDate} 
@@ -484,86 +502,101 @@ const Dashboard = () => {
               <Pagination currentPage={alertPage} totalItems={filteredAlerts.length} itemsPerPage={itemsPerPage} onPageChange={setAlertPage} />
             </div>
 
-            <h2 className="section-title"><Users size={24} className="icon-blue" /> Assign Staff to Branch</h2>
-            <div className="card mb-4" style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
-              <form onSubmit={handleAssignStaff} style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                <select value={assignForm.userId} onChange={e => setAssignForm({...assignForm, userId: e.target.value})} required style={{ padding: '8px', flex: 1 }}>
-                  <option value="">Select Staff Member</option>
-                  {users.filter(u => u.role !== 'ROLE_CUSTOMER').map(u => (
-                    <option key={u.id} value={u.id}>{u.username} ({u.role.replace('ROLE_', '')}) - Branch: {u.branch?.name || 'None'}</option>
-                  ))}
-                </select>
-                <select value={assignForm.branchId} onChange={e => setAssignForm({...assignForm, branchId: e.target.value})} required style={{ padding: '8px', flex: 1 }}>
-                  <option value="">Select Branch</option>
-                  {branches.map(b => (
-                    <option key={b.id} value={b.id}>{b.name} ({b.location})</option>
-                  ))}
-                </select>
-                <button type="submit" style={{ padding: '8px 16px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Assign Staff</button>
-              </form>
-            </div>
+              </div>
+            )}
 
-            <h2 className="section-title"><Building size={24} className="icon-blue" /> Create New Branch</h2>
-            <div className="card mb-4" style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
-              <form onSubmit={handleCreateBranch} style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                <input type="text" placeholder="Branch Name (e.g. South End)" value={createBranchForm.name} onChange={e => setCreateBranchForm({...createBranchForm, name: e.target.value})} required style={{ padding: '8px', flex: 1 }} />
-                <input type="text" placeholder="Location (e.g. Mumbai)" value={createBranchForm.location} onChange={e => setCreateBranchForm({...createBranchForm, location: e.target.value})} required style={{ padding: '8px', flex: 1 }} />
-                <button type="submit" style={{ padding: '8px 16px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Create Branch</button>
-              </form>
-            </div>
+            {activeAdminTab === 'staff' && (
+              <div className="admin-tab-content animated-fade-in">
+                <h2 className="section-title"><Users size={24} className="icon-blue" /> Create New Staff</h2>
+                <div className="card mb-4" style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
+                  <form onSubmit={handleCreateStaff} style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                    <input type="text" placeholder="Username" value={createStaffForm.username} onChange={e => setCreateStaffForm({...createStaffForm, username: e.target.value})} required style={{ padding: '8px', flex: 1 }} />
+                    <input type="text" placeholder="Password" value={createStaffForm.password} onChange={e => setCreateStaffForm({...createStaffForm, password: e.target.value})} required style={{ padding: '8px', flex: 1 }} />
+                    <select value={createStaffForm.role} onChange={e => setCreateStaffForm({...createStaffForm, role: e.target.value})} required style={{ padding: '8px', flex: 1 }}>
+                      <option value="ROLE_TELLER">Teller</option>
+                      <option value="ROLE_BRANCH_MANAGER">Branch Manager</option>
+                    </select>
+                    <select value={createStaffForm.branchId} onChange={e => setCreateStaffForm({...createStaffForm, branchId: e.target.value})} required style={{ padding: '8px', flex: 1 }}>
+                      <option value="">Select Branch</option>
+                      {branches.map(b => (
+                        <option key={b.id} value={b.id}>{b.name} ({b.location})</option>
+                      ))}
+                    </select>
+                    <button type="submit" style={{ padding: '8px 16px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Create Staff</button>
+                  </form>
+                </div>
 
-            <h2 className="section-title"><Users size={24} className="icon-blue" /> Create New Staff</h2>
-            <div className="card mb-4" style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
-              <form onSubmit={handleCreateStaff} style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                <input type="text" placeholder="Username" value={createStaffForm.username} onChange={e => setCreateStaffForm({...createStaffForm, username: e.target.value})} required style={{ padding: '8px', flex: 1 }} />
-                <input type="text" placeholder="Password" value={createStaffForm.password} onChange={e => setCreateStaffForm({...createStaffForm, password: e.target.value})} required style={{ padding: '8px', flex: 1 }} />
-                <select value={createStaffForm.role} onChange={e => setCreateStaffForm({...createStaffForm, role: e.target.value})} required style={{ padding: '8px', flex: 1 }}>
-                  <option value="ROLE_TELLER">Teller</option>
-                  <option value="ROLE_BRANCH_MANAGER">Branch Manager</option>
-                </select>
-                <select value={createStaffForm.branchId} onChange={e => setCreateStaffForm({...createStaffForm, branchId: e.target.value})} required style={{ padding: '8px', flex: 1 }}>
-                  <option value="">Select Branch</option>
-                  {branches.map(b => (
-                    <option key={b.id} value={b.id}>{b.name} ({b.location})</option>
-                  ))}
-                </select>
-                <button type="submit" style={{ padding: '8px 16px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Create Staff</button>
-              </form>
-            </div>
+                <h2 className="section-title"><Users size={24} className="icon-blue" /> Assign Staff to Branch</h2>
+                <div className="card mb-4" style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
+                  <form onSubmit={handleAssignStaff} style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                    <select value={assignForm.userId} onChange={e => setAssignForm({...assignForm, userId: e.target.value})} required style={{ padding: '8px', flex: 1 }}>
+                      <option value="">Select Staff Member</option>
+                      {users.filter(u => u.role !== 'ROLE_CUSTOMER').map(u => (
+                        <option key={u.id} value={u.id}>{u.username} ({u.role.replace('ROLE_', '')}) - Branch: {u.branch?.name || 'None'}</option>
+                      ))}
+                    </select>
+                    <select value={assignForm.branchId} onChange={e => setAssignForm({...assignForm, branchId: e.target.value})} required style={{ padding: '8px', flex: 1 }}>
+                      <option value="">Select Branch</option>
+                      {branches.map(b => (
+                        <option key={b.id} value={b.id}>{b.name} ({b.location})</option>
+                      ))}
+                    </select>
+                    <button type="submit" style={{ padding: '8px 16px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Assign Staff</button>
+                  </form>
+                </div>
+              </div>
+            )}
 
-            <h2 className="section-title"><ShieldAlert size={24} className="icon-blue" /> System Audit Logs</h2>
-            <div className="logs-table-container">
-              <table className="logs-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>User</th>
-                    <th>Action</th>
-                    <th>Timestamp</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedLogs.map(log => (
-                    <tr key={log.id}>
-                      <td>{log.id}</td>
-                      <td><span className="log-user">{log.username}</span></td>
-                      <td><code>{log.action}</code></td>
-                      <td>{new Date(log.timestamp).toLocaleString()}</td>
-                      <td>
-                        <button className="verify-btn" onClick={() => handleVerifyLog(log.id)}>Verify Integrity</button>
-                      </td>
-                    </tr>
-                  ))}
-                  {filteredLogs.length === 0 && (
-                    <tr>
-                      <td colSpan="5" className="empty-table">No audit logs found for the selected filters.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-              <Pagination currentPage={logPage} totalItems={filteredLogs.length} itemsPerPage={itemsPerPage} onPageChange={setLogPage} />
-            </div>
+            {activeAdminTab === 'branch' && (
+              <div className="admin-tab-content animated-fade-in">
+                <h2 className="section-title"><Building size={24} className="icon-blue" /> Create New Branch</h2>
+                <div className="card mb-4" style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
+                  <form onSubmit={handleCreateBranch} style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                    <input type="text" placeholder="Branch Name (e.g. South End)" value={createBranchForm.name} onChange={e => setCreateBranchForm({...createBranchForm, name: e.target.value})} required style={{ padding: '8px', flex: 1 }} />
+                    <input type="text" placeholder="Location (e.g. Mumbai)" value={createBranchForm.location} onChange={e => setCreateBranchForm({...createBranchForm, location: e.target.value})} required style={{ padding: '8px', flex: 1 }} />
+                    <button type="submit" style={{ padding: '8px 16px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Create Branch</button>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {activeAdminTab === 'compliance' && (
+              <div className="admin-tab-content animated-fade-in">
+                <h2 className="section-title"><ShieldAlert size={24} className="icon-blue" /> System Audit Logs</h2>
+                <div className="logs-table-container">
+                  <table className="logs-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Timestamp</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedLogs.map(log => (
+                        <tr key={log.id}>
+                          <td>{log.id}</td>
+                          <td><span className="log-user">{log.username}</span></td>
+                          <td><code>{log.action}</code></td>
+                          <td>{new Date(log.timestamp).toLocaleString()}</td>
+                          <td>
+                            <button className="verify-btn" onClick={() => handleVerifyLog(log.id)}>Verify Integrity</button>
+                          </td>
+                        </tr>
+                      ))}
+                      {filteredLogs.length === 0 && (
+                        <tr>
+                          <td colSpan="5" className="empty-table">No audit logs found for the selected filters.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                  <Pagination currentPage={logPage} totalItems={filteredLogs.length} itemsPerPage={itemsPerPage} onPageChange={setLogPage} />
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="admin-view">
