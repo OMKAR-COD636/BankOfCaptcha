@@ -6,7 +6,7 @@ import com.bank.api.model.User;
 import com.bank.api.repository.AuditLogRepository;
 import com.bank.api.repository.TransactionRepository;
 import com.bank.api.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Value;
+import com.bank.api.config.properties.AiConfigProperties;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,16 +24,16 @@ public class AiIntegrationController {
     private final AuditLogRepository auditLogRepository;
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
-    private final String aiServiceKey;
+    private final AiConfigProperties aiConfigProperties;
 
     public AiIntegrationController(AuditLogRepository auditLogRepository,
                                    TransactionRepository transactionRepository,
                                    UserRepository userRepository,
-                                   @Value("${app.ai.service-key}") String aiServiceKey) {
+                                   AiConfigProperties aiConfigProperties) {
         this.auditLogRepository = auditLogRepository;
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
-        this.aiServiceKey = aiServiceKey;
+        this.aiConfigProperties = aiConfigProperties;
     }
 
     /**
@@ -50,7 +50,7 @@ public class AiIntegrationController {
             @RequestParam(value = "maxDays", defaultValue = "30") int maxDays,
             @RequestParam(value = "maxRequests", defaultValue = "100") int maxRequests) {
 
-        if (!aiServiceKey.equals(suppliedKey)) {
+        if (!aiConfigProperties.getServiceKey().equals(suppliedKey)) {
             return ResponseEntity.status(401).body("Invalid AI service key");
         }
 
@@ -89,7 +89,7 @@ public class AiIntegrationController {
             @RequestHeader(value = "X-AI-Service-Key", required = false) String suppliedKey,
             @RequestParam(value = "maxDays", defaultValue = "30") int maxDays) {
 
-        if (!aiServiceKey.equals(suppliedKey)) {
+        if (!aiConfigProperties.getServiceKey().equals(suppliedKey)) {
             return ResponseEntity.status(401).body("Invalid AI service key");
         }
 

@@ -3,7 +3,7 @@ package com.bank.api.security;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
+import com.bank.api.config.properties.JwtConfigProperties;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -11,14 +11,14 @@ import java.util.Date;
 
 @Component
 public class JwtUtils {
-    @Value("${app.jwt.secret}")
-    private String jwtSecret;
+    private final JwtConfigProperties jwtConfigProperties;
 
-    @Value("${app.jwt.expiration-ms}")
-    private int jwtExpirationMs;
+    public JwtUtils(JwtConfigProperties jwtConfigProperties) {
+        this.jwtConfigProperties = jwtConfigProperties;
+    }
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        return Keys.hmacShaKeyFor(jwtConfigProperties.getSecret().getBytes());
     }
 
     public String generateJwtToken(String username, String role) {
@@ -26,7 +26,7 @@ public class JwtUtils {
                 .setSubject(username)
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .setExpiration(new Date((new Date()).getTime() + jwtConfigProperties.getExpirationMs()))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

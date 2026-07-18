@@ -8,8 +8,8 @@ import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.SecretWithEncapsulation;
 import org.bouncycastle.pqc.crypto.mldsa.*;
 import org.bouncycastle.pqc.crypto.mlkem.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import com.bank.api.config.properties.PqcConfigProperties;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
@@ -39,10 +39,10 @@ public class PqcAuditService {
 
     public PqcAuditService(AuditLogRepository auditLogRepository,
                            PqcKeyMaterialRepository keyMaterialRepository,
-                           @Value("${app.pqc.master-key}") String masterKey) {
+                           PqcConfigProperties pqcConfigProperties) {
         this.auditLogRepository = auditLogRepository;
         this.keyMaterialRepository = keyMaterialRepository;
-        this.masterKey = sha256(masterKey.getBytes(StandardCharsets.UTF_8));
+        this.masterKey = sha256(pqcConfigProperties.getMasterKey().getBytes(StandardCharsets.UTF_8));
     }
 
     public AuditLog record(String username, String action, LocalDateTime timestamp) {
