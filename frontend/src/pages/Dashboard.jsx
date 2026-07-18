@@ -45,6 +45,7 @@ const Dashboard = () => {
   const [createStaffForm, setCreateStaffForm] = useState({ username: '', password: '', role: 'ROLE_TELLER', branchId: '' });
   
   const [alertFilter, setAlertFilter] = useState({ search: '', severity: '', status: '', role: '' });
+  const [logFilter, setLogFilter] = useState({ search: '', role: '' });
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedMatrix, setSelectedMatrix] = useState(null);
   const [selectedAlertForReview, setSelectedAlertForReview] = useState(null);
@@ -309,9 +310,13 @@ const Dashboard = () => {
   });
 
   const filteredLogs = logs.filter(log => {
+    const matchesSearch = !logFilter.search || log.username.toLowerCase().includes(logFilter.search.toLowerCase());
+    const userRole = users.find(u => u.username === log.username)?.role?.replace('ROLE_', '') || 'UNKNOWN';
+    const matchesRole = !logFilter.role || userRole === logFilter.role;
     const logDate = new Date(log.timestamp);
     const logDateStr = logDate.getFullYear() + '-' + String(logDate.getMonth() + 1).padStart(2, '0') + '-' + String(logDate.getDate()).padStart(2, '0');
-    return !selectedDate || (logDateStr === selectedDate);
+    const matchesDate = !selectedDate || (logDateStr === selectedDate);
+    return matchesSearch && matchesRole && matchesDate;
   });
 
   const filteredTransactionRequests = transactionRequests.filter(req => {
@@ -579,6 +584,26 @@ const Dashboard = () => {
             {activeAdminTab === 'compliance' && (
               <div className="admin-tab-content animated-fade-in">
                 <h2 className="section-title"><ShieldAlert size={24} className="icon-blue" /> System Audit Logs</h2>
+                
+                <div className="alert-filters">
+                  <div className="filter-group">
+                    <Search size={16} className="filter-icon" />
+                    <input type="text" placeholder="Search by username..." value={logFilter.search} onChange={e => setLogFilter({...logFilter, search: e.target.value})} className="filter-input" />
+                  </div>
+                  <div className="filter-group">
+                    <Filter size={16} className="filter-icon" />
+                    <select value={logFilter.role} onChange={e => setLogFilter({...logFilter, role: e.target.value})} className="filter-select">
+                      <option value="">All Roles</option>
+                      <option value="CUSTOMER">Customer</option>
+                      <option value="TELLER">Teller</option>
+                      <option value="BRANCH_MANAGER">Branch Manager</option>
+                      <option value="ADMIN">Admin</option>
+                      <option value="SUPER_ADMIN">Super Admin</option>
+                      <option value="COMPLIANCE_OFFICER">Compliance Officer</option>
+                    </select>
+                  </div>
+                </div>
+
                 <div className="logs-table-container">
                   <table className="logs-table">
                     <thead>
@@ -751,6 +776,26 @@ const Dashboard = () => {
                 <div className="table-header">
                   <h3><FileText size={20} className="icon-blue" /> System Audit Logs</h3>
                 </div>
+
+                <div className="alert-filters" style={{ marginBottom: '15px' }}>
+                  <div className="filter-group">
+                    <Search size={16} className="filter-icon" />
+                    <input type="text" placeholder="Search by username..." value={logFilter.search} onChange={e => setLogFilter({...logFilter, search: e.target.value})} className="filter-input" />
+                  </div>
+                  <div className="filter-group">
+                    <Filter size={16} className="filter-icon" />
+                    <select value={logFilter.role} onChange={e => setLogFilter({...logFilter, role: e.target.value})} className="filter-select">
+                      <option value="">All Roles</option>
+                      <option value="CUSTOMER">Customer</option>
+                      <option value="TELLER">Teller</option>
+                      <option value="BRANCH_MANAGER">Branch Manager</option>
+                      <option value="ADMIN">Admin</option>
+                      <option value="SUPER_ADMIN">Super Admin</option>
+                      <option value="COMPLIANCE_OFFICER">Compliance Officer</option>
+                    </select>
+                  </div>
+                </div>
+
                 <table className="logs-table">
                   <thead>
                     <tr>
