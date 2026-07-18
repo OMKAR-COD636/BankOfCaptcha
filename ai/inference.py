@@ -188,39 +188,46 @@ class TransactionProfiler:
             return 0.0, None  # Not enough history to profile
 
         amounts = user_txs['amount'].values
-        mean_amt = np.mean(amounts[:-1]) if len(amounts) > 1 else amounts[0]
-        std_amt = np.std(amounts[:-1]) if len(amounts) > 1 else 0.0
-        max_amt = np.max(amounts[:-1]) if len(amounts) > 1 else amounts[0]
-        latest_amt = amounts[0]  # Newest first
+        timestamps = user_txs['timestamp'].values
+        
+        # We need to evaluate the most recent transactions (say, last 10) against the historical mean
+        history_amt = amounts[10:] if len(amounts) > 15 else amounts[len(amounts)//2:]
+        recent_amts = amounts[:10] if len(amounts) > 15 else amounts[:len(amounts)//2]
+
+        if len(history_amt) == 0:
+            history_amt = amounts # Fallback
+
+        mean_amt = np.mean(history_amt)
+        std_amt = np.std(history_amt)
+        max_amt = np.max(history_amt)
 
         anomaly_score = 0.0
         explanations = []
 
-        # --- Signal 1: Z-Score on Amount ---
+        # --- Signal 1: Z-Score on Amount (Check max of recent amounts) ---
         if std_amt > 0:
-            z_score = (latest_amt - mean_amt) / std_amt
+            max_recent_amt = np.max(recent_amts)
+            z_score = (max_recent_amt - mean_amt) / std_amt
             if z_score > self.z_threshold:
-                # Normalize to [0, 1] range: z_threshold maps to 0.3, z_threshold*3 maps to 1.0
+                # Normalize to [0, 1] range
                 amount_score = min(1.0, 0.3 + 0.7 * ((z_score - self.z_threshold) / (self.z_threshold * 2)))
-                anomaly_score = max(anomaly_score, amount_score)
-                explanations.append(
-                    f"Transfer of ${latest_amt:,.2f} is {z_score:.1f} std deviations above their mean of ${mean_amt:,.2f} (max historical: ${max_amt:,.2f})"
-                )
+                if amount_score > anomaly_score:
+                    anomaly_score = amount_score
+                    explanations.append(
+                        f"Transfer of ${max_recent_amt:,.2f} is {z_score:.1f} std deviations above historical mean of ${mean_amt:,.2f} (max historical: ${max_amt:,.2f})"
+                    )
 
         # --- Signal 2: Frequency Burst Detection ---
-        now = user_txs['timestamp'].max()
-        freq_cutoff = now - pd.Timedelta(minutes=self.freq_window)
-        recent_count = len(user_txs[user_txs['timestamp'] >= freq_cutoff])
-        total_count = len(user_txs)
-        expected_rate = total_count / max(1, (user_txs['timestamp'].max() - user_txs['timestamp'].min()).total_seconds() / (self.freq_window * 60))
-
-        if expected_rate > 0 and recent_count > expected_rate * 3:
-            freq_score = min(1.0, 0.3 + 0.7 * ((recent_count / expected_rate - 3) / 5))
+        now = pd.to_datetime(timestamps[0])
+        freq_cutoff = now - pd.Timedelta(minutes=5) # 5 minute burst window
+        recent_burst_count = len(user_txs[user_txs['timestamp'] >= freq_cutoff])
+        
+        # Hard threshold for bursts (e.g. > 5 transfers in 5 mins is anomalous for a retail user)
+        if recent_burst_count > 5:
+            freq_score = min(1.0, 0.3 + 0.7 * ((recent_burst_count - 5) / 10.0))
             if freq_score > anomaly_score:
                 anomaly_score = freq_score
-                explanations.append(
-                    f"Burst detected: {recent_count} transactions in the last {self.freq_window}min (expected ~{expected_rate:.1f})"
-                )
+                explanations.append(f"Burst detected: {recent_burst_count} transactions in <5 minutes")
 
         # --- Signal 3: Role-Inappropriate Category Penalty ---
         # (This is handled by the LSTM side via category permissions, not here)

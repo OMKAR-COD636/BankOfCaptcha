@@ -48,6 +48,7 @@ public class SecurityConfig {
                         .hasAnyRole("COMPLIANCE_OFFICER", "SUPER_ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/ai/alerts").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/ai/audit-events").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/ai/transaction-summary").permitAll()
                         .requestMatchers("/api/ai/**")
                         .hasAnyRole("COMPLIANCE_OFFICER", "SUPER_ADMIN")
 
