@@ -15,7 +15,7 @@ const Pagination = ({ currentPage, totalItems, itemsPerPage, onPageChange }) => 
       <button 
         onClick={() => onPageChange(currentPage - 1)} 
         disabled={currentPage === 1}
-        style={{ padding: '5px 10px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+        style={{ padding: '5px 10px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', background: '#f1f5f9', color: '#1e293b', border: '1px solid #cbd5e1', borderRadius: '4px' }}
       >
         Previous
       </button>
@@ -23,7 +23,7 @@ const Pagination = ({ currentPage, totalItems, itemsPerPage, onPageChange }) => 
       <button 
         onClick={() => onPageChange(currentPage + 1)} 
         disabled={currentPage === totalPages}
-        style={{ padding: '5px 10px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+        style={{ padding: '5px 10px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', background: '#f1f5f9', color: '#1e293b', border: '1px solid #cbd5e1', borderRadius: '4px' }}
       >
         Next
       </button>

@@ -72,3 +72,17 @@ button:active {
   margin: 0 auto;
   padding: 2rem;
 }
+
+/* --- DARK MODE OVERRIDES (Using Global Inversion Strategy) --- */
+body.dark-mode {
+  filter: invert(1) hue-rotate(180deg);
+  background-color: #111;
+}
+
+/* Reverse the inversion for images, videos, svgs, and the toggle button itself so they look normal */
+body.dark-mode img,
+body.dark-mode video,
+body.dark-mode svg,
+body.dark-mode .dark-mode-toggle {
+  filter: invert(1) hue-rotate(180deg);
+}
