@@ -76,6 +76,11 @@ const Dashboard = () => {
       .then(data => setLogs(data))
       .catch(err => console.error(err));
 
+      fetch('http://localhost:8080/api/branches/users', { headers: { 'Authorization': `Bearer ${token}` } })
+      .then(res => res.json())
+      .then(data => setUsers(data))
+      .catch(err => console.error(err));
+
       if (role === 'ROLE_SUPER_ADMIN') {
         fetch('http://localhost:8080/api/ai/alerts', {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -87,11 +92,6 @@ const Dashboard = () => {
         fetch('http://localhost:8080/api/branches', { headers: { 'Authorization': `Bearer ${token}` } })
         .then(res => res.json())
         .then(data => setBranches(data))
-        .catch(err => console.error(err));
-
-        fetch('http://localhost:8080/api/branches/users', { headers: { 'Authorization': `Bearer ${token}` } })
-        .then(res => res.json())
-        .then(data => setUsers(data))
         .catch(err => console.error(err));
       }
     }
@@ -468,6 +468,7 @@ const Dashboard = () => {
                   <tr>
                     <th>ID</th>
                     <th>Flagged User</th>
+                    <th>User Role</th>
                     <th>Severity</th>
                     <th>Description</th>
                     <th>Status</th>
@@ -480,6 +481,7 @@ const Dashboard = () => {
                     <tr key={alert.id} className={alert.severity === 'HIGH' ? 'row-danger' : ''}>
                       <td>{alert.id}</td>
                       <td><strong>{alert.flaggedUsername}</strong></td>
+                      <td><span className="role-badge">{users.find(u => u.username === alert.flaggedUsername)?.role?.replace('ROLE_', '') || 'UNKNOWN'}</span></td>
                       <td><span className={`severity-badge ${alert.severity.toLowerCase()}`}>{alert.severity}</span></td>
                       <td>{alert.description}</td>
                       <td><strong>{alert.status}</strong></td>
@@ -494,7 +496,7 @@ const Dashboard = () => {
                   ))}
                   {filteredAlerts.length === 0 && (
                     <tr>
-                      <td colSpan="7" style={{ textAlign: 'center', color: '#6b7280' }}>No alerts found matching the current filters.</td>
+                      <td colSpan="8" style={{ textAlign: 'center', color: '#6b7280' }}>No alerts found matching the current filters.</td>
                     </tr>
                   )}
                 </tbody>
@@ -569,6 +571,7 @@ const Dashboard = () => {
                       <tr>
                         <th>ID</th>
                         <th>User</th>
+                        <th>User Role</th>
                         <th>Action</th>
                         <th>Timestamp</th>
                         <th>Action</th>
@@ -579,6 +582,7 @@ const Dashboard = () => {
                         <tr key={log.id}>
                           <td>{log.id}</td>
                           <td><span className="log-user">{log.username}</span></td>
+                          <td><span className="role-badge">{users.find(u => u.username === log.username)?.role?.replace('ROLE_', '') || 'UNKNOWN'}</span></td>
                           <td><code>{log.action}</code></td>
                           <td>{new Date(log.timestamp).toLocaleString()}</td>
                           <td>
@@ -588,7 +592,7 @@ const Dashboard = () => {
                       ))}
                       {filteredLogs.length === 0 && (
                         <tr>
-                          <td colSpan="5" className="empty-table">No audit logs found for the selected filters.</td>
+                          <td colSpan="6" className="empty-table">No audit logs found for the selected filters.</td>
                         </tr>
                       )}
                     </tbody>
@@ -738,6 +742,7 @@ const Dashboard = () => {
                     <tr>
                       <th>ID</th>
                       <th>User</th>
+                      <th>User Role</th>
                       <th>Action</th>
                       <th>Timestamp</th>
                       <th>Action</th>
@@ -748,6 +753,7 @@ const Dashboard = () => {
                       <tr key={log.id}>
                         <td>{log.id}</td>
                         <td><span className="log-user">{log.username}</span></td>
+                        <td><span className="role-badge">{users.find(u => u.username === log.username)?.role?.replace('ROLE_', '') || 'UNKNOWN'}</span></td>
                         <td><code>{log.action}</code></td>
                         <td>{new Date(log.timestamp).toLocaleString()}</td>
                         <td>
@@ -757,7 +763,7 @@ const Dashboard = () => {
                     ))}
                     {filteredLogs.length === 0 && (
                       <tr>
-                        <td colSpan="5" className="empty-table">No audit logs found for the selected filters.</td>
+                        <td colSpan="6" className="empty-table">No audit logs found for the selected filters.</td>
                       </tr>
                     )}
                   </tbody>
