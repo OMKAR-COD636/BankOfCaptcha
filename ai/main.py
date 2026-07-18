@@ -3,7 +3,11 @@ from inference import load_model, run_scheduler, MODEL_PATH
 from train import train_model
 
 def main():
-    print("Starting AI Service...")
+    print("Starting AI Service (v2 — Dual-Signal Architecture)...")
+    print("  Signal 1: LSTM Sequence Anomaly Detector")
+    print("  Signal 2: Statistical Transaction Profiler")
+    print()
+
     # Initialize the model only if it doesn't already exist
     if not os.path.exists(MODEL_PATH):
         print(f"Model not found at {MODEL_PATH}. Running initial training...")
