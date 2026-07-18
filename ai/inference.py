@@ -185,6 +185,11 @@ class TransactionProfiler:
         user_txs = user_txs.dropna(subset=['amount', 'timestamp'])
 
         if len(user_txs) < self.min_history:
+            # We don't have enough history to profile Z-score reliably,
+            # but we can still hard-flag absolutely massive transactions.
+            max_recent = np.max(user_txs['amount'].values)
+            if max_recent >= 100000:
+                return 0.9, f"Massive transaction of ${max_recent:,.2f} detected with insufficient history"
             return 0.0, None  # Not enough history to profile
 
         amounts = user_txs['amount'].values
@@ -390,7 +395,7 @@ def analyze_logs():
 
         # Boost LSTM error if role-inappropriate categories were detected
         if category_violations > 0:
-            violation_boost = 1.0 + (0.3 * category_violations)
+            violation_boost = 1.0 + (1.0 * category_violations)
             avg_reconstruction_error *= violation_boost
 
         # --- Signal 2: Statistical Transaction Profiler ---

@@ -239,6 +239,34 @@ def simulate_anomalous_customer(token, accounts, dest_accounts):
     print("  -> 5 admin-category requests from a CUSTOMER role\n")
 
 
+def simulate_anomalous_teller(token):
+    print("  Simulating Anomalous Teller (ID: teller)...")
+    print("  [ATTACK] Privilege Escalation (Teller accessing superadmin routes)...")
+    for _ in range(5):
+        do_fetch_ai_alerts(token)
+        time.sleep(0.1)
+    print("  -> Generated: Teller attempting to view AI alerts\n")
+
+
+def simulate_anomalous_manager(token):
+    print("  Simulating Anomalous Branch Manager (ID: branch_manager)...")
+    print("  [ATTACK] Privilege Escalation (Manager containing users)...")
+    for _ in range(5):
+        do_contain_alert(token, 1)
+        time.sleep(0.1)
+    print("  -> Generated: Manager attempting unauthorized AI alert containments\n")
+
+
+def simulate_anomalous_admin(token, accounts, dest_accounts):
+    print("  Simulating Anomalous Super Admin (ID: superadmin)...")
+    print("  [ATTACK] Insider Threat (Admin performing massive transfer)...")
+    src = accounts[0] if accounts else None
+    dst = dest_accounts[0] if dest_accounts else None
+    if src and dst:
+        do_transfer(token, src, dst, 1000000)
+    print("  -> Generated: Super Admin initiating a massive $1M financial transfer\n")
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -298,6 +326,16 @@ def main():
     if "customer" in tokens:
         simulate_anomalous_customer(tokens["customer"], customer_accounts,
                                     [a for a in dest_pool if a not in customer_accounts] or dest_pool)
+
+    if "teller" in tokens:
+        simulate_anomalous_teller(tokens["teller"])
+
+    if "branch_manager" in tokens:
+        simulate_anomalous_manager(tokens["branch_manager"])
+
+    if "superadmin" in tokens:
+        simulate_anomalous_admin(tokens["superadmin"], customer_accounts,
+                                 [a for a in dest_pool if a not in customer_accounts] or dest_pool)
 
     # --- Done ---
     print("=" * 60)

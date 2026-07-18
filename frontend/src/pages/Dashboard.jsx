@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, User, ShieldAlert, AlertTriangle, Building, FileText, Users, Search, Filter } from 'lucide-react';
+import { LogOut, User, ShieldAlert, AlertTriangle, Building, FileText, Users, Search, Filter, Activity } from 'lucide-react';
 import logoUrl from '../assets/logo.svg';
 import './Dashboard.css';
 import RiskActivityGraph from '../components/RiskActivityGraph';
 import RiskHeatmap from '../components/RiskHeatmap';
+import AlertReviewModal from '../components/AlertReviewModal';
 
 const Dashboard = () => {
   const [logs, setLogs] = useState([]);
@@ -23,6 +24,7 @@ const Dashboard = () => {
   const [alertFilter, setAlertFilter] = useState({ search: '', severity: '', status: '' });
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedMatrix, setSelectedMatrix] = useState(null);
+  const [selectedAlertForReview, setSelectedAlertForReview] = useState(null);
   
   const navigate = useNavigate();
   const role = localStorage.getItem('role');
@@ -261,8 +263,35 @@ const Dashboard = () => {
     navigate('/login');
   };
 
+  // Pre-compute filtered lists for summary cards and tables
+  const filteredAlerts = aiAlerts.filter(a => {
+    const matchesSearch = !alertFilter.search || a.flaggedUsername.toLowerCase().includes(alertFilter.search.toLowerCase());
+    const matchesSeverity = !alertFilter.severity || a.severity === alertFilter.severity;
+    const matchesStatus = !alertFilter.status || a.status === alertFilter.status;
+    const alertDate = new Date(a.timestamp);
+    const alertDateStr = alertDate.getFullYear() + '-' + String(alertDate.getMonth() + 1).padStart(2, '0') + '-' + String(alertDate.getDate()).padStart(2, '0');
+    const matchesDate = !selectedDate || (alertDateStr === selectedDate);
+    const matchesMatrix = !selectedMatrix || a.severity === selectedMatrix.severity;
+    return matchesSearch && matchesSeverity && matchesStatus && matchesDate && matchesMatrix;
+  });
+
+  const filteredLogs = logs.filter(log => {
+    const logDate = new Date(log.timestamp);
+    const logDateStr = logDate.getFullYear() + '-' + String(logDate.getMonth() + 1).padStart(2, '0') + '-' + String(logDate.getDate()).padStart(2, '0');
+    return !selectedDate || (logDateStr === selectedDate);
+  });
+
+  const filteredTransactionRequests = transactionRequests.filter(req => {
+    // Assuming req has a timestamp or similar, if not we'll just return true.
+    // If request has no timestamp, we won't filter by date.
+    return true; // We'll update this if timestamp exists.
+  });
+
   return (
     <div className="dashboard-container">
+      {selectedAlertForReview && (
+        <AlertReviewModal alert={selectedAlertForReview} token={token} onClose={() => setSelectedAlertForReview(null)} />
+      )}
       <nav className="navbar">
         <div className="nav-brand">
           <img src={logoUrl} alt="Bank Of Captcha Logo" width="28" height="28" />
@@ -323,6 +352,30 @@ const Dashboard = () => {
               />
             </div>
 
+            <div className="summary-cards-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '30px' }}>
+              <div className="summary-card" style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                  <AlertTriangle size={20} className="icon-yellow" />
+                  <h3 style={{ margin: 0, color: '#475569', fontSize: '1rem' }}>Filtered Alerts</h3>
+                </div>
+                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#0f172a' }}>{filteredAlerts.length}</div>
+              </div>
+              <div className="summary-card" style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                  <FileText size={20} className="icon-blue" />
+                  <h3 style={{ margin: 0, color: '#475569', fontSize: '1rem' }}>Filtered Audit Logs</h3>
+                </div>
+                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#0f172a' }}>{filteredLogs.length}</div>
+              </div>
+              <div className="summary-card" style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                  <Activity size={20} className="icon-blue" />
+                  <h3 style={{ margin: 0, color: '#475569', fontSize: '1rem' }}>Pending Requests</h3>
+                </div>
+                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#0f172a' }}>{transactionRequests.length}</div>
+              </div>
+            </div>
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '30px' }}>
               <h2 className="section-title" style={{ marginBottom: 0 }}><AlertTriangle size={24} className="icon-yellow" /> AI Security Alerts</h2>
               <button onClick={handleResolveAllAlerts} style={{ padding: '8px 16px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
@@ -368,18 +421,7 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {aiAlerts.filter(a => {
-                    const matchesSearch = !alertFilter.search || a.flaggedUsername.toLowerCase().includes(alertFilter.search.toLowerCase());
-                    const matchesSeverity = !alertFilter.severity || a.severity === alertFilter.severity;
-                    const matchesStatus = !alertFilter.status || a.status === alertFilter.status;
-                    
-                    const alertDate = new Date(a.timestamp);
-                    const alertDateStr = alertDate.getFullYear() + '-' + String(alertDate.getMonth() + 1).padStart(2, '0') + '-' + String(alertDate.getDate()).padStart(2, '0');
-                    const matchesDate = !selectedDate || (alertDateStr === selectedDate);
-                    
-                    const matchesMatrix = !selectedMatrix || a.severity === selectedMatrix.severity;
-                    return matchesSearch && matchesSeverity && matchesStatus && matchesDate && matchesMatrix;
-                  }).map(alert => (
+                  {filteredAlerts.map(alert => (
                     <tr key={alert.id} className={alert.severity === 'HIGH' ? 'row-danger' : ''}>
                       <td>{alert.id}</td>
                       <td><strong>{alert.flaggedUsername}</strong></td>
@@ -389,23 +431,13 @@ const Dashboard = () => {
                       <td>{new Date(alert.timestamp).toLocaleString()}</td>
                       <td>
                         {alert.status === 'OPEN' && (
-                           <button onClick={() => handleResolveAlert(alert.id)} style={{ padding: '4px 8px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Resolve & Unfreeze</button>
+                           <button onClick={() => handleResolveAlert(alert.id)} style={{ padding: '4px 8px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', marginRight: '5px' }}>Resolve</button>
                         )}
+                        <button onClick={() => setSelectedAlertForReview(alert)} style={{ padding: '4px 8px', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Review</button>
                       </td>
                     </tr>
                   ))}
-                  {aiAlerts.filter(a => {
-                    const matchesSearch = !alertFilter.search || a.flaggedUsername.toLowerCase().includes(alertFilter.search.toLowerCase());
-                    const matchesSeverity = !alertFilter.severity || a.severity === alertFilter.severity;
-                    const matchesStatus = !alertFilter.status || a.status === alertFilter.status;
-                    
-                    const alertDate = new Date(a.timestamp);
-                    const alertDateStr = alertDate.getFullYear() + '-' + String(alertDate.getMonth() + 1).padStart(2, '0') + '-' + String(alertDate.getDate()).padStart(2, '0');
-                    const matchesDate = !selectedDate || (alertDateStr === selectedDate);
-                    
-                    const matchesMatrix = !selectedMatrix || a.severity === selectedMatrix.severity;
-                    return matchesSearch && matchesSeverity && matchesStatus && matchesDate && matchesMatrix;
-                  }).length === 0 && (
+                  {filteredAlerts.length === 0 && (
                     <tr>
                       <td colSpan="7" style={{ textAlign: 'center', color: '#6b7280' }}>No alerts found matching the current filters.</td>
                     </tr>
@@ -474,7 +506,7 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {logs.map(log => (
+                  {filteredLogs.map(log => (
                     <tr key={log.id}>
                       <td>{log.id}</td>
                       <td><span className="log-user">{log.username}</span></td>
@@ -485,9 +517,9 @@ const Dashboard = () => {
                       </td>
                     </tr>
                   ))}
-                  {logs.length === 0 && (
+                  {filteredLogs.length === 0 && (
                     <tr>
-                      <td colSpan="4" className="empty-table">No audit logs found.</td>
+                      <td colSpan="5" className="empty-table">No audit logs found for the selected filters.</td>
                     </tr>
                   )}
                 </tbody>
@@ -637,7 +669,7 @@ const Dashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {logs.map(log => (
+                    {filteredLogs.map(log => (
                       <tr key={log.id}>
                         <td>{log.id}</td>
                         <td><span className="log-user">{log.username}</span></td>
@@ -648,9 +680,9 @@ const Dashboard = () => {
                         </td>
                       </tr>
                     ))}
-                    {logs.length === 0 && (
+                    {filteredLogs.length === 0 && (
                       <tr>
-                        <td colSpan="4" className="empty-table">No audit logs found.</td>
+                        <td colSpan="5" className="empty-table">No audit logs found for the selected filters.</td>
                       </tr>
                     )}
                   </tbody>

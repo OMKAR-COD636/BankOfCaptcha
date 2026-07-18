@@ -13,7 +13,7 @@
         "POST /api/admin/alerts":           { "id": 10, "risk_weight": 0.8, "category": "admin",    "description": "Contain/resolve AI alert" },
         "POST /api/auth/register":          { "id": 11, "risk_weight": 0.3, "category": "write",    "description": "Register new user" },
         "POST /api/auth/login":             { "id": 12, "risk_weight": 0.1, "category": "auth",     "description": "User login" },
-        "GET /api/ai/alerts":               { "id": 13, "risk_weight": 0.3, "category": "read",     "description": "View AI alerts" },
+        "GET /api/ai/alerts":               { "id": 13, "risk_weight": 0.8, "category": "admin",    "description": "View AI alerts" },
         "DELETE /api/admin":                { "id": 14, "risk_weight": 1.0, "category": "admin",    "description": "Admin delete operation" },
         "PUT /api/admin":                   { "id": 15, "risk_weight": 0.7, "category": "admin",    "description": "Admin update operation" },
         "GET /api/branches":                { "id": 16, "risk_weight": 0.1, "category": "read",     "description": "View branches" }
