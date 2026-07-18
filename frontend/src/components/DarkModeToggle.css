@@ -2,7 +2,7 @@
   position: fixed;
   top: 20px;
   left: 50%;
-  margin-left: -30px; /* center based on 60px width */
+  margin-left: -30px;
   width: 60px;
   height: 32px;
   border-radius: 30px;
@@ -24,8 +24,8 @@
 
 .dark-mode-toggle.dark {
   background-color: #1e293b;
-  border: 2px solid #334155;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  border: 2px solid #475569;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);
 }
 
 .toggle-track {
@@ -49,7 +49,7 @@
 .dark-mode-toggle.light .toggle-thumb {
   left: 2px;
   background-color: #fff;
-  color: #f59e0b; /* Sun color */
+  color: #f59e0b;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transform: rotate(0deg);
 }
@@ -57,13 +57,13 @@
 .dark-mode-toggle.dark .toggle-thumb {
   left: 30px;
   background-color: #0f172a;
-  color: #38bdf8; /* Moon color */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  color: #38bdf8;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.3);
   transform: rotate(360deg);
 }
 
 .dark-mode-toggle:hover {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 .dark-mode-toggle:active {

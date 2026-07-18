@@ -305,3 +305,50 @@
 .filter-select {
   cursor: pointer;
 }
+
+/* Admin Tabs */
+body.dark-mode .admin-tab {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+body.dark-mode .admin-tab.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* ===== DASHBOARD DARK MODE OVERRIDES ===== */
+body.dark-mode .table-header {
+  background-color: var(--table-header-bg);
+}
+
+body.dark-mode .logs-table th {
+  background-color: var(--table-header-bg);
+}
+
+body.dark-mode .row-danger {
+  background-color: rgba(220, 38, 38, 0.1) !important;
+}
+
+body.dark-mode .severity-badge.medium {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+
+body.dark-mode .alert-filters {
+  background: var(--card-bg);
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+body.dark-mode .role-badge {
+  background-color: var(--accent-color);
+  color: #0f172a;
+}
+
+/* Summary cards in dashboard (inline styles won't override, so we use !important sparingly) */
+body.dark-mode .summary-card {
+  background: var(--card-bg) !important;
+  border-color: var(--card-border) !important;
+}
+

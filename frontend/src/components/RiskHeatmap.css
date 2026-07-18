@@ -164,3 +164,52 @@
     filter: grayscale(100%);
     opacity: 0.3;
 }
+
+/* ===== DARK MODE ===== */
+body.dark-mode .risk-heatmap-container {
+    background: var(--card-bg);
+    border-color: var(--card-border);
+    box-shadow: 0 8px 32px var(--shadow-heavy);
+}
+
+body.dark-mode .risk-heatmap-header h3 {
+    color: var(--text-color);
+}
+
+body.dark-mode .matrix-label {
+    color: var(--text-light);
+}
+
+body.dark-mode .matrix-cell {
+    background: var(--primary-bg);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .risk-low {
+    background: rgba(34, 197, 94, 0.1);
+    color: #4ade80;
+}
+
+body.dark-mode .risk-med {
+    background: rgba(245, 158, 11, 0.1);
+    color: #fbbf24;
+}
+
+body.dark-mode .risk-high {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+}
+
+body.dark-mode .cell-tooltip {
+    background: #0f172a;
+    border-color: var(--card-border);
+}
+
+body.dark-mode .cell-tooltip::after {
+    border-color: #0f172a transparent transparent transparent;
+}
+
+body.dark-mode .matrix-cell.selected {
+    border-color: #60a5fa;
+}
+
