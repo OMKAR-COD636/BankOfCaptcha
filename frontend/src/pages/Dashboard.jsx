@@ -7,6 +7,29 @@ import RiskActivityGraph from '../components/RiskActivityGraph';
 import RiskHeatmap from '../components/RiskHeatmap';
 import AlertReviewModal from '../components/AlertReviewModal';
 
+const Pagination = ({ currentPage, totalItems, itemsPerPage, onPageChange }) => {
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  if (totalPages <= 1) return null;
+  return (
+    <div className="pagination" style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '15px', marginBottom: '15px' }}>
+      <button 
+        onClick={() => onPageChange(currentPage - 1)} 
+        disabled={currentPage === 1}
+        style={{ padding: '5px 10px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+      >
+        Previous
+      </button>
+      <span style={{ padding: '5px', fontSize: '14px', color: '#475569' }}>Page {currentPage} of {totalPages}</span>
+      <button 
+        onClick={() => onPageChange(currentPage + 1)} 
+        disabled={currentPage === totalPages}
+        style={{ padding: '5px 10px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+      >
+        Next
+      </button>
+    </div>
+  );
+};
 const Dashboard = () => {
   const [logs, setLogs] = useState([]);
   const [aiAlerts, setAiAlerts] = useState([]);
@@ -25,6 +48,13 @@ const Dashboard = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedMatrix, setSelectedMatrix] = useState(null);
   const [selectedAlertForReview, setSelectedAlertForReview] = useState(null);
+  
+  const [alertPage, setAlertPage] = useState(1);
+  const [logPage, setLogPage] = useState(1);
+  const [txReqPage, setTxReqPage] = useState(1);
+  const [kycReqPage, setKycReqPage] = useState(1);
+  const [accountPage, setAccountPage] = useState(1);
+  const itemsPerPage = 20;
   
   const navigate = useNavigate();
   const role = localStorage.getItem('role');
@@ -287,6 +317,12 @@ const Dashboard = () => {
     return true; // We'll update this if timestamp exists.
   });
 
+  const paginatedAlerts = filteredAlerts.slice((alertPage - 1) * itemsPerPage, alertPage * itemsPerPage);
+  const paginatedLogs = filteredLogs.slice((logPage - 1) * itemsPerPage, logPage * itemsPerPage);
+  const paginatedTxReqs = transactionRequests.slice((txReqPage - 1) * itemsPerPage, txReqPage * itemsPerPage);
+  const paginatedKycReqs = kycRequests.slice((kycReqPage - 1) * itemsPerPage, kycReqPage * itemsPerPage);
+  const paginatedAccounts = accounts.slice((accountPage - 1) * itemsPerPage, accountPage * itemsPerPage);
+
   return (
     <div className="dashboard-container">
       {selectedAlertForReview && (
@@ -318,7 +354,7 @@ const Dashboard = () => {
           <div className="customer-view">
             <h2 className="section-title"><Building size={24} className="icon-blue" /> Your Accounts</h2>
             <div className="card-grid">
-              {accounts.map(acc => (
+              {paginatedAccounts.map(acc => (
                 <div key={acc.id} className="balance-card">
                   <div className="card-header">
                     <h3>Account Summary</h3>
@@ -336,6 +372,7 @@ const Dashboard = () => {
                 <div className="empty-state">No accounts found.</div>
               )}
             </div>
+            <Pagination currentPage={accountPage} totalItems={accounts.length} itemsPerPage={itemsPerPage} onPageChange={setAccountPage} />
           </div>
         ) : role === 'ROLE_SUPER_ADMIN' ? (
           <div className="admin-view">
@@ -421,7 +458,7 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredAlerts.map(alert => (
+                  {paginatedAlerts.map(alert => (
                     <tr key={alert.id} className={alert.severity === 'HIGH' ? 'row-danger' : ''}>
                       <td>{alert.id}</td>
                       <td><strong>{alert.flaggedUsername}</strong></td>
@@ -444,6 +481,7 @@ const Dashboard = () => {
                   )}
                 </tbody>
               </table>
+              <Pagination currentPage={alertPage} totalItems={filteredAlerts.length} itemsPerPage={itemsPerPage} onPageChange={setAlertPage} />
             </div>
 
             <h2 className="section-title"><Users size={24} className="icon-blue" /> Assign Staff to Branch</h2>
@@ -506,7 +544,7 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredLogs.map(log => (
+                  {paginatedLogs.map(log => (
                     <tr key={log.id}>
                       <td>{log.id}</td>
                       <td><span className="log-user">{log.username}</span></td>
@@ -524,6 +562,7 @@ const Dashboard = () => {
                   )}
                 </tbody>
               </table>
+              <Pagination currentPage={logPage} totalItems={filteredLogs.length} itemsPerPage={itemsPerPage} onPageChange={setLogPage} />
             </div>
           </div>
         ) : (
@@ -546,7 +585,7 @@ const Dashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {accounts.map(acc => (
+                    {paginatedAccounts.map(acc => (
                       <tr key={acc.id}>
                         <td><strong>{acc.accountNumber}</strong></td>
                         <td>{acc.user?.id}</td>
@@ -560,6 +599,7 @@ const Dashboard = () => {
                     )}
                   </tbody>
                 </table>
+                <Pagination currentPage={accountPage} totalItems={accounts.length} itemsPerPage={itemsPerPage} onPageChange={setAccountPage} />
               </div>
             ) : null}
 
@@ -593,7 +633,7 @@ const Dashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {kycRequests.map(req => (
+                    {paginatedKycReqs.map(req => (
                       <tr key={req.id}>
                         <td><strong>{req.fullName}</strong></td>
                         <td>{req.email}</td>
@@ -610,6 +650,7 @@ const Dashboard = () => {
                     )}
                   </tbody>
                 </table>
+                <Pagination currentPage={kycReqPage} totalItems={kycRequests.length} itemsPerPage={itemsPerPage} onPageChange={setKycReqPage} />
               </div>
             )}
 
@@ -630,7 +671,7 @@ const Dashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {transactionRequests.map(req => (
+                    {paginatedTxReqs.map(req => (
                       <tr key={req.id}>
                         <td>{req.id}</td>
                         <td>{req.initiator?.username}</td>
@@ -650,6 +691,7 @@ const Dashboard = () => {
                     )}
                   </tbody>
                 </table>
+                <Pagination currentPage={txReqPage} totalItems={transactionRequests.length} itemsPerPage={itemsPerPage} onPageChange={setTxReqPage} />
               </div>
             )}
             
@@ -669,7 +711,7 @@ const Dashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredLogs.map(log => (
+                    {paginatedLogs.map(log => (
                       <tr key={log.id}>
                         <td>{log.id}</td>
                         <td><span className="log-user">{log.username}</span></td>
@@ -687,6 +729,7 @@ const Dashboard = () => {
                     )}
                   </tbody>
                 </table>
+                <Pagination currentPage={logPage} totalItems={filteredLogs.length} itemsPerPage={itemsPerPage} onPageChange={setLogPage} />
               </div>
             )}
           </div>
