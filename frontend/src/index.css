@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Government Bank Color Palette */
+  /* Government Bank Color Palette - Light Mode */
   --primary-bg: #FFFFFF;
   --secondary-bg: #F5F7FA;
   --primary-color: #0A5EB0;
@@ -15,6 +15,28 @@
   --error-text: #DC2626;
   --success-bg: #D1FAE5;
   --success-text: #059669;
+
+  /* Dark mode toggle transition */
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  /* Dark Mode Palette */
+  --primary-bg: #1E2433;
+  --secondary-bg: #151B27;
+  --primary-color: #4A9EE8;
+  --primary-hover: #60B0F5;
+  --accent-color: #F4C430;
+  --accent-hover: #FFC107;
+  --text-color: #E2E8F0;
+  --text-light: #94A3B8;
+  --border-color: #2D3748;
+  --error-bg: #3B1E1E;
+  --error-text: #FC8181;
+  --success-bg: #1A3B2E;
+  --success-text: #68D391;
+
+  color-scheme: dark;
 }
 
 * {
@@ -28,6 +50,7 @@ body {
   background-color: var(--secondary-bg);
   color: var(--text-color);
   line-height: 1.5;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 input {

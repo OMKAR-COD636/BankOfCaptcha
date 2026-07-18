@@ -164,3 +164,43 @@
     filter: grayscale(100%);
     opacity: 0.3;
 }
+
+/* ─── Dark Mode ───────────────────────────────────── */
+[data-theme="dark"] .risk-heatmap-container {
+    background: #1E2433;
+    border: 1px solid #2D3748;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+[data-theme="dark"] .risk-heatmap-header h3 {
+    color: #E2E8F0;
+}
+
+[data-theme="dark"] .matrix-label {
+    color: #94A3B8;
+}
+
+[data-theme="dark"] .matrix-cell {
+    background: #252E3E;
+    border-color: rgba(255,255,255,0.06);
+}
+
+[data-theme="dark"] .risk-low {
+    background: #0F2A1A;
+    color: #68D391;
+}
+
+[data-theme="dark"] .risk-med {
+    background: #2A1F0A;
+    color: #F6AD55;
+}
+
+[data-theme="dark"] .risk-high {
+    background: #2A0F0F;
+    color: #FC8181;
+}
+
+[data-theme="dark"] .matrix-cell.selected {
+    border-color: #E2E8F0;
+}
+

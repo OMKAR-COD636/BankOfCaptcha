@@ -1,0 +1,32 @@
+{
+    "_comment": "Action registry for the AI anomaly detection engine. Edit this file to add new routes or adjust risk weights without touching Python code.",
+    "actions": {
+        "GET /api/accounts":                { "id": 1,  "risk_weight": 0.1, "category": "read",     "description": "View accounts/balances" },
+        "GET /api/kyc/queue":               { "id": 2,  "risk_weight": 0.2, "category": "read",     "description": "View KYC queue" },
+        "POST /api/transactions/transfer":  { "id": 3,  "risk_weight": 0.6, "category": "financial","description": "Initiate transfer" },
+        "POST /api/kyc":                    { "id": 4,  "risk_weight": 0.3, "category": "write",    "description": "Submit/approve KYC" },
+        "GET /api/transactions/requests":   { "id": 5,  "risk_weight": 0.2, "category": "read",     "description": "View transfer requests" },
+        "POST /api/transactions/requests":  { "id": 6,  "risk_weight": 0.5, "category": "financial","description": "Approve/reject transfer request" },
+        "GET /api/audit/logs":              { "id": 7,  "risk_weight": 0.3, "category": "read",     "description": "View audit logs" },
+        "GET /api/admin/staff":             { "id": 8,  "risk_weight": 0.4, "category": "admin",    "description": "View staff list" },
+        "POST /api/admin/staff":            { "id": 9,  "risk_weight": 0.7, "category": "admin",    "description": "Create/modify staff" },
+        "POST /api/admin/alerts":           { "id": 10, "risk_weight": 0.8, "category": "admin",    "description": "Contain/resolve AI alert" },
+        "POST /api/auth/register":          { "id": 11, "risk_weight": 0.3, "category": "write",    "description": "Register new user" },
+        "POST /api/auth/login":             { "id": 12, "risk_weight": 0.1, "category": "auth",     "description": "User login" },
+        "GET /api/ai/alerts":               { "id": 13, "risk_weight": 0.8, "category": "admin",    "description": "View AI alerts" },
+        "DELETE /api/admin":                { "id": 14, "risk_weight": 1.0, "category": "admin",    "description": "Admin delete operation" },
+        "PUT /api/admin":                   { "id": 15, "risk_weight": 0.7, "category": "admin",    "description": "Admin update operation" },
+        "GET /api/branches":                { "id": 16, "risk_weight": 0.1, "category": "read",     "description": "View branches" }
+    },
+    "role_permitted_categories": {
+        "_comment": "Defines which action categories each role is normally expected to use. Actions outside these categories raise the sequence anomaly score.",
+        "ROLE_CUSTOMER":            ["auth", "read", "financial"],
+        "ROLE_TELLER":              ["auth", "read", "write", "financial"],
+        "ROLE_BRANCH_MANAGER":      ["auth", "read", "write", "financial"],
+        "ROLE_COMPLIANCE":          ["auth", "read"],
+        "ROLE_IT_ADMIN":            ["auth", "read", "admin"],
+        "ROLE_SUPER_ADMIN":         ["auth", "read", "write", "financial", "admin"]
+    },
+    "vocabulary_size": 20,
+    "_vocabulary_note": "Must be >= max action id + 1. Increase this when adding new actions. id=0 is reserved for padding."
+}

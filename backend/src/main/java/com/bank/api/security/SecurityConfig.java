@@ -2,6 +2,7 @@ package com.bank.api.security;
 
 import java.util.List;
 
+import com.bank.api.config.properties.CorsConfigProperties;
 import com.bank.api.repository.UserRepository;
 
 import org.springframework.context.annotation.Bean;
@@ -23,10 +24,12 @@ public class SecurityConfig {
 
     private final JwtUtils jwtUtils;
     private final UserRepository userRepository;
+    private final CorsConfigProperties corsConfigProperties;
 
-    public SecurityConfig(JwtUtils jwtUtils, UserRepository userRepository) {
+    public SecurityConfig(JwtUtils jwtUtils, UserRepository userRepository, CorsConfigProperties corsConfigProperties) {
         this.jwtUtils = jwtUtils;
         this.userRepository = userRepository;
+        this.corsConfigProperties = corsConfigProperties;
     }
 
     @Bean
@@ -48,6 +51,7 @@ public class SecurityConfig {
                         .hasAnyRole("COMPLIANCE_OFFICER", "SUPER_ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/ai/alerts").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/ai/audit-events").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/ai/transaction-summary").permitAll()
                         .requestMatchers("/api/ai/**")
                         .hasAnyRole("COMPLIANCE_OFFICER", "SUPER_ADMIN")
 
@@ -75,7 +79,7 @@ public class SecurityConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedOrigins(corsConfigProperties.getAllowedOrigins());
         configuration.setAllowedMethods(List.of(
                 "GET",
                 "POST",

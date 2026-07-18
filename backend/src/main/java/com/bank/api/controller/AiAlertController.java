@@ -2,7 +2,7 @@ package com.bank.api.controller;
 
 import com.bank.api.model.AiAlert;
 import com.bank.api.service.AlertService;
-import org.springframework.beans.factory.annotation.Value;
+import com.bank.api.config.properties.AiConfigProperties;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,18 +13,18 @@ import java.util.List;
 public class AiAlertController {
 
     private final AlertService alertService;
-    private final String aiServiceKey;
+    private final AiConfigProperties aiConfigProperties;
 
     public AiAlertController(AlertService alertService,
-                             @Value("${app.ai.service-key}") String aiServiceKey) {
+                             AiConfigProperties aiConfigProperties) {
         this.alertService = alertService;
-        this.aiServiceKey = aiServiceKey;
+        this.aiConfigProperties = aiConfigProperties;
     }
 
     @PostMapping
     public ResponseEntity<?> createAlert(@RequestHeader(value = "X-AI-Service-Key", required = false) String suppliedKey,
                                          @RequestBody AiAlert alert) {
-        if (!aiServiceKey.equals(suppliedKey)) {
+        if (!aiConfigProperties.getServiceKey().equals(suppliedKey)) {
             return ResponseEntity.status(401).body("Invalid AI service key");
         }
         try {

@@ -1,0 +1,45 @@
+{
+    "_comment": "Tunable parameters for the AI anomaly detection engine. Edit these without touching Python code.",
+
+    "clamp": {
+        "max_days": 30,
+        "max_requests_per_user": 100,
+        "_comment": "The AI fetches the MINIMUM of (events from the last max_days days) and (last max_requests_per_user events per user). This prevents stale data from polluting sequences while keeping sufficient history for statistical analysis."
+    },
+
+    "lstm": {
+        "sequence_length": 10,
+        "embedding_dim": 16,
+        "hidden_dim": 64,
+        "num_layers": 2,
+        "anomaly_weight": 0.6,
+        "_comment": "anomaly_weight is how much the LSTM sequence anomaly contributes to the final fused risk score (0.0 to 1.0). The statistical profiler gets (1 - anomaly_weight)."
+    },
+
+    "statistical_profiler": {
+        "z_score_threshold": 3.0,
+        "min_history_for_stats": 5,
+        "frequency_window_minutes": 60,
+        "anomaly_weight": 0.4,
+        "_comment": "z_score_threshold: how many standard deviations above the user's mean transfer amount triggers a flag. min_history_for_stats: minimum number of transactions before the profiler activates (avoids false positives on new users). frequency_window_minutes: time window for burst detection."
+    },
+
+    "alerting": {
+        "fused_score_threshold_low": 0.4,
+        "fused_score_threshold_medium": 0.6,
+        "fused_score_threshold_high": 0.8,
+        "_comment": "Fused risk score ranges: [0, low) = NORMAL, [low, medium) = LOW severity, [medium, high) = MEDIUM severity, [high, 1.0] = HIGH severity."
+    },
+
+    "scheduler": {
+        "polling_interval_seconds": 30
+    },
+
+    "training": {
+        "num_samples": 20000,
+        "epochs": 30,
+        "learning_rate": 0.005,
+        "threshold_percentile": 0.90,
+        "_comment": "threshold_percentile: the percentile of training reconstruction errors used to set the dynamic anomaly threshold. 0.90 means 10% of normal traffic will be borderline."
+    }
+}

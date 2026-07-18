@@ -16,9 +16,11 @@ import com.bank.api.model.User;
 import com.bank.api.model.Branch;
 import com.bank.api.repository.UserRepository;
 import com.bank.api.repository.BranchRepository;
+import com.bank.api.repository.TransactionRepository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -27,17 +29,27 @@ public class AdminController {
     private final AlertService alertService;
     private final UserRepository userRepository;
     private final BranchRepository branchRepository;
+    private final TransactionRepository transactionRepository;
 
-    public AdminController(AuditLogRepository auditLogRepository, AlertService alertService, UserRepository userRepository, BranchRepository branchRepository) {
+    public AdminController(AuditLogRepository auditLogRepository, AlertService alertService, UserRepository userRepository, BranchRepository branchRepository, TransactionRepository transactionRepository) {
         this.auditLogRepository = auditLogRepository;
         this.alertService = alertService;
         this.userRepository = userRepository;
         this.branchRepository = branchRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     @GetMapping("/audit-logs")
     public ResponseEntity<List<AuditLog>> getAuditLogs() {
         return ResponseEntity.ok(auditLogRepository.findAllByOrderByTimestampDesc());
+    }
+
+    @GetMapping("/users/{username}/activity")
+    public ResponseEntity<?> getUserActivity(@PathVariable String username) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("logs", auditLogRepository.findRecentByUsername(username, 20));
+        response.put("transactions", transactionRepository.findRecentByUsername(username, 20));
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/staff")

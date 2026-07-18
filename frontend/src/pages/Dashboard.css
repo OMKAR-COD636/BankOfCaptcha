@@ -64,6 +64,59 @@
   border-color: var(--primary-bg);
 }
 
+/* Dark Mode Toggle */
+.dark-mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+}
+
+.toggle-track {
+  width: 44px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  position: relative;
+  transition: background 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+[data-theme="dark"] .toggle-track {
+  background: rgba(74, 158, 232, 0.4);
+  border-color: rgba(74, 158, 232, 0.6);
+}
+
+.toggle-knob {
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  transition: transform 0.3s ease, background 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  line-height: 1;
+}
+
+[data-theme="dark"] .toggle-knob {
+  transform: translateX(20px);
+  background: #4A9EE8;
+}
+
+.dark-mode-toggle:hover .toggle-track {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+
 .hero-banner {
   background-color: var(--primary-bg);
   padding: 2.5rem 0;
@@ -305,3 +358,123 @@
 .filter-select {
   cursor: pointer;
 }
+
+/* ─── Dark Mode Overrides ─────────────────────────── */
+[data-theme="dark"] .table-header,
+[data-theme="dark"] .logs-table th {
+  background-color: #1A2235;
+}
+
+[data-theme="dark"] .alert-filters {
+  background: #1E2433;
+}
+
+[data-theme="dark"] .row-danger {
+  background-color: #3B1E1E !important;
+}
+
+[data-theme="dark"] .summary-card {
+  background: #1E2433 !important;
+  border-color: #2D3748 !important;
+}
+
+[data-theme="dark"] .summary-card h3 {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .summary-card > div:last-child {
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .card,
+[data-theme="dark"] .transfer-portal {
+  background: #1E2433 !important;
+}
+
+[data-theme="dark"] .severity-badge.medium {
+  background-color: #3D2500;
+  color: #F6AD55;
+}
+
+/* ─── Admin Tabs ──────────────────────────────────── */
+.admin-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  background: var(--secondary-bg);
+  padding: 6px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+}
+
+.admin-tab {
+  flex: 1;
+  padding: 10px 16px;
+  background: transparent;
+  color: var(--text-light);
+  border: none;
+  border-radius: 7px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.admin-tab:hover {
+  background: var(--primary-bg);
+  color: var(--primary-color);
+}
+
+.admin-tab.active {
+  background: var(--primary-bg);
+  color: var(--primary-color);
+  box-shadow: 0 2px 8px rgba(10, 94, 176, 0.12);
+}
+
+[data-theme="dark"] .admin-tabs {
+  background: #151B27;
+  border-color: #2D3748;
+}
+
+[data-theme="dark"] .admin-tab:hover,
+[data-theme="dark"] .admin-tab.active {
+  background: #1E2433;
+  color: #4A9EE8;
+  box-shadow: 0 2px 8px rgba(74, 158, 232, 0.15);
+}
+
+.admin-tab-content.animated-fade-in {
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Verify Button ──────────────────────────────── */
+.verify-btn {
+  padding: 4px 10px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.verify-btn:hover {
+  background: var(--primary-hover);
+}
+
+[data-theme="dark"] .verify-btn {
+  background: #4A9EE8;
+}
+
+[data-theme="dark"] .verify-btn:hover {
+  background: #60B0F5;
+}
+
+
