@@ -44,7 +44,7 @@ const Dashboard = () => {
   const [createBranchForm, setCreateBranchForm] = useState({ name: '', location: '' });
   const [createStaffForm, setCreateStaffForm] = useState({ username: '', password: '', role: 'ROLE_TELLER', branchId: '' });
   
-  const [alertFilter, setAlertFilter] = useState({ search: '', severity: '', status: '' });
+  const [alertFilter, setAlertFilter] = useState({ search: '', severity: '', status: '', role: '' });
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedMatrix, setSelectedMatrix] = useState(null);
   const [selectedAlertForReview, setSelectedAlertForReview] = useState(null);
@@ -297,13 +297,15 @@ const Dashboard = () => {
   // Pre-compute filtered lists for summary cards and tables
   const filteredAlerts = aiAlerts.filter(a => {
     const matchesSearch = !alertFilter.search || a.flaggedUsername.toLowerCase().includes(alertFilter.search.toLowerCase());
+    const userRole = users.find(u => u.username === a.flaggedUsername)?.role?.replace('ROLE_', '') || 'UNKNOWN';
+    const matchesRole = !alertFilter.role || userRole === alertFilter.role;
     const matchesSeverity = !alertFilter.severity || a.severity === alertFilter.severity;
     const matchesStatus = !alertFilter.status || a.status === alertFilter.status;
     const alertDate = new Date(a.timestamp);
     const alertDateStr = alertDate.getFullYear() + '-' + String(alertDate.getMonth() + 1).padStart(2, '0') + '-' + String(alertDate.getDate()).padStart(2, '0');
     const matchesDate = !selectedDate || (alertDateStr === selectedDate);
     const matchesMatrix = !selectedMatrix || a.severity === selectedMatrix.severity;
-    return matchesSearch && matchesSeverity && matchesStatus && matchesDate && matchesMatrix;
+    return matchesSearch && matchesRole && matchesSeverity && matchesStatus && matchesDate && matchesMatrix;
   });
 
   const filteredLogs = logs.filter(log => {
@@ -442,6 +444,18 @@ const Dashboard = () => {
               <div className="filter-group">
                 <Search size={16} className="filter-icon" />
                 <input type="text" placeholder="Search by username..." value={alertFilter.search} onChange={e => setAlertFilter({...alertFilter, search: e.target.value})} className="filter-input" />
+              </div>
+              <div className="filter-group">
+                <Filter size={16} className="filter-icon" />
+                <select value={alertFilter.role} onChange={e => setAlertFilter({...alertFilter, role: e.target.value})} className="filter-select">
+                  <option value="">All Roles</option>
+                  <option value="CUSTOMER">Customer</option>
+                  <option value="TELLER">Teller</option>
+                  <option value="BRANCH_MANAGER">Branch Manager</option>
+                  <option value="ADMIN">Admin</option>
+                  <option value="SUPER_ADMIN">Super Admin</option>
+                  <option value="COMPLIANCE_OFFICER">Compliance Officer</option>
+                </select>
               </div>
               <div className="filter-group">
                 <Filter size={16} className="filter-icon" />
