@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, User, ShieldAlert, AlertTriangle, Building, FileText, Users, Search, Filter, Activity, Moon, Sun } from 'lucide-react';
+import { LogOut, User, ShieldAlert, AlertTriangle, Building, FileText, Users, Search, Filter, Activity } from 'lucide-react';
 import logoUrl from '../assets/logo.svg';
 import './Dashboard.css';
 import RiskActivityGraph from '../components/RiskActivityGraph';
 import RiskHeatmap from '../components/RiskHeatmap';
 import AlertReviewModal from '../components/AlertReviewModal';
+import DarkModeToggle from '../components/DarkModeToggle';
 
 const Pagination = ({ currentPage, totalItems, itemsPerPage, onPageChange }) => {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -82,13 +83,7 @@ const Dashboard = () => {
   const username = localStorage.getItem('username');
   const token = localStorage.getItem('token');
 
-  // Dark mode
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('theme') === 'dark');
 
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
-  }, [darkMode]);
 
   useEffect(() => {
     if (!token) {
@@ -371,19 +366,7 @@ const Dashboard = () => {
         <div className="nav-user">
           <User size={20} />
           <span className="user-info">{username} <span className="role-badge">{role.replace('ROLE_', '')}</span></span>
-          <button
-            className="dark-mode-toggle"
-            onClick={() => setDarkMode(prev => !prev)}
-            title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            aria-label="Toggle dark mode"
-          >
-            {darkMode ? <Sun size={14} /> : <Moon size={14} />}
-            <div className="toggle-track">
-              <div className="toggle-knob">
-                {darkMode ? '🌙' : '☀️'}
-              </div>
-            </div>
-          </button>
+          <DarkModeToggle variant="navbar" />
           <button className="logout-btn" onClick={handleLogout}>
             <LogOut size={16} /> Sign Out
           </button>

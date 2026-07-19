@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import logoUrl from '../assets/logo.svg';
 import './Login.css';
+import DarkModeToggle from '../components/DarkModeToggle';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -14,6 +15,12 @@ const Login = () => {
   const [regForm, setRegForm] = useState({ fullName: '', aadhaarNumber: '', mobileNumber: '', email: '', branchId: '' });
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const navigate = useNavigate();
+
+  // Sync theme on mount
+  useEffect(() => {
+    const theme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+  }, []);
 
   React.useEffect(() => {
     if (isRegistering && branches.length === 0) {
@@ -79,9 +86,12 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-left">
-        <div className="logo">
-          <img src={logoUrl} alt="Bank Of Captcha Logo" className="logo-icon" width="32" height="32" />
-          <span>BANK OF CAPTCHA</span>
+        <div className="login-top-bar">
+          <div className="logo">
+            <img src={logoUrl} alt="Bank Of Captcha Logo" className="logo-icon" width="32" height="32" />
+            <span>BANK OF CAPTCHA</span>
+          </div>
+          <DarkModeToggle variant="standalone" />
         </div>
 
         <div className="login-form-container">

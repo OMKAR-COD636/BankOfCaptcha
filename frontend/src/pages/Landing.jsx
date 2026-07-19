@@ -6,6 +6,7 @@ import {
   Globe, User, MapPin, Percent, HelpCircle, FileText
 } from 'lucide-react';
 import './Landing.css';
+import DarkModeToggle from '../components/DarkModeToggle';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -31,6 +32,12 @@ const Landing = () => {
     return () => clearInterval(timer);
   }, []);
 
+  // Sync theme on mount
+  useEffect(() => {
+    const theme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+  }, []);
+
   const handleLogin = () => {
     navigate('/login');
   };
@@ -45,6 +52,7 @@ const Landing = () => {
         </div>
         <div className="utility-right">
           <span className="lang-switcher">English | हिन्दी | मराठी</span>
+          <DarkModeToggle variant="standalone" />
         </div>
       </div>
 
