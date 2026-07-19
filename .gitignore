@@ -8,3 +8,4 @@ CERT_INTEGRATION.md
 bom_landing.md
 user_flow.xml
 diagrams/
+ai/data/model_state.pt

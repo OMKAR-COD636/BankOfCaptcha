@@ -509,3 +509,141 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+/* ═══════════════════════════════════════════════════
+   Dark Mode Overrides — Landing Page
+   ═══════════════════════════════════════════════════ */
+[data-theme="dark"] .landing-container {
+  background-color: #0F1520;
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .landing-container a {
+  color: #60A5FA;
+}
+
+[data-theme="dark"] .utility-bar {
+  background-color: #0A1628;
+}
+
+[data-theme="dark"] .main-header {
+  background-color: #1A2235;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .logo-text h1 {
+  color: #4A9EE8;
+}
+
+[data-theme="dark"] .logo-text span {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .logo-icon {
+  color: #4A9EE8 !important;
+}
+
+[data-theme="dark"] .primary-nav a {
+  color: #CBD5E1;
+}
+
+[data-theme="dark"] .primary-nav a:hover {
+  color: #60A5FA;
+}
+
+[data-theme="dark"] .hero-section {
+  background: linear-gradient(135deg, #0F1D36 0%, #0A1628 100%);
+}
+
+[data-theme="dark"] .quick-actions-strip {
+  background-color: #1A2235;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .quick-actions-strip a {
+  color: #60A5FA;
+}
+
+[data-theme="dark"] .news-ticker {
+  background-color: #1A2235;
+  border-color: #2D3748;
+}
+
+[data-theme="dark"] .ticker-label {
+  color: #60A5FA;
+}
+
+[data-theme="dark"] .ticker-content a {
+  color: #CBD5E1;
+}
+
+[data-theme="dark"] .divider {
+  color: #475569;
+}
+
+[data-theme="dark"] .section-title {
+  color: #60A5FA;
+}
+
+[data-theme="dark"] .link-card {
+  background: #1E2433;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .link-card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .link-icon {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .link-card span {
+  color: #CBD5E1;
+}
+
+[data-theme="dark"] .product-card {
+  background: #1E2433;
+  border-color: #2D3748;
+  color: #60A5FA;
+}
+
+[data-theme="dark"] .product-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .sidebar {
+  background: #1E2433;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .tab {
+  background: #151B27;
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .tab.active {
+  background: #0F1D36;
+  color: #60A5FA;
+}
+
+[data-theme="dark"] .rate-row {
+  border-bottom-color: #2D3748;
+}
+
+[data-theme="dark"] .rate-name {
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .security-banner {
+  background: #3D2500;
+  color: #F6AD55;
+}
+
+[data-theme="dark"] .main-footer {
+  background: #0A1628;
+}
+
+[data-theme="dark"] .footer-bottom {
+  background: #060E1B;
+}

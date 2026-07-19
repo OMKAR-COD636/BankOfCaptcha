@@ -1,31 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, User, ShieldAlert, AlertTriangle, Building, FileText, Users, Search, Filter, Activity, Moon, Sun } from 'lucide-react';
+import { LogOut, User, ShieldAlert, AlertTriangle, Building, FileText, Users, Search, Filter, Activity } from 'lucide-react';
 import logoUrl from '../assets/logo.svg';
 import './Dashboard.css';
 import RiskActivityGraph from '../components/RiskActivityGraph';
 import RiskHeatmap from '../components/RiskHeatmap';
 import AlertReviewModal from '../components/AlertReviewModal';
+import DarkModeToggle from '../components/DarkModeToggle';
 
 const Pagination = ({ currentPage, totalItems, itemsPerPage, onPageChange }) => {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   if (totalPages <= 1) return null;
   return (
-    <div className="pagination" style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '15px', marginBottom: '15px' }}>
+    <div className="pagination">
       <button 
+        className="pagination-btn"
         onClick={() => onPageChange(currentPage - 1)} 
         disabled={currentPage === 1}
-        style={{ padding: '5px 10px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px' }}
       >
-        Previous
+        ‹ Previous
       </button>
-      <span style={{ padding: '5px', fontSize: '14px', color: '#475569' }}>Page {currentPage} of {totalPages}</span>
+      <span className="pagination-info">Page {currentPage} of {totalPages}</span>
       <button 
+        className="pagination-btn"
         onClick={() => onPageChange(currentPage + 1)} 
         disabled={currentPage === totalPages}
-        style={{ padding: '5px 10px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px' }}
       >
-        Next
+        Next ›
       </button>
     </div>
   );
@@ -57,19 +58,32 @@ const Dashboard = () => {
   const [kycReqPage, setKycReqPage] = useState(1);
   const [accountPage, setAccountPage] = useState(1);
   const itemsPerPage = 20;
+
+  // Sticky navbar: hide on scroll-down, show on scroll-up
+  const [navHidden, setNavHidden] = useState(false);
+  const lastScrollY = useRef(0);
+
+  const handleScroll = useCallback(() => {
+    const currentY = window.scrollY;
+    if (currentY > lastScrollY.current && currentY > 80) {
+      setNavHidden(true);  // scrolling down
+    } else {
+      setNavHidden(false); // scrolling up
+    }
+    lastScrollY.current = currentY;
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
   
   const navigate = useNavigate();
   const role = localStorage.getItem('role');
   const username = localStorage.getItem('username');
   const token = localStorage.getItem('token');
 
-  // Dark mode
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('theme') === 'dark');
 
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
-  }, [darkMode]);
 
   useEffect(() => {
     if (!token) {
@@ -344,7 +358,7 @@ const Dashboard = () => {
       {selectedAlertForReview && (
         <AlertReviewModal alert={selectedAlertForReview} token={token} onClose={() => setSelectedAlertForReview(null)} />
       )}
-      <nav className="navbar">
+      <nav className={`navbar${navHidden ? ' navbar--hidden' : ''}`}>
         <div className="nav-brand">
           <img src={logoUrl} alt="Bank Of Captcha Logo" width="28" height="28" />
           <span>BANK OF CAPTCHA</span>
@@ -352,19 +366,7 @@ const Dashboard = () => {
         <div className="nav-user">
           <User size={20} />
           <span className="user-info">{username} <span className="role-badge">{role.replace('ROLE_', '')}</span></span>
-          <button
-            className="dark-mode-toggle"
-            onClick={() => setDarkMode(prev => !prev)}
-            title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            aria-label="Toggle dark mode"
-          >
-            {darkMode ? <Sun size={14} /> : <Moon size={14} />}
-            <div className="toggle-track">
-              <div className="toggle-knob">
-                {darkMode ? '🌙' : '☀️'}
-              </div>
-            </div>
-          </button>
+          <DarkModeToggle variant="navbar" />
           <button className="logout-btn" onClick={handleLogout}>
             <LogOut size={16} /> Sign Out
           </button>
