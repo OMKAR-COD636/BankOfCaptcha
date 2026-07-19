@@ -27,6 +27,16 @@
         "ROLE_IT_ADMIN":            ["auth", "read", "admin"],
         "ROLE_SUPER_ADMIN":         ["auth", "read", "write", "financial", "admin"]
     },
+    "role_id_map": {
+        "_comment": "Maps role strings to integer IDs for the role-conditioned LSTM embedding. id=0 is reserved for UNKNOWN.",
+        "ROLE_CUSTOMER": 1,
+        "ROLE_TELLER": 2,
+        "ROLE_BRANCH_MANAGER": 3,
+        "ROLE_COMPLIANCE": 4,
+        "ROLE_IT_ADMIN": 5,
+        "ROLE_SUPER_ADMIN": 6
+    },
+    "num_roles": 6,
     "vocabulary_size": 20,
     "_vocabulary_note": "Must be >= max action id + 1. Increase this when adding new actions. id=0 is reserved for padding."
 }

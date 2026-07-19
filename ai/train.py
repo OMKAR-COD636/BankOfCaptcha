@@ -2,9 +2,11 @@ import os
 import random
 import torch
 import torch.nn as nn
-from inference import LSTMAutoencoder, load_action_registry, load_ai_config
+from inference import (
+    InsiderThreatLSTM, load_action_registry, load_ai_config
+)
 
-ACTION_MAP, VOCAB_SIZE, ROLE_PERMISSIONS = load_action_registry()
+ACTION_MAP, VOCAB_SIZE, ROLE_PERMISSIONS, ROLE_ID_MAP, NUM_ROLES = load_action_registry()
 AI_CONFIG = load_ai_config()
 
 MODEL_DIR = os.path.join(os.path.dirname(__file__), "data")
@@ -12,7 +14,7 @@ MODEL_PATH = os.path.join(MODEL_DIR, "model_state.pt")
 
 
 # ---------------------------------------------------------------------------
-# Role-Specific Markov Chain Data Generator
+# Role-Specific Markov Chain Data Generator (Role-Conditioned)
 # ---------------------------------------------------------------------------
 # Instead of hardcoding action probabilities, we derive them automatically from
 # the action registry. Each role's permitted categories determine which actions
@@ -57,6 +59,10 @@ def generate_synthetic_data(num_samples=None, seq_len=None):
     realistic normal banking behavior. Each sequence is generated for a
     randomly chosen role, using that role's learned action distribution.
     
+    Returns:
+        action_sequences: (num_samples, seq_len) tensor of action IDs
+        role_ids: (num_samples,) tensor of role IDs
+    
     The distributions are automatically derived from the action_registry.json,
     so adding new actions or roles requires zero code changes.
     """
@@ -66,13 +72,15 @@ def generate_synthetic_data(num_samples=None, seq_len=None):
     if seq_len is None:
         seq_len = AI_CONFIG["lstm"]["sequence_length"]
 
-    data = []
+    action_data = []
+    role_data = []
     roles = list(ROLE_DISTRIBUTIONS.keys())
 
     for _ in range(num_samples):
         seq = [0] * seq_len
         actual_len = random.randint(2, seq_len)
         role = random.choice(roles)
+        role_id = ROLE_ID_MAP.get(role, 0)
         role_actions, role_weights = zip(*ROLE_DISTRIBUTIONS[role])
 
         for i in range(actual_len):
@@ -83,21 +91,28 @@ def generate_synthetic_data(num_samples=None, seq_len=None):
             else:
                 seq[i] = random.choices(role_actions, weights=role_weights, k=1)[0]
 
-        data.append(seq)
+        action_data.append(seq)
+        role_data.append(role_id)
 
-    return torch.tensor(data, dtype=torch.long)
+    return torch.tensor(action_data, dtype=torch.long), torch.tensor(role_data, dtype=torch.long)
 
 
 def generate_adversarial_sequences(num_per_pattern=100, seq_len=None):
     """
     Generates known attack patterns for validation. These should produce HIGH
-    reconstruction errors in a well-trained model.
+    reconstruction errors in a well-trained role-conditioned model.
     
-    Patterns:
-    1. Privilege Escalation — customer performing admin actions
-    2. Smurfing — rapid repeated small transfers
-    3. Data Exfiltration — bulk GET requests in rapid succession
+    Patterns (now role-conditioned — the model sees the WRONG role for the actions):
+    1. Privilege Escalation — admin actions conditioned on ROLE_CUSTOMER
+    2. Smurfing — rapid repeated transfers conditioned on ROLE_CUSTOMER
+    3. Data Exfiltration — bulk reads conditioned on ROLE_CUSTOMER
     4. Cross-role chaos — random mix of all action categories
+    5. Insider Teller Attack — admin actions conditioned on ROLE_TELLER
+    6. Insider Manager Attack — financial burst conditioned on ROLE_BRANCH_MANAGER
+    
+    Returns:
+        action_sequences: (num_total, seq_len) tensor
+        role_ids: (num_total,) tensor
     """
     if seq_len is None:
         seq_len = AI_CONFIG["lstm"]["sequence_length"]
@@ -107,7 +122,12 @@ def generate_adversarial_sequences(num_per_pattern=100, seq_len=None):
     read_actions = [m["id"] for p, m in ACTION_MAP.items() if m["category"] == "read"]
     all_actions = [m["id"] for m in ACTION_MAP.values()]
 
-    adversarial = []
+    adversarial_seqs = []
+    adversarial_roles = []
+
+    customer_id = ROLE_ID_MAP.get("ROLE_CUSTOMER", 1)
+    teller_id = ROLE_ID_MAP.get("ROLE_TELLER", 2)
+    manager_id = ROLE_ID_MAP.get("ROLE_BRANCH_MANAGER", 3)
 
     # Pattern 1: Privilege Escalation (customer doing admin stuff)
     for _ in range(num_per_pattern):
@@ -117,114 +137,172 @@ def generate_adversarial_sequences(num_per_pattern=100, seq_len=None):
                 seq[i] = random.choice(read_actions) if read_actions else 1
             else:
                 seq[i] = random.choice(admin_actions) if admin_actions else random.choice(all_actions)
-        adversarial.append(seq)
+        adversarial_seqs.append(seq)
+        adversarial_roles.append(customer_id)
 
-    # Pattern 2: Smurfing (rapid repeated transfers)
+    # Pattern 2: Smurfing (rapid repeated transfers — customer)
     transfer_id = ACTION_MAP.get("POST /api/transactions/transfer", {}).get("id", 3)
     for _ in range(num_per_pattern):
         seq = [transfer_id] * seq_len
-        adversarial.append(seq)
+        adversarial_seqs.append(seq)
+        adversarial_roles.append(customer_id)
 
-    # Pattern 3: Data Exfiltration (bulk reads)
+    # Pattern 3: Data Exfiltration (bulk reads — customer)
     for _ in range(num_per_pattern):
         seq = [0] * seq_len
         for i in range(seq_len):
             seq[i] = random.choice(read_actions) if read_actions else 1
-        adversarial.append(seq)
+        adversarial_seqs.append(seq)
+        adversarial_roles.append(customer_id)
 
-    # Pattern 4: Cross-role chaos
+    # Pattern 4: Cross-role chaos (random role)
     for _ in range(num_per_pattern):
         seq = [0] * seq_len
         for i in range(seq_len):
             seq[i] = random.choice(all_actions)
-        adversarial.append(seq)
+        adversarial_seqs.append(seq)
+        adversarial_roles.append(random.choice(list(ROLE_ID_MAP.values())))
 
-    return torch.tensor(adversarial, dtype=torch.long)
+    # Pattern 5: Insider Teller Attack — teller doing admin actions
+    for _ in range(num_per_pattern):
+        seq = [0] * seq_len
+        for i in range(seq_len):
+            if i < 3:
+                # Start with normal teller actions (KYC, reads)
+                teller_actions = [m["id"] for p, m in ACTION_MAP.items()
+                                  if m["category"] in ["read", "write"]]
+                seq[i] = random.choice(teller_actions) if teller_actions else 1
+            else:
+                seq[i] = random.choice(admin_actions) if admin_actions else random.choice(all_actions)
+        adversarial_seqs.append(seq)
+        adversarial_roles.append(teller_id)
+
+    # Pattern 6: Insider Manager Attack — manager doing rapid financial burst
+    for _ in range(num_per_pattern):
+        seq = [0] * seq_len
+        for i in range(seq_len):
+            seq[i] = random.choice(financial_actions) if financial_actions else random.choice(all_actions)
+        adversarial_seqs.append(seq)
+        adversarial_roles.append(manager_id)
+
+    return (torch.tensor(adversarial_seqs, dtype=torch.long),
+            torch.tensor(adversarial_roles, dtype=torch.long))
 
 
 def train_model():
     """
-    Trains the LSTM Autoencoder model using role-aware synthetic data.
-    The model learns what "normal" action sequences look like per role,
-    and the dynamic threshold is calibrated from the training distribution.
+    Trains the InsiderThreatLSTM using role-conditioned synthetic data.
     
-    Adversarial sequences are used for validation (not training) to verify
-    that the model correctly flags known attack patterns.
+    Key changes from v2:
+    - Role conditioning: each sequence is paired with a role ID
+    - MSE loss: reconstructs embedding vectors, not discrete action IDs
+    - Richer adversarial patterns including insider-specific attack vectors
     """
     os.makedirs(MODEL_DIR, exist_ok=True)
     train_cfg = AI_CONFIG["training"]
     lstm_cfg = AI_CONFIG["lstm"]
 
-    print("Initializing CERT-Inspired Insider Threat AI (v2 — Dual Signal)...")
-    print(f"Action vocabulary: {len(ACTION_MAP)} actions, {VOCAB_SIZE} total IDs")
-    print(f"Roles learned: {list(ROLE_DISTRIBUTIONS.keys())}")
-    print(f"Generating {train_cfg['num_samples']:,} synthetic role-aware sequences...")
+    print("=" * 60)
+    print("  Initializing 4-Signal Insider Threat AI (v3)")
+    print("=" * 60)
+    print(f"  Action vocabulary: {len(ACTION_MAP)} actions, {VOCAB_SIZE} total IDs")
+    print(f"  Roles: {list(ROLE_DISTRIBUTIONS.keys())}")
+    print(f"  Role ID map: {ROLE_ID_MAP}")
+    print(f"  Architecture: InsiderThreatLSTM (role-conditioned, MSE, positional encoding)")
+    print(f"  Generating {train_cfg['num_samples']:,} synthetic role-aware sequences...")
 
-    X_train = generate_synthetic_data()
+    X_train, R_train = generate_synthetic_data()
 
-    model = LSTMAutoencoder(
+    model = InsiderThreatLSTM(
         seq_len=lstm_cfg["sequence_length"],
-        n_features=VOCAB_SIZE,
+        vocab_size=VOCAB_SIZE,
+        num_roles=NUM_ROLES,
         embedding_dim=lstm_cfg["embedding_dim"],
         hidden_dim=lstm_cfg["hidden_dim"],
         num_layers=lstm_cfg["num_layers"]
     )
 
-    criterion = nn.CrossEntropyLoss(ignore_index=0, reduction='none')
     optimizer = torch.optim.Adam(model.parameters(), lr=train_cfg["learning_rate"])
 
-    print(f"Training PyTorch LSTM Autoencoder ({train_cfg['epochs']} Epochs)...")
+    print(f"\n  Training ({train_cfg['epochs']} Epochs, MSE Loss)...\n")
     model.train()
     for epoch in range(train_cfg["epochs"]):
         optimizer.zero_grad()
-        output = model(X_train)
 
-        loss = criterion(output.view(-1, VOCAB_SIZE), X_train.view(-1))
-        loss_matrix = loss.view(-1, lstm_cfg["sequence_length"])
-        mask = (X_train != 0).float()
-        seq_losses = (loss_matrix * mask).sum(dim=1) / (mask.sum(dim=1) + 1e-8)
+        reconstructed, target_emb = model(X_train, R_train)
 
-        batch_loss = seq_losses.mean()
+        # MSE loss over non-padding positions
+        mask = (X_train != 0).unsqueeze(-1).float()  # (B, T, 1)
+        mse_per_sample = ((reconstructed - target_emb) ** 2 * mask).sum(dim=(1, 2)) / mask.sum(dim=(1, 2)).clamp(min=1)
+
+        batch_loss = mse_per_sample.mean()
         batch_loss.backward()
         optimizer.step()
 
         if (epoch + 1) % 5 == 0:
-            print(f"Epoch {epoch+1}/{train_cfg['epochs']} - Loss: {batch_loss.item():.4f}")
+            print(f"  Epoch {epoch+1}/{train_cfg['epochs']} — MSE Loss: {batch_loss.item():.6f}")
 
-    # Calculate Dynamic Threshold based on configurable percentile
+    # --- Calculate Dynamic Threshold ---
     model.eval()
     with torch.no_grad():
-        output = model(X_train)
-        loss = criterion(output.view(-1, VOCAB_SIZE), X_train.view(-1))
-        loss_matrix = loss.view(-1, lstm_cfg["sequence_length"])
-        mask = (X_train != 0).float()
-        seq_losses = (loss_matrix * mask).sum(dim=1) / (mask.sum(dim=1) + 1e-8)
+        reconstructed, target_emb = model(X_train, R_train)
+        mask = (X_train != 0).unsqueeze(-1).float()
+        mse_per_sample = ((reconstructed - target_emb) ** 2 * mask).sum(dim=(1, 2)) / mask.sum(dim=(1, 2)).clamp(min=1)
 
-        threshold = torch.quantile(seq_losses[seq_losses > 0], train_cfg["threshold_percentile"]).item()
+        # Use only non-zero errors for threshold calculation
+        valid_errors = mse_per_sample[mse_per_sample > 0]
+        threshold = torch.quantile(valid_errors, train_cfg["threshold_percentile"]).item()
 
-    print(f"Training complete! Dynamic Alert Threshold: {threshold:.2f}")
+    print(f"\n  Training complete! Dynamic MSE Threshold: {threshold:.6f}")
+    print(f"  (Sequences with MSE > {threshold:.6f} are anomalous)")
 
     # --- Adversarial Validation ---
-    print("\n--- Adversarial Validation ---")
-    X_attack = generate_adversarial_sequences()
+    print("\n" + "=" * 60)
+    print("  Adversarial Validation (6 attack patterns)")
+    print("=" * 60)
+
+    X_attack, R_attack = generate_adversarial_sequences()
+    pattern_names = [
+        "Privilege Escalation (customer→admin)",
+        "Smurfing (repeated transfers)",
+        "Data Exfiltration (bulk reads)",
+        "Cross-role chaos",
+        "Insider Teller (teller→admin)",
+        "Insider Manager (financial burst)"
+    ]
+    num_per_pattern = 100
+
     with torch.no_grad():
-        output = model(X_attack)
-        loss = criterion(output.view(-1, VOCAB_SIZE), X_attack.view(-1))
-        loss_matrix = loss.view(-1, lstm_cfg["sequence_length"])
-        mask = (X_attack != 0).float()
-        attack_losses = (loss_matrix * mask).sum(dim=1) / (mask.sum(dim=1) + 1e-8)
+        reconstructed, target_emb = model(X_attack, R_attack)
+        mask = (X_attack != 0).unsqueeze(-1).float()
+        attack_mse = ((reconstructed - target_emb) ** 2 * mask).sum(dim=(1, 2)) / mask.sum(dim=(1, 2)).clamp(min=1)
 
-        detected = (attack_losses > threshold).sum().item()
-        total = len(attack_losses)
-        print(f"Attack detection rate: {detected}/{total} ({100*detected/total:.1f}%) flagged above threshold {threshold:.2f}")
-        print(f"Mean attack error: {attack_losses.mean().item():.2f} vs normal threshold: {threshold:.2f}")
+        # Overall stats
+        detected = (attack_mse > threshold).sum().item()
+        total = len(attack_mse)
+        print(f"\n  Overall detection rate: {detected}/{total} ({100*detected/total:.1f}%) above threshold {threshold:.6f}")
+        print(f"  Mean attack MSE: {attack_mse.mean().item():.6f} vs threshold: {threshold:.6f}\n")
 
-    # Save the model state and threshold
+        # Per-pattern breakdown
+        for i, name in enumerate(pattern_names):
+            start = i * num_per_pattern
+            end = start + num_per_pattern
+            pattern_errors = attack_mse[start:end]
+            pattern_detected = (pattern_errors > threshold).sum().item()
+            pattern_mean = pattern_errors.mean().item()
+            print(f"  [{i+1}] {name}")
+            print(f"      Detection: {pattern_detected}/{num_per_pattern} ({100*pattern_detected/num_per_pattern:.0f}%)  Mean MSE: {pattern_mean:.6f}")
+
+    # --- Save Model ---
     torch.save({
+        'architecture': 'InsiderThreatLSTM',
         'model_state_dict': model.state_dict(),
-        'threshold': threshold
+        'threshold': threshold,
+        'role_id_map': ROLE_ID_MAP,
+        'vocab_size': VOCAB_SIZE,
+        'num_roles': NUM_ROLES
     }, MODEL_PATH)
-    print(f"Model saved to {MODEL_PATH}")
+    print(f"\n  Model saved to {MODEL_PATH}")
 
 
 if __name__ == "__main__":
