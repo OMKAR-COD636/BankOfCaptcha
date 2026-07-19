@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, User, ShieldAlert, AlertTriangle, Building, FileText, Users, Search, Filter, Activity, Moon, Sun } from 'lucide-react';
 import logoUrl from '../assets/logo.svg';
@@ -11,21 +11,21 @@ const Pagination = ({ currentPage, totalItems, itemsPerPage, onPageChange }) => 
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   if (totalPages <= 1) return null;
   return (
-    <div className="pagination" style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '15px', marginBottom: '15px' }}>
+    <div className="pagination">
       <button 
+        className="pagination-btn"
         onClick={() => onPageChange(currentPage - 1)} 
         disabled={currentPage === 1}
-        style={{ padding: '5px 10px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px' }}
       >
-        Previous
+        ‹ Previous
       </button>
-      <span style={{ padding: '5px', fontSize: '14px', color: '#475569' }}>Page {currentPage} of {totalPages}</span>
+      <span className="pagination-info">Page {currentPage} of {totalPages}</span>
       <button 
+        className="pagination-btn"
         onClick={() => onPageChange(currentPage + 1)} 
         disabled={currentPage === totalPages}
-        style={{ padding: '5px 10px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px' }}
       >
-        Next
+        Next ›
       </button>
     </div>
   );
@@ -57,6 +57,25 @@ const Dashboard = () => {
   const [kycReqPage, setKycReqPage] = useState(1);
   const [accountPage, setAccountPage] = useState(1);
   const itemsPerPage = 20;
+
+  // Sticky navbar: hide on scroll-down, show on scroll-up
+  const [navHidden, setNavHidden] = useState(false);
+  const lastScrollY = useRef(0);
+
+  const handleScroll = useCallback(() => {
+    const currentY = window.scrollY;
+    if (currentY > lastScrollY.current && currentY > 80) {
+      setNavHidden(true);  // scrolling down
+    } else {
+      setNavHidden(false); // scrolling up
+    }
+    lastScrollY.current = currentY;
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
   
   const navigate = useNavigate();
   const role = localStorage.getItem('role');
@@ -344,7 +363,7 @@ const Dashboard = () => {
       {selectedAlertForReview && (
         <AlertReviewModal alert={selectedAlertForReview} token={token} onClose={() => setSelectedAlertForReview(null)} />
       )}
-      <nav className="navbar">
+      <nav className={`navbar${navHidden ? ' navbar--hidden' : ''}`}>
         <div className="nav-brand">
           <img src={logoUrl} alt="Bank Of Captcha Logo" width="28" height="28" />
           <span>BANK OF CAPTCHA</span>

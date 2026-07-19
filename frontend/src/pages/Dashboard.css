@@ -4,6 +4,9 @@
 }
 
 .navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
   background-color: var(--primary-color);
   color: var(--primary-bg);
   padding: 1rem 2rem;
@@ -12,6 +15,13 @@
   align-items: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-bottom: 4px solid var(--accent-color);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.35s ease;
+}
+
+.navbar--hidden {
+  transform: translateY(-100%);
+  box-shadow: none;
 }
 
 .nav-brand {
@@ -49,31 +59,34 @@
   text-transform: uppercase;
 }
 
-.logout-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: transparent;
-  color: var(--primary-bg);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-.logout-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-color: var(--primary-bg);
-}
 
 /* Dark Mode Toggle */
 .dark-mode-toggle {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: transparent;
-  border: none;
-  padding: 0;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  padding: 4px 10px;
   cursor: pointer;
   color: inherit;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.dark-mode-toggle:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .dark-mode-toggle {
+  background: rgba(74, 158, 232, 0.15);
+  border-color: rgba(74, 158, 232, 0.5);
+}
+
+[data-theme="dark"] .dark-mode-toggle:hover {
+  background: rgba(74, 158, 232, 0.28);
+  border-color: rgba(74, 158, 232, 0.8);
 }
 
 .toggle-track {
@@ -477,4 +490,99 @@
   background: #60B0F5;
 }
 
+/* ─── Pagination ─────────────────────────────────── */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 8px 0;
+}
 
+.pagination-btn {
+  padding: 6px 16px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-color);
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: var(--primary-color);
+  color: #fff;
+  border-color: var(--primary-color);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-light);
+  user-select: none;
+}
+
+/* Dark mode pagination */
+[data-theme="dark"] .pagination-btn {
+  background: #1A2235;
+  color: #E2E8F0;
+  border-color: #2D3748;
+}
+
+[data-theme="dark"] .pagination-btn:hover:not(:disabled) {
+  background: #4A9EE8;
+  color: #fff;
+  border-color: #4A9EE8;
+}
+
+[data-theme="dark"] .pagination-info {
+  color: #94A3B8;
+}
+
+/* ─── Navbar Element Visibility ──────────────────── */
+.nav-user .user-info {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  border-radius: 6px;
+  font-weight: 600;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.logout-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .logout-btn {
+  background-color: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #FCA5A5;
+}
+
+[data-theme="dark"] .logout-btn:hover {
+  background-color: rgba(239, 68, 68, 0.28);
+  border-color: rgba(239, 68, 68, 0.8);
+  color: #FEE2E2;
+}
+
+[data-theme="dark"] .nav-brand span,
+[data-theme="dark"] .nav-user .user-info {
+  color: #E2E8F0;
+}

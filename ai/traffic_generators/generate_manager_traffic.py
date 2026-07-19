@@ -34,7 +34,6 @@ def main():
         time.sleep(0.05)
 
     print("\n[✓] Manager Insider Threat Simulation Complete.")
-    print("Check your terminal running the AI Engine; you should see HIGH severity alerts!")
 
 if __name__ == "__main__":
     main()
