@@ -203,7 +203,9 @@ def _sync_metrics_to_backend():
     
     Called automatically every time load_model() succeeds — covers
     startup, adaptive retrain, and manual retrain flows.
+    Includes a retry loop to handle Docker startup race conditions.
     """
+    import time
     if GLOBAL_TRAINING_METRICS is None:
         return
 
@@ -214,19 +216,28 @@ def _sync_metrics_to_backend():
         "patternMetrics": GLOBAL_TRAINING_METRICS.get("pattern_metrics", [])
     }
 
-    try:
-        resp = requests.post(
-            f"{JAVA_BACKEND_URL}/ai/training/metrics",
-            json=payload, headers=ai_headers(), timeout=5
-        )
-        if resp.status_code == 200:
-            print("  Training metrics synced to backend.")
-        else:
-            print(f"  Backend returned {resp.status_code} for metrics sync — non-fatal.")
-    except requests.exceptions.ConnectionError:
-        print("  Backend not reachable — metrics will sync on next model load.")
-    except Exception as e:
-        print(f"  Metrics sync failed: {e} — non-fatal.")
+    max_retries = 5
+    for attempt in range(max_retries):
+        try:
+            resp = requests.post(
+                f"{JAVA_BACKEND_URL}/ai/training/metrics",
+                json=payload, headers=ai_headers(), timeout=5
+            )
+            if resp.status_code == 200:
+                print("  Training metrics synced to backend.")
+                return
+            else:
+                print(f"  Backend returned {resp.status_code} for metrics sync — non-fatal.")
+                return
+        except requests.exceptions.ConnectionError:
+            if attempt < max_retries - 1:
+                print(f"  Backend not reachable (attempt {attempt + 1}/{max_retries}) — retrying in 3s...")
+                time.sleep(3)
+            else:
+                print("  Backend not reachable after multiple retries — metrics will sync on next model load.")
+        except Exception as e:
+            print(f"  Metrics sync failed: {e} — non-fatal.")
+            return
 
 
 def get_training_metrics():

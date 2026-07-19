@@ -12,6 +12,8 @@ import StaffTab from '../components/dashboard/StaffTab';
 import BranchTab from '../components/dashboard/BranchTab';
 import ComplianceTab from '../components/dashboard/ComplianceTab';
 import AiModelTab from '../components/dashboard/AiModelTab';
+import ManagerTab from '../components/dashboard/ManagerTab';
+import TellerTab from '../components/dashboard/TellerTab';
 
 const Dashboard = () => {
   const [logs, setLogs] = useState([]);
@@ -349,6 +351,29 @@ const Dashboard = () => {
             accountPage={accountPage}
             setAccountPage={setAccountPage}
             itemsPerPage={itemsPerPage}
+            transferForm={transferForm}
+            setTransferForm={setTransferForm}
+            handleTransfer={handleTransfer}
+            transferMsg={transferMsg}
+          />
+        ) : role === 'ROLE_TELLER' ? (
+          <TellerTab 
+            kycRequests={kycRequests}
+            itemsPerPage={itemsPerPage}
+          />
+        ) : role === 'ROLE_BRANCH_MANAGER' ? (
+          <ManagerTab 
+            transactionRequests={transactionRequests}
+            handleApprove={handleApprove}
+            handleReject={handleReject}
+            itemsPerPage={itemsPerPage}
+          />
+        ) : role === 'ROLE_COMPLIANCE_OFFICER' ? (
+          <ComplianceTab 
+            logs={logs}
+            users={users}
+            handleVerifyLog={handleVerifyLog}
+            itemsPerPage={itemsPerPage}
           />
         ) : (role === 'ROLE_SUPER_ADMIN' || role === 'ROLE_IT_ADMIN') ? (
           <div className="admin-view">
@@ -423,11 +448,8 @@ const Dashboard = () => {
             {activeAdminTab === 'compliance' && role === 'ROLE_SUPER_ADMIN' && (
               <ComplianceTab 
                 logs={logs}
-                transactionRequests={transactionRequests}
-                kycRequests={kycRequests}
+                users={users}
                 handleVerifyLog={handleVerifyLog}
-                handleApprove={handleApprove}
-                handleReject={handleReject}
                 itemsPerPage={itemsPerPage}
               />
             )}
