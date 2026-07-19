@@ -44,9 +44,10 @@
     },
     "training": {
         "num_samples": 20000,
-        "epochs": 30,
-        "learning_rate": 0.005,
+        "epochs": 80,
+        "batch_size": 512,
+        "learning_rate": 0.001,
         "threshold_percentile": 0.90,
-        "_comment": "threshold_percentile: the percentile of training MSE reconstruction errors used to set the dynamic anomaly threshold. 0.90 means 10% of normal traffic will be borderline."
+        "_comment": "threshold_percentile: the percentile of training MSE reconstruction errors used to set the dynamic anomaly threshold. 0.90 means 10% of normal traffic will be borderline. Mini-batch training with cosine LR annealing."
     }
 }

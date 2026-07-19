@@ -1,7 +1,9 @@
 import os
 import random
+import math
 import torch
 import torch.nn as nn
+from torch.utils.data import TensorDataset, DataLoader
 import requests
 from inference import (
     InsiderThreatLSTM, load_action_registry, load_ai_config, JAVA_BACKEND_URL, ai_headers, action_to_idx, role_to_id
@@ -190,6 +192,20 @@ def generate_adversarial_sequences(num_per_pattern=100, seq_len=None):
             torch.tensor(adversarial_roles, dtype=torch.long))
 
 
+def _compute_mse(reconstructed, target_emb, action_seq, embedding_dim):
+    """Compute properly normalized MSE over non-padding positions.
+    
+    Divides by embedding_dim so the error is a true per-element mean,
+    not inflated by the embedding width.
+    """
+    mask = (action_seq != 0).unsqueeze(-1).float()  # (B, T, 1)
+    sq_err = (reconstructed - target_emb) ** 2 * mask  # (B, T, E)
+    # Sum over time and embedding, divide by (valid_positions × embedding_dim)
+    valid_elements = mask.sum(dim=(1, 2)) * embedding_dim  # (B,)
+    mse_per_sample = sq_err.sum(dim=(1, 2)) / valid_elements.clamp(min=1)
+    return mse_per_sample
+
+
 def train_model(adaptive=False):
     """
     Trains the InsiderThreatLSTM using role-conditioned synthetic data.
@@ -198,6 +214,10 @@ def train_model(adaptive=False):
     os.makedirs(MODEL_DIR, exist_ok=True)
     train_cfg = AI_CONFIG["training"]
     lstm_cfg = AI_CONFIG["lstm"]
+    batch_size = train_cfg.get("batch_size", 512)
+    num_epochs = train_cfg.get("epochs", 80)
+    lr = train_cfg.get("learning_rate", 0.001)
+    embedding_dim = lstm_cfg["embedding_dim"]
 
     print("=" * 60)
     print("  Initializing 4-Signal Insider Threat AI (v3)")
@@ -247,43 +267,60 @@ def train_model(adaptive=False):
         seq_len=lstm_cfg["sequence_length"],
         vocab_size=VOCAB_SIZE,
         num_roles=NUM_ROLES,
-        embedding_dim=lstm_cfg["embedding_dim"],
+        embedding_dim=embedding_dim,
         hidden_dim=lstm_cfg["hidden_dim"],
         num_layers=lstm_cfg["num_layers"]
     )
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=train_cfg["learning_rate"])
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=num_epochs, eta_min=lr * 0.01)
 
-    print(f"\n  Training ({train_cfg['epochs']} Epochs, MSE Loss)...\n")
+    # Build DataLoader for mini-batch training
+    dataset = TensorDataset(X_train, R_train)
+    loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+
+    print(f"\n  Training ({num_epochs} Epochs, MSE Loss, batch_size={batch_size}, LR={lr})...\n")
     model.train()
-    for epoch in range(train_cfg["epochs"]):
-        optimizer.zero_grad()
+    for epoch in range(num_epochs):
+        epoch_loss = 0.0
+        num_batches = 0
 
-        reconstructed, target_emb = model(X_train, R_train)
+        for batch_X, batch_R in loader:
+            optimizer.zero_grad()
+            reconstructed, target_emb = model(batch_X, batch_R)
+            mse_per_sample = _compute_mse(reconstructed, target_emb, batch_X, embedding_dim)
+            batch_loss = mse_per_sample.mean()
+            batch_loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            optimizer.step()
+            epoch_loss += batch_loss.item()
+            num_batches += 1
 
-        # MSE loss over non-padding positions
-        mask = (X_train != 0).unsqueeze(-1).float()  # (B, T, 1)
-        mse_per_sample = ((reconstructed - target_emb) ** 2 * mask).sum(dim=(1, 2)) / mask.sum(dim=(1, 2)).clamp(min=1)
+        scheduler.step()
+        avg_loss = epoch_loss / num_batches
 
-        batch_loss = mse_per_sample.mean()
-        batch_loss.backward()
-        optimizer.step()
-
-        if (epoch + 1) % 5 == 0:
-            print(f"  Epoch {epoch+1}/{train_cfg['epochs']} — MSE Loss: {batch_loss.item():.6f}")
+        if (epoch + 1) % 10 == 0 or epoch == 0:
+            current_lr = scheduler.get_last_lr()[0]
+            print(f"  Epoch {epoch+1:3d}/{num_epochs} — MSE: {avg_loss:.6f}  LR: {current_lr:.6f}")
 
     # --- Calculate Dynamic Threshold ---
     model.eval()
+    all_mse = []
+    eval_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
     with torch.no_grad():
-        reconstructed, target_emb = model(X_train, R_train)
-        mask = (X_train != 0).unsqueeze(-1).float()
-        mse_per_sample = ((reconstructed - target_emb) ** 2 * mask).sum(dim=(1, 2)) / mask.sum(dim=(1, 2)).clamp(min=1)
+        for batch_X, batch_R in eval_loader:
+            reconstructed, target_emb = model(batch_X, batch_R)
+            mse_per_sample = _compute_mse(reconstructed, target_emb, batch_X, embedding_dim)
+            all_mse.append(mse_per_sample)
 
-        # Use only non-zero errors for threshold calculation
-        valid_errors = mse_per_sample[mse_per_sample > 0]
-        threshold = torch.quantile(valid_errors, train_cfg["threshold_percentile"]).item()
+    all_mse = torch.cat(all_mse)
+    valid_errors = all_mse[all_mse > 0]
+    threshold = torch.quantile(valid_errors, train_cfg["threshold_percentile"]).item()
+    mean_normal = valid_errors.mean().item()
 
-    print(f"\n  Training complete! Dynamic MSE Threshold: {threshold:.6f}")
+    print(f"\n  Training complete!")
+    print(f"  Mean normal MSE:     {mean_normal:.6f}")
+    print(f"  Dynamic Threshold:   {threshold:.6f} (p{train_cfg['threshold_percentile']:.0%})")
     print(f"  (Sequences with MSE > {threshold:.6f} are anomalous)")
 
     # --- Adversarial Validation ---
@@ -304,47 +341,50 @@ def train_model(adaptive=False):
 
     with torch.no_grad():
         reconstructed, target_emb = model(X_attack, R_attack)
-        mask = (X_attack != 0).unsqueeze(-1).float()
-        attack_mse = ((reconstructed - target_emb) ** 2 * mask).sum(dim=(1, 2)) / mask.sum(dim=(1, 2)).clamp(min=1)
+        attack_mse = _compute_mse(reconstructed, target_emb, X_attack, embedding_dim)
 
         # Overall stats
         detected = (attack_mse > threshold).sum().item()
         total = len(attack_mse)
         print(f"\n  Overall detection rate: {detected}/{total} ({100*detected/total:.1f}%) above threshold {threshold:.6f}")
-        print(f"  Mean attack MSE: {attack_mse.mean().item():.6f} vs threshold: {threshold:.6f}\n")
+        print(f"  Mean attack MSE: {attack_mse.mean().item():.6f} vs normal mean: {mean_normal:.6f} (separation: {attack_mse.mean().item()/mean_normal:.1f}x)\n")
 
-        # Per-pattern breakdown
+        # Build per-pattern metrics
+        pattern_metrics = []
         for i, name in enumerate(pattern_names):
             start = i * num_per_pattern
             end = start + num_per_pattern
             pattern_errors = attack_mse[start:end]
             pattern_detected = (pattern_errors > threshold).sum().item()
             pattern_mean = pattern_errors.mean().item()
-            print(f"  [{i+1}] {name}")
-            print(f"      Detection: {pattern_detected}/{num_per_pattern} ({100*pattern_detected/num_per_pattern:.0f}%)  Mean MSE: {pattern_mean:.6f}")
+            sep = pattern_mean / mean_normal if mean_normal > 0 else 0
+            status = "✓" if pattern_detected >= 50 else "△" if pattern_detected >= 20 else "✗"
+            print(f"  [{status}] {name}")
+            print(f"      Detection: {pattern_detected}/{num_per_pattern} ({100*pattern_detected/num_per_pattern:.0f}%)  Mean MSE: {pattern_mean:.6f}  ({sep:.1f}x normal)")
+            pattern_metrics.append({
+                "name": name,
+                "detection_rate": pattern_detected / num_per_pattern,
+                "mean_mse": pattern_mean,
+                "separation": sep
+            })
 
-    # --- Save Model ---
+    # --- Save Model + Analytics ---
     torch.save({
         'architecture': 'InsiderThreatLSTM',
         'model_state_dict': model.state_dict(),
         'threshold': threshold,
         'role_id_map': ROLE_ID_MAP,
         'vocab_size': VOCAB_SIZE,
-        'num_roles': NUM_ROLES
-    }, MODEL_PATH)
-    print(f"\n  Model saved to {MODEL_PATH}")
-
-    # --- Push Metrics to Backend ---
-    try:
-        metrics = {
-            "threshold": threshold,
-            "mseLoss": batch_loss.item(),
-            "overallDetectionRate": detected / total
+        'num_roles': NUM_ROLES,
+        'training_metrics': {
+            'mse_loss': avg_loss,
+            'mean_normal_mse': mean_normal,
+            'overall_detection_rate': detected / total,
+            'pattern_metrics': pattern_metrics
         }
-        requests.post(f"{JAVA_BACKEND_URL}/ai/training/metrics", json=metrics, headers=ai_headers())
-        print("  Metrics pushed to backend.")
-    except Exception as e:
-        print(f"  Failed to push metrics to backend: {e}")
+    }, MODEL_PATH)
+    print(f"\n  Model saved to {MODEL_PATH} (with embedded analytics)")
 
 if __name__ == "__main__":
     train_model()
+

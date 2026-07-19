@@ -153,13 +153,14 @@ class LSTMAutoencoder(nn.Module):
 # ---------------------------------------------------------------------------
 GLOBAL_MODEL = None
 GLOBAL_THRESHOLD = 0.8
+GLOBAL_TRAINING_METRICS = None
 LAST_SEEN_LOG_ID = 0
 MODEL_DIR = os.path.join(os.path.dirname(__file__), "data")
 MODEL_PATH = os.path.join(MODEL_DIR, "model_state.pt")
 
 
 def load_model():
-    global GLOBAL_MODEL, GLOBAL_THRESHOLD
+    global GLOBAL_MODEL, GLOBAL_THRESHOLD, GLOBAL_TRAINING_METRICS
     lstm_cfg = AI_CONFIG["lstm"]
 
     if not os.path.exists(MODEL_PATH):
@@ -180,8 +181,14 @@ def load_model():
         )
         GLOBAL_MODEL.load_state_dict(checkpoint['model_state_dict'])
         GLOBAL_THRESHOLD = checkpoint['threshold']
+        GLOBAL_TRAINING_METRICS = checkpoint.get('training_metrics')
         GLOBAL_MODEL.eval()
         print(f"4-Signal InsiderThreatLSTM loaded. Dynamic Threshold: {GLOBAL_THRESHOLD:.4f}")
+        if GLOBAL_TRAINING_METRICS:
+            print(f"  Embedded analytics: MSE={GLOBAL_TRAINING_METRICS['mse_loss']:.6f}, "
+                  f"Detection={GLOBAL_TRAINING_METRICS['overall_detection_rate']:.1%}")
+        # Sync metrics to backend (non-fatal)
+        _sync_metrics_to_backend()
         return True
     else:
         # Legacy model detected — cannot use, need retrain
@@ -189,6 +196,42 @@ def load_model():
         print("Please delete data/model_state.pt and retrain with the new architecture.")
         print("Run: python train.py")
         return False
+
+
+def _sync_metrics_to_backend():
+    """Push training analytics from the checkpoint to the backend.
+    
+    Called automatically every time load_model() succeeds — covers
+    startup, adaptive retrain, and manual retrain flows.
+    """
+    if GLOBAL_TRAINING_METRICS is None:
+        return
+
+    payload = {
+        "threshold": GLOBAL_TRAINING_METRICS.get("mean_normal_mse", 0),
+        "mseLoss": GLOBAL_TRAINING_METRICS.get("mse_loss", 0),
+        "overallDetectionRate": GLOBAL_TRAINING_METRICS.get("overall_detection_rate", 0),
+        "patternMetrics": GLOBAL_TRAINING_METRICS.get("pattern_metrics", [])
+    }
+
+    try:
+        resp = requests.post(
+            f"{JAVA_BACKEND_URL}/ai/training/metrics",
+            json=payload, headers=ai_headers(), timeout=5
+        )
+        if resp.status_code == 200:
+            print("  Training metrics synced to backend.")
+        else:
+            print(f"  Backend returned {resp.status_code} for metrics sync — non-fatal.")
+    except requests.exceptions.ConnectionError:
+        print("  Backend not reachable — metrics will sync on next model load.")
+    except Exception as e:
+        print(f"  Metrics sync failed: {e} — non-fatal.")
+
+
+def get_training_metrics():
+    """Return the training metrics embedded in the checkpoint, or None."""
+    return GLOBAL_TRAINING_METRICS
 
 
 # ---------------------------------------------------------------------------
@@ -600,11 +643,12 @@ def analyze_logs():
 
         with torch.no_grad():
             reconstructed, target_emb = GLOBAL_MODEL(seq_tensor, role_tensor)
-            # MSE over non-padding positions
+            # MSE over non-padding positions — must match training normalization exactly
+            embedding_dim = GLOBAL_MODEL.embedding_dim
             mask = (seq_tensor != 0).unsqueeze(-1).float()  # (1, T, 1)
-            mse_per_pos = ((reconstructed - target_emb) ** 2).mean(dim=-1)  # (1, T)
-            masked_mse = (mse_per_pos * mask.squeeze(-1)).sum() / mask.sum().clamp(min=1)
-            reconstruction_error = masked_mse.item()
+            sq_err = (reconstructed - target_emb) ** 2 * mask  # (1, T, E)
+            valid_elements = mask.sum() * embedding_dim
+            reconstruction_error = (sq_err.sum() / valid_elements.clamp(min=1)).item()
 
         valid_elements = sum(1 for s in seq if s != 0)
         lstm_normalized = normalize_lstm_error(reconstruction_error, GLOBAL_THRESHOLD)

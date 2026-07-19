@@ -20,6 +20,7 @@ def main():
         print(f"Model found at {MODEL_PATH}. Bypassing training.")
 
     # Load the model into the inference engine
+    # (also syncs training metrics to backend automatically)
     success = load_model()
     if not success:
         print("Failed to start AI service. Exiting.")
