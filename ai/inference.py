@@ -346,7 +346,7 @@ class TransactionProfiler:
         # Filter audit logs to high-risk actions (financial or write) in the last 5 minutes
         if not user_audit_df.empty:
             # First, ensure timestamp is a datetime object
-            user_audit_df['timestamp'] = pd.to_datetime(user_audit_df['timestamp'])
+            user_audit_df['timestamp'] = pd.to_datetime(user_audit_df['timestamp'], format='ISO8601')
             
             if user_audit_df['timestamp'].dt.tz is None:
                 user_audit_df['timestamp'] = user_audit_df['timestamp'].dt.tz_localize('UTC')
@@ -398,7 +398,7 @@ class TemporalAnalyzer:
             return 0.0, None
 
         audit_copy = user_audit_df.copy()
-        audit_copy['timestamp'] = pd.to_datetime(audit_copy['timestamp'])
+        audit_copy['timestamp'] = pd.to_datetime(audit_copy['timestamp'], format='ISO8601')
 
         # --- Sub-signal 4a: After-hours access ---
         if audit_copy['timestamp'].dt.tz is not None:

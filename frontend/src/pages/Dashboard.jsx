@@ -324,7 +324,7 @@ const Dashboard = () => {
     const matchesRole = !alertFilter.role || userRole === alertFilter.role;
     const matchesSeverity = !alertFilter.severity || a.severity === alertFilter.severity;
     const matchesStatus = !alertFilter.status || a.status === alertFilter.status;
-    const alertDate = new Date(a.timestamp);
+    const alertDate = new Date(a.timestamp + 'Z');
     const alertDateStr = alertDate.getFullYear() + '-' + String(alertDate.getMonth() + 1).padStart(2, '0') + '-' + String(alertDate.getDate()).padStart(2, '0');
     const matchesDate = !selectedDate || (alertDateStr === selectedDate);
     const matchesMatrix = !selectedMatrix || a.severity === selectedMatrix.severity;
@@ -335,7 +335,7 @@ const Dashboard = () => {
     const matchesSearch = !logFilter.search || log.username.toLowerCase().includes(logFilter.search.toLowerCase());
     const userRole = users.find(u => u.username === log.username)?.role?.replace('ROLE_', '') || 'UNKNOWN';
     const matchesRole = !logFilter.role || userRole === logFilter.role;
-    const logDate = new Date(log.timestamp);
+    const logDate = new Date(log.timestamp + 'Z');
     const logDateStr = logDate.getFullYear() + '-' + String(logDate.getMonth() + 1).padStart(2, '0') + '-' + String(logDate.getDate()).padStart(2, '0');
     const matchesDate = !selectedDate || (logDateStr === selectedDate);
     return matchesSearch && matchesRole && matchesDate;
@@ -527,7 +527,7 @@ const Dashboard = () => {
                       <td><span className={`severity-badge ${alert.severity.toLowerCase()}`}>{alert.severity}</span></td>
                       <td>{alert.description}</td>
                       <td><strong>{alert.status}</strong></td>
-                      <td>{new Date(alert.timestamp).toLocaleString()}</td>
+                      <td>{new Date(alert.timestamp + 'Z').toLocaleString()}</td>
                       <td>
                         {alert.status === 'OPEN' && (
                            <button onClick={() => handleResolveAlert(alert.id)} style={{ padding: '4px 8px', background: '#16a34a', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', marginRight: '5px' }}>Resolve</button>
@@ -646,7 +646,7 @@ const Dashboard = () => {
                           <td><span className="log-user">{log.username}</span></td>
                           <td><span className="role-badge">{users.find(u => u.username === log.username)?.role?.replace('ROLE_', '') || 'UNKNOWN'}</span></td>
                           <td><code>{log.action}</code></td>
-                          <td>{new Date(log.timestamp).toLocaleString()}</td>
+                          <td>{new Date(log.timestamp + 'Z').toLocaleString()}</td>
                           <td>
                             <button className="verify-btn" onClick={() => handleVerifyLog(log.id)}>Verify Integrity</button>
                           </td>
@@ -837,7 +837,7 @@ const Dashboard = () => {
                         <td><span className="log-user">{log.username}</span></td>
                         <td><span className="role-badge">{users.find(u => u.username === log.username)?.role?.replace('ROLE_', '') || 'UNKNOWN'}</span></td>
                         <td><code>{log.action}</code></td>
-                        <td>{new Date(log.timestamp).toLocaleString()}</td>
+                        <td>{new Date(log.timestamp + 'Z').toLocaleString()}</td>
                         <td>
                           <button className="verify-btn" onClick={() => handleVerifyLog(log.id)}>Verify Integrity</button>
                         </td>

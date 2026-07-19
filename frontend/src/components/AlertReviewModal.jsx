@@ -76,7 +76,7 @@ const AlertReviewModal = ({ alert, onClose, token }) => {
   };
 
   const actionSequence = activityData.logs.slice().reverse().map((log) => ({
-    time: new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    time: new Date(log.timestamp + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
     action: log.action,
     risk: getActionRisk(log.action),
     id: log.id
@@ -84,7 +84,7 @@ const AlertReviewModal = ({ alert, onClose, token }) => {
 
   // Prepare Transaction History Data
   const txHistory = activityData.transactions.slice().reverse().map((tx) => ({
-    time: new Date(tx.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    time: new Date(tx.timestamp + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
     amount: parseFloat(tx.amount),
     type: tx.type,
     id: tx.id
@@ -100,7 +100,7 @@ const AlertReviewModal = ({ alert, onClose, token }) => {
   const getFrequencyData = () => {
     const freqMap = {};
     activityData.logs.forEach(log => {
-      const time = new Date(log.timestamp);
+      const time = new Date(log.timestamp + 'Z');
       // Group by Minute for a nice bar chart
       const key = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       freqMap[key] = (freqMap[key] || 0) + 1;

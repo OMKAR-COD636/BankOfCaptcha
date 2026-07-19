@@ -26,7 +26,7 @@ const RiskActivityGraph = ({ alerts = [], onDateSelect, selectedDate }) => {
         
         alerts.forEach(alert => {
             if (alert.timestamp && alert.severity) {
-                const alertDate = new Date(alert.timestamp);
+                const alertDate = new Date(alert.timestamp + 'Z');
                 if (!isNaN(alertDate.getTime())) {
                     const dateStr = alertDate.getFullYear() + '-' + String(alertDate.getMonth() + 1).padStart(2, '0') + '-' + String(alertDate.getDate()).padStart(2, '0');
                     if (map.has(dateStr)) {
