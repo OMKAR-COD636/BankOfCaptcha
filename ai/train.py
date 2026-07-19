@@ -2,8 +2,9 @@ import os
 import random
 import torch
 import torch.nn as nn
+import requests
 from inference import (
-    InsiderThreatLSTM, load_action_registry, load_ai_config
+    InsiderThreatLSTM, load_action_registry, load_ai_config, JAVA_BACKEND_URL, ai_headers, action_to_idx, role_to_id
 )
 
 ACTION_MAP, VOCAB_SIZE, ROLE_PERMISSIONS, ROLE_ID_MAP, NUM_ROLES = load_action_registry()
@@ -189,14 +190,10 @@ def generate_adversarial_sequences(num_per_pattern=100, seq_len=None):
             torch.tensor(adversarial_roles, dtype=torch.long))
 
 
-def train_model():
+def train_model(adaptive=False):
     """
     Trains the InsiderThreatLSTM using role-conditioned synthetic data.
-    
-    Key changes from v2:
-    - Role conditioning: each sequence is paired with a role ID
-    - MSE loss: reconstructs embedding vectors, not discrete action IDs
-    - Richer adversarial patterns including insider-specific attack vectors
+    If adaptive=True, fetches false positives from the backend and includes them in training data.
     """
     os.makedirs(MODEL_DIR, exist_ok=True)
     train_cfg = AI_CONFIG["training"]
@@ -211,7 +208,40 @@ def train_model():
     print(f"  Architecture: InsiderThreatLSTM (role-conditioned, MSE, positional encoding)")
     print(f"  Generating {train_cfg['num_samples']:,} synthetic role-aware sequences...")
 
-    X_train, R_train = generate_synthetic_data()
+    X_train_synth, R_train_synth = generate_synthetic_data()
+    
+    # Adaptive training: inject false positive sequences
+    X_fp = []
+    R_fp = []
+    if adaptive:
+        print("  [Adaptive] Fetching false positive sequences from backend...")
+        try:
+            resp = requests.get(f"{JAVA_BACKEND_URL}/ai/false-positives", headers=ai_headers())
+            if resp.status_code == 200:
+                fp_data = resp.json()
+                for seq_obj in fp_data:
+                    events = seq_obj.get("events", [])
+                    role = events[0].get("role", "UNKNOWN") if events else "UNKNOWN"
+                    role_id = role_to_id(role)
+                    seq = [0] * lstm_cfg["sequence_length"]
+                    actions = [e.get("action") for e in events]
+                    recent = actions[-lstm_cfg["sequence_length"]:]
+                    for i, a in enumerate(recent):
+                        seq[i] = action_to_idx(a)
+                    # Duplicate these multiple times so the model heavily weights them as normal
+                    for _ in range(100):
+                        X_fp.append(seq)
+                        R_fp.append(role_id)
+                print(f"  [Adaptive] Injected {len(fp_data)} unique false positive sequences (duplicated for weighting).")
+        except Exception as e:
+            print(f"  [Adaptive] Failed to fetch false positives: {e}")
+
+    if X_fp:
+        X_train = torch.cat([X_train_synth, torch.tensor(X_fp, dtype=torch.long)])
+        R_train = torch.cat([R_train_synth, torch.tensor(R_fp, dtype=torch.long)])
+    else:
+        X_train = X_train_synth
+        R_train = R_train_synth
 
     model = InsiderThreatLSTM(
         seq_len=lstm_cfg["sequence_length"],
@@ -304,6 +334,17 @@ def train_model():
     }, MODEL_PATH)
     print(f"\n  Model saved to {MODEL_PATH}")
 
+    # --- Push Metrics to Backend ---
+    try:
+        metrics = {
+            "threshold": threshold,
+            "mseLoss": batch_loss.item(),
+            "overallDetectionRate": detected / total
+        }
+        requests.post(f"{JAVA_BACKEND_URL}/ai/training/metrics", json=metrics, headers=ai_headers())
+        print("  Metrics pushed to backend.")
+    except Exception as e:
+        print(f"  Failed to push metrics to backend: {e}")
 
 if __name__ == "__main__":
     train_model()

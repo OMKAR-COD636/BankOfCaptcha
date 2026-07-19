@@ -38,4 +38,14 @@ public class AiAlertController {
     public ResponseEntity<List<AiAlert>> getAlerts() {
         return ResponseEntity.ok(alertService.getAlerts());
     }
+
+    @PutMapping("/{id}/feedback")
+    public ResponseEntity<?> updateFeedback(@PathVariable Long id, @RequestBody java.util.Map<String, Boolean> payload) {
+        try {
+            Boolean isFalsePositive = payload.getOrDefault("isFalsePositive", false);
+            return ResponseEntity.ok(alertService.setFeedback(id, isFalsePositive));
+        } catch (IllegalArgumentException exception) {
+            return ResponseEntity.badRequest().body(exception.getMessage());
+        }
+    }
 }

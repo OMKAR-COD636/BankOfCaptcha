@@ -29,6 +29,9 @@ public class AiAlert {
 
     private Integer riskScore;
 
+    @Column(nullable = false)
+    private Boolean isFalsePositive = false;
+
     public AiAlert() {}
 
     public AiAlert(String flaggedUsername, String description, String severity) {
@@ -54,4 +57,6 @@ public class AiAlert {
     public void setDetectionSource(String detectionSource) { this.detectionSource = detectionSource; }
     public Integer getRiskScore() { return riskScore; }
     public void setRiskScore(Integer riskScore) { this.riskScore = riskScore; }
+    public Boolean getIsFalsePositive() { return isFalsePositive; }
+    public void setIsFalsePositive(Boolean isFalsePositive) { this.isFalsePositive = isFalsePositive; }
 }

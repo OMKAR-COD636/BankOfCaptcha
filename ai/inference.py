@@ -651,11 +651,29 @@ def analyze_logs():
             print(f"[+] Normal: {username} ({user_role}) - S1:{lstm_normalized:.2f} S2:{role_violation_score:.2f} S3:{stat_score:.2f} S4:{temporal_score:.2f} -> Fused:{fused_score:.2f}")
 
 
+def poll_training():
+    """Poll the backend to see if adaptive training has been triggered."""
+    try:
+        resp = requests.get(f"{JAVA_BACKEND_URL}/ai/training/status", headers=ai_headers())
+        if resp.status_code == 200:
+            data = resp.json()
+            if data.get("status") == "TRAIN_REQUESTED":
+                print(f"[{datetime.now()}] Adaptive Training Triggered by Admin!")
+                # Import here to avoid circular imports
+                from train import train_model
+                train_model(adaptive=True)
+                # After training, reload the model
+                global GLOBAL_MODEL, GLOBAL_THRESHOLD
+                load_model()
+    except Exception as e:
+        print(f"Failed to poll training status: {e}")
+
 def run_scheduler():
     from apscheduler.schedulers.blocking import BlockingScheduler
     interval = AI_CONFIG["scheduler"]["polling_interval_seconds"]
     scheduler = BlockingScheduler()
     scheduler.add_job(analyze_logs, 'interval', seconds=interval)
+    scheduler.add_job(poll_training, 'interval', seconds=max(5, interval)) # Check for training frequently
     print(f"4-Signal Insider Threat Scheduler Started. Polling every {interval} seconds.")
     try:
         scheduler.start()

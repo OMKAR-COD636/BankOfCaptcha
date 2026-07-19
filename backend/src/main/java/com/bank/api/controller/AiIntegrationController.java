@@ -3,6 +3,8 @@ package com.bank.api.controller;
 import com.bank.api.model.AuditLog;
 import com.bank.api.model.Transaction;
 import com.bank.api.model.User;
+import com.bank.api.model.AiAlert;
+import com.bank.api.repository.AiAlertRepository;
 import com.bank.api.repository.AuditLogRepository;
 import com.bank.api.repository.TransactionRepository;
 import com.bank.api.repository.UserRepository;
@@ -24,15 +26,18 @@ public class AiIntegrationController {
     private final AuditLogRepository auditLogRepository;
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
+    private final AiAlertRepository aiAlertRepository;
     private final AiConfigProperties aiConfigProperties;
 
     public AiIntegrationController(AuditLogRepository auditLogRepository,
                                    TransactionRepository transactionRepository,
                                    UserRepository userRepository,
+                                   AiAlertRepository aiAlertRepository,
                                    AiConfigProperties aiConfigProperties) {
         this.auditLogRepository = auditLogRepository;
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
+        this.aiAlertRepository = aiAlertRepository;
         this.aiConfigProperties = aiConfigProperties;
     }
 
@@ -101,6 +106,48 @@ public class AiIntegrationController {
                 .toList();
 
         return ResponseEntity.ok(summaries);
+    }
+
+    @GetMapping("/false-positives")
+    public ResponseEntity<?> getFalsePositives(
+            @RequestHeader(value = "X-AI-Service-Key", required = false) String suppliedKey,
+            @RequestParam(value = "maxDays", defaultValue = "30") int maxDays) {
+
+        if (!aiConfigProperties.getServiceKey().equals(suppliedKey)) {
+            return ResponseEntity.status(401).body("Invalid AI service key");
+        }
+
+        LocalDateTime cutoff = LocalDateTime.now().minusDays(maxDays);
+        List<AiAlert> alerts = aiAlertRepository.findAllByOrderByTimestampDesc().stream()
+                .filter(a -> a.getIsFalsePositive() != null && a.getIsFalsePositive() && a.getTimestamp().isAfter(cutoff))
+                .toList();
+
+        Map<String, String> roleCache = new HashMap<>();
+        List<Map<String, Object>> falsePositiveSequences = new ArrayList<>();
+
+        for (AiAlert alert : alerts) {
+            String username = alert.getFlaggedUsername();
+            // Fetch events around the alert timestamp (e.g., up to 24 hours prior)
+            LocalDateTime start = alert.getTimestamp().minusHours(24);
+            List<AuditLog> userLogs = auditLogRepository.findByTimestampAfterOrderByTimestampDesc(start).stream()
+                    .filter(log -> log.getUsername().equals(username) && log.getTimestamp().isBefore(alert.getTimestamp().plusMinutes(5)))
+                    .limit(20) // Get the sequence of actions that triggered it
+                    .toList();
+            
+            // Reverse so they are chronological
+            List<AuditLog> chronologicalLogs = new ArrayList<>(userLogs);
+            Collections.reverse(chronologicalLogs);
+
+            if (!chronologicalLogs.isEmpty()) {
+                Map<String, Object> sequenceData = new HashMap<>();
+                sequenceData.put("alertId", alert.getId());
+                sequenceData.put("username", username);
+                sequenceData.put("events", chronologicalLogs.stream().map(log -> toAiEvent(log, roleCache)).toList());
+                falsePositiveSequences.add(sequenceData);
+            }
+        }
+
+        return ResponseEntity.ok(falsePositiveSequences);
     }
 
     private Map<String, Object> toAiEvent(AuditLog log, Map<String, String> roleCache) {

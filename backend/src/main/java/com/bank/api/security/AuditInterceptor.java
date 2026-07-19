@@ -23,7 +23,8 @@ public class AuditInterceptor implements HandlerInterceptor {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
             String role = auth.getAuthorities().iterator().next().getAuthority();
-            String action = request.getMethod() + " " + request.getRequestURI();
+            String uri = request.getRequestURI().replaceAll("/\\d+", "/{id}");
+            String action = request.getMethod() + " " + uri;
             pqcAuditService.record(auth.getName(), action, LocalDateTime.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS));
         }
         return true;
