@@ -63,7 +63,7 @@ const TellerDashboard = () => {
       <div className="admin-view">
         <div className="staff-intro">
           <h2 className="section-title">
-            <Users size={24} className="icon-blue" /> Staff Dashboard
+            <Users size={24} className="icon-blue" /> {t('dashboard.staffDashboard')}
           </h2>
         </div>
 

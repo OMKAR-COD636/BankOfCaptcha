@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Pagination from './Pagination';
+import { useTranslation } from '../../i18n/LanguageContext';
 
 /**
  * Shared Accounts table.
@@ -8,6 +9,7 @@ import Pagination from './Pagination';
  * @param {Array} accounts — Account entries
  */
 const AccountsTable = ({ accounts }) => {
+  const { t } = useTranslation();
   const [page, setPage] = useState(1);
   const itemsPerPage = 20;
 
@@ -19,14 +21,14 @@ const AccountsTable = ({ accounts }) => {
   return (
     <div className="logs-table-container">
       <div className="table-header">
-        <h3>Customer Accounts Directory</h3>
+        <h3>{t('dashboard.customerAccountsDir')}</h3>
       </div>
       <table className="logs-table">
         <thead>
           <tr>
-            <th>Account Number</th>
-            <th>Owner ID</th>
-            <th>Balance</th>
+            <th>{t('dashboard.accountNumber')}</th>
+            <th>{t('dashboard.ownerId')}</th>
+            <th>{t('dashboard.balance')}</th>
           </tr>
         </thead>
         <tbody>
@@ -42,7 +44,7 @@ const AccountsTable = ({ accounts }) => {
           {accounts.length === 0 && (
             <tr>
               <td colSpan="3" className="empty-table">
-                No accounts accessible or access denied.
+                {t('dashboard.noAccounts')}
               </td>
             </tr>
           )}

@@ -242,6 +242,23 @@
     "none": "None",
     "branchNamePlaceholder": "Branch Name (e.g. South End)",
     "branchLocationPlaceholder": "Location (e.g. Mumbai)",
-    "createBranchBtn": "Create Branch"
+    "createBranchBtn": "Create Branch",
+    "customerAccountsDir": "Customer Accounts Directory",
+    "accountNumber": "Account Number",
+    "ownerId": "Owner ID",
+    "balance": "Balance",
+    "noAccounts": "No accounts accessible or access denied.",
+    "aiModelTraining": "AI Model & Training",
+    "modelDescription": "Model Description",
+    "architecture": "Architecture",
+    "version": "Version",
+    "modelDescText": "The AI engine continuously monitors user behavior and reconstructs embeddings using an LSTM Autoencoder. It is designed to detect Temporal Anomalies, Role-Action Violations, Statistical Transaction Bursts, and Behavioral Sequence Anomalies.",
+    "overallDetectionRate": "Overall Detection Rate",
+    "validationLoss": "Validation Loss (MSE)",
+    "dynamicThreshold": "Dynamic Threshold",
+    "adaptiveTraining": "Adaptive Training",
+    "triggerTrainingText": "Triggering adaptive training will fetch alerts marked as False Positives and incorporate them into the model to prevent future false alarms.",
+    "trainingRequested": "Training Requested...",
+    "triggerAdaptiveTraining": "Trigger Adaptive Training"
   }
 }
