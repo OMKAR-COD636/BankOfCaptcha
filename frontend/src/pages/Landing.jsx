@@ -7,10 +7,12 @@ import {
 } from 'lucide-react';
 import './Landing.css';
 import DarkModeToggle from '../components/shared/DarkModeToggle';
+import useAuth from '../hooks/useAuth';
 
 const Landing = () => {
   const navigate = useNavigate();
   const [currentBanner, setCurrentBanner] = useState(0);
+  const auth = useAuth();
 
   const banners = [
     {
@@ -30,7 +32,14 @@ const Landing = () => {
       setCurrentBanner((prev) => (prev + 1) % banners.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [banners.length]);
+
+  // Log out user if they navigate back to the landing page
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      auth.logout();
+    }
+  }, [auth.isAuthenticated, auth.logout]);
 
   // Sync theme on mount
   useEffect(() => {
