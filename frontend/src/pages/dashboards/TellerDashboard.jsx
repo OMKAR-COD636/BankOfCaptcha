@@ -73,46 +73,46 @@ const TellerDashboard = () => {
         {/* Transfer Portal */}
         <div className="form-card">
           <div className="table-header" style={{ padding: 0, border: 'none', background: 'transparent', marginBottom: '15px' }}>
-            <h3>Teller Transfer Portal</h3>
+            <h3>{t('dashboard.tellerTransferPortal')}</h3>
           </div>
           {transferMsg && <div className="alert-message">{transferMsg}</div>}
           <form onSubmit={handleTransfer} className="form-row">
             <input
               type="text"
-              placeholder="Source Account"
+              placeholder={t("dashboard.sourceAccount")}
               value={transferForm.source}
               onChange={(e) => setTransferForm({ ...transferForm, source: e.target.value })}
               required
             />
             <input
               type="text"
-              placeholder="Dest Account"
+              placeholder={t("dashboard.destAccount")}
               value={transferForm.dest}
               onChange={(e) => setTransferForm({ ...transferForm, dest: e.target.value })}
               required
             />
             <input
               type="number"
-              placeholder="Amount"
+              placeholder={t("dashboard.amount")}
               value={transferForm.amount}
               onChange={(e) => setTransferForm({ ...transferForm, amount: e.target.value })}
               required
             />
-            <button type="submit" className="btn-primary">Submit Transfer</button>
+            <button type="submit" className="btn-primary">{t('dashboard.submitTransfer')}</button>
           </form>
         </div>
 
         {/* KYC Queue */}
         <div className="logs-table-container">
           <div className="table-header">
-            <h3>New Account Applications (KYC Queue)</h3>
+            <h3>{t('dashboard.kycQueue')}</h3>
           </div>
           <table className="logs-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Aadhaar (Encrypted)</th>
+                <th>{t('dashboard.name')}</th>
+                <th>{t('dashboard.email')}</th>
+                <th>{t('dashboard.aadhaarEncrypted')}</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -131,7 +131,7 @@ const TellerDashboard = () => {
               ))}
               {kycRequests.length === 0 && (
                 <tr>
-                  <td colSpan="4" className="empty-table">No pending KYC applications.</td>
+                  <td colSpan="4" className="empty-table">{t('dashboard.noPendingKyc')}</td>
                 </tr>
               )}
             </tbody>

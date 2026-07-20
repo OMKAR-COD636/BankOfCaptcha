@@ -14,6 +14,7 @@ import * as api from '../../api/client';
  * @param {string|null} selectedDate — Optional date filter from parent
  */
 const AuditLogTable = ({ logs, users, token, selectedDate = null }) => {
+  const { t } = useTranslation();
   const [filter, setFilter] = useState({ search: '', role: '' });
   const [page, setPage] = useState(1);
   const itemsPerPage = 20;
@@ -103,7 +104,7 @@ const AuditLogTable = ({ logs, users, token, selectedDate = null }) => {
             <th>{t('dashboard.userRole')}</th>
             <th>{t('dashboard.action')}</th>
             <th>{t('dashboard.timestamp')}</th>
-            <th>Verify</th>
+            <th>{t('dashboard.verify')}</th>
           </tr>
         </thead>
         <tbody>
@@ -133,7 +134,7 @@ const AuditLogTable = ({ logs, users, token, selectedDate = null }) => {
           {filteredLogs.length === 0 && (
             <tr>
               <td colSpan="6" className="empty-table">
-                No audit logs found for the selected filters.
+                {t('dashboard.noAuditLogs')}
               </td>
             </tr>
           )}

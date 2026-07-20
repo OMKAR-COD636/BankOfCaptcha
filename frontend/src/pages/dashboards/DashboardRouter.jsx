@@ -15,7 +15,6 @@ import ItAdminDashboard from './ItAdminDashboard';
  */
 const DashboardRouter = () => {
   const { role } = useAuth();
-
   switch (role) {
     case 'ROLE_CUSTOMER':
       return <CustomerDashboard />;

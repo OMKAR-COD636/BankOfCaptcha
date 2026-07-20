@@ -4,6 +4,7 @@ import DashboardShell from '../../components/shared/DashboardShell';
 import AuditLogTable from '../../components/shared/AuditLogTable';
 import useAuth from '../../hooks/useAuth';
 import * as api from '../../api/client';
+import { useTranslation } from '../../i18n/LanguageContext';
 
 /**
  * Compliance Officer Dashboard
@@ -12,6 +13,7 @@ import * as api from '../../api/client';
  * role-specific extensibility (e.g., future compliance reports).
  */
 const ComplianceOfficerDashboard = () => {
+  const { t } = useTranslation();
   const { token } = useAuth();
   const [logs, setLogs] = useState([]);
   const [users, setUsers] = useState([]);

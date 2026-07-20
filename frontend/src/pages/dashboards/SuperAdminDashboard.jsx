@@ -36,10 +36,10 @@ const SuperAdminDashboard = () => {
   }, [token]);
 
   const tabs = [
-    { key: 'security', label: 'Security & Intelligence' },
+    { key: 'security', label: t('dashboard.securityAi') },
     { key: 'staff', label: t('dashboard.staffManagement') },
     { key: 'branch', label: t('dashboard.branchOperations') },
-    { key: 'compliance', label: 'Compliance & Audit' },
+    { key: 'compliance', label: t('dashboard.compliance') },
   ];
 
   return (

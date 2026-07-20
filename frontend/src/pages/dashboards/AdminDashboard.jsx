@@ -4,12 +4,14 @@ import DashboardShell from '../../components/shared/DashboardShell';
 import AuditLogTable from '../../components/shared/AuditLogTable';
 import useAuth from '../../hooks/useAuth';
 import * as api from '../../api/client';
+import { useTranslation } from '../../i18n/LanguageContext';
 
 /**
  * Admin Dashboard
  * Shows: Audit logs with search, filters, and integrity verification.
  */
 const AdminDashboard = () => {
+  const { t } = useTranslation();
   const { token } = useAuth();
   const [logs, setLogs] = useState([]);
   const [users, setUsers] = useState([]);

@@ -26,20 +26,20 @@ const BranchOperationsTab = ({ branches, setBranches, token }) => {
   return (
     <div className="admin-tab-content animated-fade-in">
       <h2 className="section-title">
-        <Building size={24} className="icon-blue" /> Create New Branch
+        <Building size={24} className="icon-blue" /> {t('dashboard.createNewBranch')}
       </h2>
       <div className="form-card">
         <form onSubmit={handleCreateBranch} className="form-row">
           <input
             type="text"
-            placeholder="Branch Name (e.g. South End)"
+            placeholder={t("dashboard.branchNamePlaceholder")}
             value={createBranchForm.name}
             onChange={(e) => setCreateBranchForm({ ...createBranchForm, name: e.target.value })}
             required
           />
           <input
             type="text"
-            placeholder="Location (e.g. Mumbai)"
+            placeholder={t("dashboard.branchLocationPlaceholder")}
             value={createBranchForm.location}
             onChange={(e) => setCreateBranchForm({ ...createBranchForm, location: e.target.value })}
             required
