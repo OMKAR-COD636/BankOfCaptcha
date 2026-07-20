@@ -42,7 +42,7 @@ const Navbar = () => {
 
   return (
     <nav className={`navbar${hidden ? ' navbar--hidden' : ''}`}>
-      <div className="nav-brand">
+      <div className="nav-brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }} title="Back to home">
         <img src={logoUrl} alt="Bank Of Captcha Logo" width="28" height="28" />
         <span>BANK OF CAPTCHA</span>
       </div>

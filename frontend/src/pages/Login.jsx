@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import logoUrl from '../assets/logo.svg';
 import './Login.css';
@@ -72,7 +72,7 @@ const Login = () => {
     <div className="login-container">
       <div className="login-left">
         <div className="login-top-bar">
-          <div className="logo">
+          <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }} title="Back to home">
             <img src={logoUrl} alt="Bank Of Captcha Logo" className="logo-icon" width="32" height="32" />
             <span>BANK OF CAPTCHA</span>
           </div>
@@ -165,7 +165,9 @@ const Login = () => {
               <p><strong>{t('login.demo')}:</strong></p>
               <ul>
                 <li>Customer: <code>customer</code> / <code>password</code></li>
-                <li>Admin: <code>admin</code> / <code>password</code></li>
+                <li>Teller: <code>teller</code> / <code>password</code></li>
+                <li>Branch Manager: <code>branch_manager</code> / <code>password</code></li>
+                <li>IT Admin: <code>it_admin</code> / <code>password</code></li>
                 <li>Super Admin: <code>superadmin</code> / <code>password</code></li>
               </ul>
             </div>

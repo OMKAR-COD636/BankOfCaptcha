@@ -145,6 +145,27 @@ a {
   transform: translateY(-2px);
 }
 
+/* Hero CTA row — kept for backward compat but unused */
+.hero-cta-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Quantum banner CTA — subtle purple tint */
+.hero-cta-pqc-solid {
+  background-color: rgba(159,122,234,0.85);
+  color: white;
+  border: none;
+}
+
+.hero-cta-pqc-solid:hover {
+  background-color: #9f7aea;
+  transform: translateY(-2px);
+}
+
 .carousel-dots {
   position: absolute;
   bottom: 20px;
