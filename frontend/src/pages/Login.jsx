@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import logoUrl from '../assets/logo.svg';
 import './Login.css';
+import { useTranslation } from '../i18n/LanguageContext';
 import DarkModeToggle from '../components/shared/DarkModeToggle';
 import useAuth from '../hooks/useAuth';
 import * as api from '../api/client';
@@ -18,6 +19,7 @@ const Login = () => {
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const navigate = useNavigate();
   const auth = useAuth();
+  const { t } = useTranslation();
 
   // Sync theme on mount
   useEffect(() => {
@@ -78,22 +80,22 @@ const Login = () => {
         </div>
 
         <div className="login-form-container">
-          <h2>{isRegistering ? 'Apply for an Account (KYC)' : 'Sign In to Your Account'}</h2>
-          <p className="subtitle">Secure Government Banking Portal</p>
+          <h2>{isRegistering ? t('login.applyTitle') : t('login.signInTitle')}</h2>
+          <p className="subtitle">{t('login.subtitle')}</p>
 
           <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-            <button type="button" onClick={() => setIsRegistering(false)} style={{ padding: '8px', background: !isRegistering ? '#2563eb' : '#e5e7eb', color: !isRegistering ? 'white' : 'black', border: 'none', borderRadius: '4px', cursor: 'pointer', flex: 1 }}>Login</button>
-            <button type="button" onClick={() => setIsRegistering(true)} style={{ padding: '8px', background: isRegistering ? '#2563eb' : '#e5e7eb', color: isRegistering ? 'white' : 'black', border: 'none', borderRadius: '4px', cursor: 'pointer', flex: 1 }}>Apply for Account</button>
+            <button type="button" onClick={() => setIsRegistering(false)} style={{ padding: '8px', background: !isRegistering ? '#2563eb' : '#e5e7eb', color: !isRegistering ? 'white' : 'black', border: 'none', borderRadius: '4px', cursor: 'pointer', flex: 1 }}>{t('login.loginTab')}</button>
+            <button type="button" onClick={() => setIsRegistering(true)} style={{ padding: '8px', background: isRegistering ? '#2563eb' : '#e5e7eb', color: isRegistering ? 'white' : 'black', border: 'none', borderRadius: '4px', cursor: 'pointer', flex: 1 }}>{t('login.applyTab')}</button>
           </div>
 
           <form onSubmit={isRegistering ? handleRegister : handleLogin}>
             <div className="form-group">
-              <label>Username</label>
-              <input type="text" placeholder="Enter your username" value={username} onChange={(e) => setUsername(e.target.value)} required />
+              <label>{t('login.username')}</label>
+              <input type="text" placeholder={t('login.usernamePlaceholder')} value={username} onChange={(e) => setUsername(e.target.value)} required />
             </div>
 
             <div className="form-group">
-              <label>Password</label>
+              <label>{t('login.password')}</label>
               <div className="password-input-wrapper">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -117,25 +119,25 @@ const Login = () => {
             {isRegistering && (
               <>
                 <div className="form-group">
-                  <label>Full Name</label>
-                  <input type="text" placeholder="John Doe" value={regForm.fullName} onChange={e => setRegForm({ ...regForm, fullName: e.target.value })} required />
+                  <label>{t('login.fullName')}</label>
+                  <input type="text" placeholder={t('login.fullNamePlaceholder')} value={regForm.fullName} onChange={e => setRegForm({ ...regForm, fullName: e.target.value })} required />
                 </div>
                 <div className="form-group">
-                  <label>Aadhaar Number</label>
+                  <label>{t('login.aadhaar')}</label>
                   <input type="text" placeholder="1234 5678 9012" value={regForm.aadhaarNumber} onChange={e => setRegForm({ ...regForm, aadhaarNumber: e.target.value })} required />
                 </div>
                 <div className="form-group">
-                  <label>Mobile Number</label>
+                  <label>{t('login.mobile')}</label>
                   <input type="text" placeholder="9876543210" value={regForm.mobileNumber} onChange={e => setRegForm({ ...regForm, mobileNumber: e.target.value })} required />
                 </div>
                 <div className="form-group">
-                  <label>Email ID</label>
+                  <label>{t('login.email')}</label>
                   <input type="email" placeholder="john@example.com" value={regForm.email} onChange={e => setRegForm({ ...regForm, email: e.target.value })} required />
                 </div>
                 <div className="form-group">
-                  <label>Preferred Branch</label>
+                  <label>{t('login.branch')}</label>
                   <select value={regForm.branchId} onChange={e => setRegForm({ ...regForm, branchId: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}>
-                    <option value="">-- Select a Branch --</option>
+                    <option value="">{t('login.selectBranch')}</option>
                     {branches.map(b => <option key={b.id} value={b.branchId}>{b.name} ({b.location})</option>)}
                   </select>
                 </div>
@@ -147,9 +149,9 @@ const Login = () => {
                 <label className="checkbox-container">
                   <input type="checkbox" />
                   <span className="checkmark"></span>
-                  Remember me
+                  {t('login.remember')}
                 </label>
-                <a href="#" className="forgot-password">Forgot password?</a>
+                <a href="#" className="forgot-password">{t('login.forgot')}</a>
               </div>
             )}
 
@@ -160,7 +162,7 @@ const Login = () => {
 
           {!isRegistering && (
             <div className="demo-credentials">
-              <p><strong>Demo Accounts:</strong></p>
+              <p><strong>{t('login.demo')}:</strong></p>
               <ul>
                 <li>Customer: <code>customer</code> / <code>password</code></li>
                 <li>Admin: <code>admin</code> / <code>password</code></li>

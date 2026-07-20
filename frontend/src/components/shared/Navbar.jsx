@@ -4,6 +4,7 @@ import { LogOut, User } from 'lucide-react';
 import logoUrl from '../../assets/logo.svg';
 import DarkModeToggle from './DarkModeToggle';
 import useAuth from '../../hooks/useAuth';
+import { useTranslation } from '../../i18n/LanguageContext';
 import './Navbar.css';
 
 /**
@@ -12,6 +13,7 @@ import './Navbar.css';
  */
 const Navbar = () => {
   const { username, role, logout } = useAuth();
+  const { language, setLanguage } = useTranslation();
   const navigate = useNavigate();
   const [hidden, setHidden] = useState(false);
   const lastScrollY = useRef(0);
@@ -48,6 +50,11 @@ const Navbar = () => {
         <User size={20} />
         <span className="user-info">
           {username} <span className="role-badge">{displayRole}</span>
+        </span>
+        <span className="lang-switcher" style={{marginRight: '15px', display: 'flex', gap: '5px', fontSize: '0.9rem', color: 'var(--text-color)'}}>
+          <span style={{cursor: 'pointer', fontWeight: language === 'en' ? 'bold' : 'normal'}} onClick={() => setLanguage('en')}>EN</span> | 
+          <span style={{cursor: 'pointer', fontWeight: language === 'hi' ? 'bold' : 'normal'}} onClick={() => setLanguage('hi')}>HI</span> | 
+          <span style={{cursor: 'pointer', fontWeight: language === 'mr' ? 'bold' : 'normal'}} onClick={() => setLanguage('mr')}>MR</span>
         </span>
         <DarkModeToggle variant="navbar" />
         <button className="logout-btn" onClick={handleLogout}>

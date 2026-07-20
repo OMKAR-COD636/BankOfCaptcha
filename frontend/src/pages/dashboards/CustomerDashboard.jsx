@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from '../../i18n/LanguageContext';
 import { Building } from 'lucide-react';
 import DashboardShell from '../../components/shared/DashboardShell';
 import Pagination from '../../components/shared/Pagination';
@@ -10,6 +11,7 @@ import * as api from '../../api/client';
  * Shows: Account balance cards only.
  */
 const CustomerDashboard = () => {
+  const { t } = useTranslation();
   const { token } = useAuth();
   const [accounts, setAccounts] = useState([]);
   const [page, setPage] = useState(1);

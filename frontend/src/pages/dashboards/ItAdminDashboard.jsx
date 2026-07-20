@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useTranslation } from '../../i18n/LanguageContext';
 import DashboardShell from '../../components/shared/DashboardShell';
 import AiModelTab from '../../components/dashboard/AiModelTab';
 import useAuth from '../../hooks/useAuth';
@@ -24,6 +25,7 @@ import * as api from '../../api/client';
  *  - Compliance & Audit
  */
 const ItAdminDashboard = () => {
+  const { t } = useTranslation();
   const { token } = useAuth();
   const [aiMetrics, setAiMetrics] = useState(null);
   const [trainingError, setTrainingError] = useState('');

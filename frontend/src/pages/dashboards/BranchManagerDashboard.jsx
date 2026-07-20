@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from '../../i18n/LanguageContext';
 import { Users } from 'lucide-react';
 import DashboardShell from '../../components/shared/DashboardShell';
 import AccountsTable from '../../components/shared/AccountsTable';
@@ -11,6 +12,7 @@ import * as api from '../../api/client';
  * Shows: Account directory, Pending transfer requests (Maker-Checker)
  */
 const BranchManagerDashboard = () => {
+  const { t } = useTranslation();
   const { token } = useAuth();
   const [accounts, setAccounts] = useState([]);
   const [transactionRequests, setTransactionRequests] = useState([]);

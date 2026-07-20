@@ -1,5 +1,6 @@
 import Navbar from './Navbar';
 import useAuth from '../../hooks/useAuth';
+import { useTranslation } from '../../i18n/LanguageContext';
 import './DashboardShell.css';
 
 /**
@@ -8,14 +9,15 @@ import './DashboardShell.css';
  */
 const DashboardShell = ({ children }) => {
   const { username } = useAuth();
+  const { t } = useTranslation();
 
   return (
     <div className="dashboard-container">
       <Navbar />
       <div className="hero-banner">
         <div className="container">
-          <h1>Welcome, {username}</h1>
-          <p>Official Government Banking Portal</p>
+          <h1>{t('dashboard.welcome')}, {username}</h1>
+          <p>{t('login.subtitle')}</p>
         </div>
       </div>
       <main className="dashboard-main container">

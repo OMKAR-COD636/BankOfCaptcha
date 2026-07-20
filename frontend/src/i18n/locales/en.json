@@ -67,10 +67,22 @@
         "calculators": "Calculators"
       },
       "rates": [
-        { "name": "Housing Loan", "value": "7.10% P.A*" },
-        { "name": "Car Loan", "value": "7.45% P.A*" },
-        { "name": "Gold Loan", "value": "8.50% P.A*" },
-        { "name": "Deposit Schemes", "value": "7.15% P.A*" }
+        {
+          "name": "Housing Loan",
+          "value": "7.10% P.A*"
+        },
+        {
+          "name": "Car Loan",
+          "value": "7.45% P.A*"
+        },
+        {
+          "name": "Gold Loan",
+          "value": "8.50% P.A*"
+        },
+        {
+          "name": "Deposit Schemes",
+          "value": "7.15% P.A*"
+        }
       ],
       "applyNow": "Apply Now!",
       "knowMore": "Know More"
@@ -106,5 +118,43 @@
       "note": "For immediate blocking of lost/stolen debit cards, please press 1 on the IVR.",
       "close": "Close"
     }
+  },
+  "login": {
+    "signInTitle": "Sign In to Your Account",
+    "applyTitle": "Apply for an Account (KYC)",
+    "subtitle": "Secure Government Banking Portal",
+    "loginTab": "Login",
+    "applyTab": "Apply for Account",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "password": "Password",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "John Doe",
+    "aadhaar": "Aadhaar Number",
+    "mobile": "Mobile Number",
+    "email": "Email ID",
+    "branch": "Preferred Branch",
+    "selectBranch": "-- Select a Branch --",
+    "remember": "Remember me",
+    "forgot": "Forgot password?",
+    "signInBtn": "Sign In",
+    "submitKyc": "Submit KYC Application",
+    "demo": "Demo Accounts"
+  },
+  "dashboard": {
+    "welcome": "Welcome",
+    "systemOverview": "System Overview",
+    "branchOperations": "Branch Operations",
+    "staffManagement": "Staff Management",
+    "securityAi": "Security & AI",
+    "branchOverview": "Branch Overview",
+    "staffOperations": "Staff Operations",
+    "compliance": "Compliance",
+    "systemLogs": "System Logs",
+    "aiThreatEngine": "AI Threat Engine",
+    "newTransaction": "New Transaction",
+    "transactionHistory": "Transaction History",
+    "accounts": "Accounts",
+    "transfers": "Transfers"
   }
 }

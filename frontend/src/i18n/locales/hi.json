@@ -67,10 +67,22 @@
         "calculators": "कैलकुलेटर"
       },
       "rates": [
-        { "name": "आवास ऋण", "value": "7.10% वा.*" },
-        { "name": "कार ऋण", "value": "7.45% वा.*" },
-        { "name": "स्वर्ण ऋण", "value": "8.50% वा.*" },
-        { "name": "जमा योजनाएं", "value": "7.15% वा.*" }
+        {
+          "name": "आवास ऋण",
+          "value": "7.10% वा.*"
+        },
+        {
+          "name": "कार ऋण",
+          "value": "7.45% वा.*"
+        },
+        {
+          "name": "स्वर्ण ऋण",
+          "value": "8.50% वा.*"
+        },
+        {
+          "name": "जमा योजनाएं",
+          "value": "7.15% वा.*"
+        }
       ],
       "applyNow": "अभी आवेदन करें!",
       "knowMore": "और जानें"
@@ -106,5 +118,43 @@
       "note": "खोए/चोरी हुए डेबिट कार्ड को तुरंत ब्लॉक करने के लिए, कृपया IVR पर 1 दबाएं।",
       "close": "बंद करें"
     }
+  },
+  "login": {
+    "signInTitle": "अपने खाते में साइन इन करें",
+    "applyTitle": "खाते के लिए आवेदन करें (KYC)",
+    "subtitle": "सुरक्षित सरकारी बैंकिंग पोर्टल",
+    "loginTab": "लॉगिन",
+    "applyTab": "खाते के लिए आवेदन",
+    "username": "उपयोगकर्ता नाम",
+    "usernamePlaceholder": "अपना उपयोगकर्ता नाम दर्ज करें",
+    "password": "पासवर्ड",
+    "fullName": "पूरा नाम",
+    "fullNamePlaceholder": "जॉन डो",
+    "aadhaar": "आधार नंबर",
+    "mobile": "मोबाइल नंबर",
+    "email": "ईमेल आईडी",
+    "branch": "पसंदीदा शाखा",
+    "selectBranch": "-- एक शाखा चुनें --",
+    "remember": "मुझे याद रखें",
+    "forgot": "पासवर्ड भूल गए?",
+    "signInBtn": "साइन इन करें",
+    "submitKyc": "KYC आवेदन जमा करें",
+    "demo": "डेमो खाते"
+  },
+  "dashboard": {
+    "welcome": "स्वागत है",
+    "systemOverview": "सिस्टम अवलोकन",
+    "branchOperations": "शाखा संचालन",
+    "staffManagement": "कर्मचारी प्रबंधन",
+    "securityAi": "सुरक्षा और एआई",
+    "branchOverview": "शाखा अवलोकन",
+    "staffOperations": "कर्मचारी संचालन",
+    "compliance": "अनुपालन",
+    "systemLogs": "सिस्टम लॉग",
+    "aiThreatEngine": "एआई खतरा इंजन",
+    "newTransaction": "नया लेनदेन",
+    "transactionHistory": "लेनदेन का इतिहास",
+    "accounts": "खाते",
+    "transfers": "स्थानान्तरण"
   }
 }

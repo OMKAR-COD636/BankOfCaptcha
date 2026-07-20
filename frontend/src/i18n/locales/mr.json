@@ -67,10 +67,22 @@
         "calculators": "कॅल्क्युलेटर"
       },
       "rates": [
-        { "name": "गृह कर्ज", "value": "7.10% वा.*" },
-        { "name": "कार कर्ज", "value": "7.45% वा.*" },
-        { "name": "सुवर्ण कर्ज", "value": "8.50% वा.*" },
-        { "name": "ठेवी योजना", "value": "7.15% वा.*" }
+        {
+          "name": "गृह कर्ज",
+          "value": "7.10% वा.*"
+        },
+        {
+          "name": "कार कर्ज",
+          "value": "7.45% वा.*"
+        },
+        {
+          "name": "सुवर्ण कर्ज",
+          "value": "8.50% वा.*"
+        },
+        {
+          "name": "ठेवी योजना",
+          "value": "7.15% वा.*"
+        }
       ],
       "applyNow": "आता अर्ज करा!",
       "knowMore": "अधिक जाणून घ्या"
@@ -106,5 +118,43 @@
       "note": "हरवलेले/चोरीला गेलेले डेबिट कार्ड त्वरित ब्लॉक करण्यासाठी, कृपया IVR वर 1 दाबा.",
       "close": "बंद करा"
     }
+  },
+  "login": {
+    "signInTitle": "आपल्या खात्यात साइन इन करा",
+    "applyTitle": "खात्यासाठी अर्ज करा (KYC)",
+    "subtitle": "सुरक्षित सरकारी बँकिंग पोर्टल",
+    "loginTab": "लॉगिन",
+    "applyTab": "खात्यासाठी अर्ज",
+    "username": "वापरकर्ता नाव",
+    "usernamePlaceholder": "आपले वापरकर्ता नाव प्रविष्ट करा",
+    "password": "पासवर्ड",
+    "fullName": "पूर्ण नाव",
+    "fullNamePlaceholder": "जॉन डो",
+    "aadhaar": "आधार क्रमांक",
+    "mobile": "मोबाईल क्रमांक",
+    "email": "ईमेल आयडी",
+    "branch": "पसंतीची शाखा",
+    "selectBranch": "-- एक शाखा निवडा --",
+    "remember": "मला लक्षात ठेवा",
+    "forgot": "पासवर्ड विसरलात?",
+    "signInBtn": "साइन इन करा",
+    "submitKyc": "KYC अर्ज सबमिट करा",
+    "demo": "डेमो खाती"
+  },
+  "dashboard": {
+    "welcome": "स्वागत आहे",
+    "systemOverview": "सिस्टम विहंगावलोकन",
+    "branchOperations": "शाखा ऑपरेशन्स",
+    "staffManagement": "कर्मचारी व्यवस्थापन",
+    "securityAi": "सुरक्षा आणि एआय",
+    "branchOverview": "शाखा विहंगावलोकन",
+    "staffOperations": "कर्मचारी ऑपरेशन्स",
+    "compliance": "अनुपालन",
+    "systemLogs": "सिस्टम लॉग",
+    "aiThreatEngine": "एआय धोका इंजिन",
+    "newTransaction": "नवीन व्यवहार",
+    "transactionHistory": "व्यवहाराचा इतिहास",
+    "accounts": "खाती",
+    "transfers": "हस्तांतरणे"
   }
 }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from '../../i18n/LanguageContext';
 import DashboardShell from '../../components/shared/DashboardShell';
 import AuditLogTable from '../../components/shared/AuditLogTable';
 import SecurityTab from '../../components/superadmin/SecurityTab';
@@ -11,11 +12,12 @@ import * as api from '../../api/client';
  * Super Admin Dashboard
  * 4-tab interface:
  *   1. Security & Intelligence (AI alerts, risk graphs)
- *   2. Staff Management (create/assign staff)
- *   3. Branch Operations (create branches)
+ *   2. {t('dashboard.staffManagement')} (create/assign staff)
+ *   3. {t('dashboard.branchOperations')} (create branches)
  *   4. Compliance & Audit (audit logs)
  */
 const SuperAdminDashboard = () => {
+  const { t } = useTranslation();
   const { token } = useAuth();
   const [activeTab, setActiveTab] = useState('security');
 
@@ -35,8 +37,8 @@ const SuperAdminDashboard = () => {
 
   const tabs = [
     { key: 'security', label: 'Security & Intelligence' },
-    { key: 'staff', label: 'Staff Management' },
-    { key: 'branch', label: 'Branch Operations' },
+    { key: 'staff', label: t('dashboard.staffManagement') },
+    { key: 'branch', label: t('dashboard.branchOperations') },
     { key: 'compliance', label: 'Compliance & Audit' },
   ];
 
