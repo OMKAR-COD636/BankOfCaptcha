@@ -4,18 +4,18 @@ import './RiskActivityGraph.css';
 
 const RiskActivityGraph = ({ alerts = [], onDateSelect, selectedDate }) => {
     const days = 90;
-    
+
     const { activityMap, startDate, endDate, dateArray } = useMemo(() => {
         const end = new Date();
         end.setHours(23, 59, 59, 999);
-        
+
         const start = new Date();
         start.setHours(0, 0, 0, 0);
         start.setDate(end.getDate() - days + 1);
-        
+
         const map = new Map();
         const dates = [];
-        
+
         for (let i = 0; i < days; i++) {
             const d = new Date(start);
             d.setDate(start.getDate() + i);
@@ -23,7 +23,7 @@ const RiskActivityGraph = ({ alerts = [], onDateSelect, selectedDate }) => {
             map.set(dateStr, { total: 0, HIGH: 0, MEDIUM: 0, LOW: 0 });
             dates.push(dateStr);
         }
-        
+
         alerts.forEach(alert => {
             if (alert.timestamp && alert.severity) {
                 const alertDate = new Date(alert.timestamp + 'Z');
@@ -38,18 +38,18 @@ const RiskActivityGraph = ({ alerts = [], onDateSelect, selectedDate }) => {
                 }
             }
         });
-        
+
         return { activityMap: map, startDate: start, endDate: end, dateArray: dates };
     }, [alerts]);
 
     const weeks = [];
     let currentWeek = [];
-    
+
     const startDayOfWeek = startDate.getDay();
     for (let i = 0; i < startDayOfWeek; i++) {
         currentWeek.push(null);
     }
-    
+
     dateArray.forEach(dateStr => {
         currentWeek.push(dateStr);
         if (currentWeek.length === 7) {
@@ -57,7 +57,7 @@ const RiskActivityGraph = ({ alerts = [], onDateSelect, selectedDate }) => {
             currentWeek = [];
         }
     });
-    
+
     if (currentWeek.length > 0) {
         while (currentWeek.length < 7) {
             currentWeek.push(null);
@@ -91,7 +91,7 @@ const RiskActivityGraph = ({ alerts = [], onDateSelect, selectedDate }) => {
                     </button>
                 )}
             </div>
-            
+
             <div className="activity-graph-wrapper">
                 <div className="activity-graph-y-labels">
                     <span>Sun</span>
@@ -102,7 +102,7 @@ const RiskActivityGraph = ({ alerts = [], onDateSelect, selectedDate }) => {
                     <span>Fri</span>
                     <span>Sat</span>
                 </div>
-                
+
                 <div className="activity-graph-grid">
                     {weeks.map((week, wIndex) => (
                         <div key={wIndex} className="activity-graph-column">
@@ -113,10 +113,10 @@ const RiskActivityGraph = ({ alerts = [], onDateSelect, selectedDate }) => {
                                 const data = activityMap.get(dateStr);
                                 const isSelected = selectedDate === dateStr;
                                 const tooltip = `${dateStr}\nTotal: ${data.total}\nHigh: ${data.HIGH} | Med: ${data.MEDIUM} | Low: ${data.LOW}`;
-                                
+
                                 return (
-                                    <div 
-                                        key={dateStr} 
+                                    <div
+                                        key={dateStr}
                                         className={`activity-cell ${getSeverityClass(data)} ${isSelected ? 'selected' : ''} ${(selectedDate && !isSelected) ? 'dimmed' : ''}`}
                                         style={{ opacity: selectedDate && !isSelected ? 0.2 : getOpacity(data.total) }}
                                         title={tooltip}
@@ -128,13 +128,13 @@ const RiskActivityGraph = ({ alerts = [], onDateSelect, selectedDate }) => {
                     ))}
                 </div>
             </div>
-            
+
             <div className="activity-legend">
                 <span className="legend-text">Peak Severity:</span>
-                <div className="activity-cell color-low" style={{opacity: 1}}></div> <span className="legend-label">Low</span>
-                <div className="activity-cell color-medium" style={{opacity: 1}}></div> <span className="legend-label">Medium</span>
-                <div className="activity-cell color-high" style={{opacity: 1}}></div> <span className="legend-label">High</span>
-                <span className="legend-text" style={{marginLeft: '15px'}}>Opacity = Volume</span>
+                <div className="activity-cell color-low" style={{ opacity: 1 }}></div> <span className="legend-label">Low</span>
+                <div className="activity-cell color-medium" style={{ opacity: 1 }}></div> <span className="legend-label">Medium</span>
+                <div className="activity-cell color-high" style={{ opacity: 1 }}></div> <span className="legend-label">High</span>
+                <span className="legend-text" style={{ marginLeft: '15px' }}>Opacity = Volume</span>
             </div>
         </div>
     );

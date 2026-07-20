@@ -11,3 +11,4 @@ user_flow.xml
 diagrams/
 ai/data/model_state.pt
 model_state.pt
+ai_architecture_report.md
