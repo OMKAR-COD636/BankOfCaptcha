@@ -6,7 +6,7 @@ import {
   Globe, User, MapPin, Percent, HelpCircle, FileText
 } from 'lucide-react';
 import './Landing.css';
-import DarkModeToggle from '../components/DarkModeToggle';
+import DarkModeToggle from '../components/shared/DarkModeToggle';
 
 const Landing = () => {
   const navigate = useNavigate();

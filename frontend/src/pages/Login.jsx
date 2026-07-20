@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import logoUrl from '../assets/logo.svg';
 import './Login.css';
-import DarkModeToggle from '../components/DarkModeToggle';
+import DarkModeToggle from '../components/shared/DarkModeToggle';
+import useAuth from '../hooks/useAuth';
+import * as api from '../api/client';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -15,6 +17,7 @@ const Login = () => {
   const [regForm, setRegForm] = useState({ fullName: '', aadhaarNumber: '', mobileNumber: '', email: '', branchId: '' });
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const navigate = useNavigate();
+  const auth = useAuth();
 
   // Sync theme on mount
   useEffect(() => {
@@ -22,12 +25,18 @@ const Login = () => {
     document.documentElement.setAttribute('data-theme', theme);
   }, []);
 
-  React.useEffect(() => {
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [auth.isAuthenticated, navigate]);
+
+  useEffect(() => {
     if (isRegistering && branches.length === 0) {
-      fetch('http://localhost:8080/api/branches')
-        .then(res => res.json())
-        .then(data => setBranches(data))
-        .catch(err => console.error("Failed to load branches"));
+      api.fetchBranchesPublic()
+        .then(setBranches)
+        .catch(() => console.error('Failed to load branches'));
     }
   }, [isRegistering, branches.length]);
 
@@ -36,26 +45,11 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('role', data.role);
-        localStorage.setItem('username', data.username);
-        navigate('/dashboard');
-      } else {
-        const errData = await response.json().catch(() => ({}));
-        setError(errData.error || 'Invalid credentials');
-      }
+      const data = await api.login(username, password);
+      auth.login(data);
+      navigate('/dashboard');
     } catch (err) {
-      setError('Failed to connect to the server. Is the backend running?');
+      setError(err.error || 'Invalid credentials');
     }
   };
 
@@ -64,22 +58,11 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password, ...regForm }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        alert(data.message);
-        setIsRegistering(false);
-      } else {
-        const errData = await response.json().catch(() => ({}));
-        setError(errData.error || 'Registration failed');
-      }
+      const data = await api.register({ username, password, ...regForm });
+      alert(data.message);
+      setIsRegistering(false);
     } catch (err) {
-      setError('Failed to connect to the server.');
+      setError(err.error || 'Registration failed');
     }
   };
 

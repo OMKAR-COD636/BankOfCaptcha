@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import { X, AlertTriangle, Activity, Database, PieChart as PieChartIcon, BarChart2 } from 'lucide-react';
 import './AlertReviewModal.css';
+import * as api from '../api/client';
 
 const RiskGauge = ({ value }) => {
   const radius = 20;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (value / 100) * circumference;
-
+  
   let color = '#22c55e'; // green
   if (value >= 70) color = '#ef4444'; // red
   else if (value >= 50) color = '#f97316'; // orange
@@ -17,11 +18,11 @@ const RiskGauge = ({ value }) => {
     <div style={{ position: 'relative', width: '50px', height: '50px', margin: '0 auto', marginBottom: '8px' }}>
       <svg width="50" height="50">
         <circle cx="25" cy="25" r={radius} stroke="#e5e7eb" strokeWidth="4" fill="none" />
-        <circle
-          cx="25" cy="25" r={radius}
-          stroke={color}
-          strokeWidth="4"
-          fill="none"
+        <circle 
+          cx="25" cy="25" r={radius} 
+          stroke={color} 
+          strokeWidth="4" 
+          fill="none" 
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
@@ -45,20 +46,14 @@ const AlertReviewModal = ({ alert, onClose, token }) => {
     if (!alert) return;
 
     setLoading(true);
-    fetch(`http://localhost:8080/api/admin/users/${alert.flaggedUsername}/activity`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to fetch activity');
-        return res.json();
-      })
+    api.fetchUserActivity(token, alert.flaggedUsername)
       .then(data => {
         setActivityData(data);
         setLoading(false);
       })
       .catch(err => {
         console.error(err);
-        setError(err.message);
+        setError(err.message || 'Failed to fetch activity');
         setLoading(false);
       });
   }, [alert, token]);
