@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import { X, AlertTriangle, Activity, Database, PieChart as PieChartIcon, BarChart2 } from 'lucide-react';
 import './AlertReviewModal.css';
+import * as api from '../api/client';
 
 const RiskGauge = ({ value }) => {
   const radius = 20;
@@ -45,20 +46,14 @@ const AlertReviewModal = ({ alert, onClose, token }) => {
     if (!alert) return;
 
     setLoading(true);
-    fetch(`http://localhost:8080/api/admin/users/${alert.flaggedUsername}/activity`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to fetch activity');
-        return res.json();
-      })
+    api.fetchUserActivity(token, alert.flaggedUsername)
       .then(data => {
         setActivityData(data);
         setLoading(false);
       })
       .catch(err => {
         console.error(err);
-        setError(err.message);
+        setError(err.message || 'Failed to fetch activity');
         setLoading(false);
       });
   }, [alert, token]);
