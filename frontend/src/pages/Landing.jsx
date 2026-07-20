@@ -9,10 +9,12 @@ import {
 } from 'lucide-react';
 import './Landing.css';
 import DarkModeToggle from '../components/shared/DarkModeToggle';
+import { useTranslation } from '../i18n/LanguageContext';
 
 const Landing = () => {
   const navigate = useNavigate();
-    const [currentBanner, setCurrentBanner] = useState(0);
+  const { t, language, setLanguage } = useTranslation();
+  const [currentBanner, setCurrentBanner] = useState(0);
   const [showMapModal, setShowMapModal] = useState(false);
   const [showHelplineModal, setShowHelplineModal] = useState(false);
   const globeEl = useRef();
@@ -37,7 +39,6 @@ const Landing = () => {
   
   useEffect(() => {
     if (showMapModal && globeEl.current) {
-      // Zoom to India after a short delay
       setTimeout(() => {
         globeEl.current.pointOfView({ lat: 20.5937, lng: 78.9629, altitude: 0.8 }, 2000);
       }, 500);
@@ -47,8 +48,6 @@ const Landing = () => {
   const [dbBranches, setDbBranches] = useState([]);
 
   useEffect(() => {
-    // Fall back to pre-entered accurate locations for Mumbai, Pune, Delhi, and Kolkata
-    // Shifted Mumbai and Pune slightly east (inland) so they don't appear in the ocean on the globe texture
     const fallbackLocations = [
       { lat: 19.0760, lng: 76.8777, name: 'Mumbai Branch', location: 'Mumbai', id: 1 },
       { lat: 18.5204, lng: 77.8567, name: 'Pune Branch', location: 'Pune', id: 2 },
@@ -58,82 +57,66 @@ const Landing = () => {
     setDbBranches(fallbackLocations);
   }, []);
 
-
-  const banners = [
-    {
-      title: "Quantum-Secure AI Banking",
-      subtitle: "Experience the next generation of financial security with our PQC-secured audit logging.",
-      cta: "Learn More"
-    },
-    {
-      title: "Real-time Threat Detection",
-      subtitle: "Our PyTorch-based AI module ensures your assets are protected against insider threats 24/7.",
-      cta: "Explore Security"
-    }
-  ];
-
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentBanner((prev) => (prev + 1) % banners.length);
+      setCurrentBanner((prev) => (prev + 1) % 2); // 2 banners
     }, 5000);
     return () => clearInterval(timer);
   }, []);
 
-  // Sync theme on mount
   useEffect(() => {
     const theme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', theme);
   }, []);
 
-  const handleLogin = () => {
-    navigate('/login');
-  };
+  const handleLogin = () => navigate('/login');
 
   return (
     <div className="landing-container">
-      {/* Top Utility Bar */}
       <div className="utility-bar">
         <div className="utility-left">
-          <span className="contact-item"><Phone size={14} /> Toll Free: 1800-CAPTCHA-BANK</span>
-          <span className="contact-item"><Mail size={14} /> support@bankofcaptcha.com</span>
+          <span className="contact-item"><Phone size={14} /> {t('landing.tollFree')}: 1800-CAPTCHA-BANK</span>
+          <span className="contact-item"><Mail size={14} /> {t('landing.supportEmail')}</span>
         </div>
         <div className="utility-right">
-          <span className="lang-switcher">English | हिन्दी | मराठी</span>
+          <span className="lang-switcher">
+            <span style={{cursor: 'pointer', fontWeight: language === 'en' ? 'bold' : 'normal'}} onClick={() => setLanguage('en')}>{t('landing.langEn')}</span> | 
+            <span style={{cursor: 'pointer', fontWeight: language === 'hi' ? 'bold' : 'normal'}} onClick={() => setLanguage('hi')}> {t('landing.langHi')}</span> | 
+            <span style={{cursor: 'pointer', fontWeight: language === 'mr' ? 'bold' : 'normal'}} onClick={() => setLanguage('mr')}> {t('landing.langMr')}</span>
+          </span>
           <DarkModeToggle variant="standalone" />
         </div>
       </div>
 
-      {/* Main Header & Nav */}
       <header className="main-header">
         <div className="logo-container">
           <Shield className="logo-icon" size={32} color="#1A3C7B" />
           <div className="logo-text">
-            <h1>Bank of Captcha</h1>
-            <span>One Family One Bank</span>
+            <h1>{t('landing.bankName')}</h1>
+            <span>{t('landing.tagline')}</span>
           </div>
         </div>
         
         <nav className="primary-nav">
-          <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>Personal</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>Corporate</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>MSME</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>Agriculture</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>Digital Banking</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.nav.personal')}</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.nav.corporate')}</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.nav.msme')}</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.nav.agriculture')}</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.nav.digitalBanking')}</a>
           <button className="login-btn" onClick={handleLogin}>
-            LOG-IN <ChevronRight size={16} />
+            {t('landing.nav.login')} <ChevronRight size={16} />
           </button>
         </nav>
       </header>
 
-      {/* Hero Banner Carousel */}
       <section className="hero-section">
         <div className="hero-content">
-          <h2>{banners[currentBanner].title}</h2>
-          <p>{banners[currentBanner].subtitle}</p>
-          <button className="hero-cta">{banners[currentBanner].cta}</button>
+          <h2>{t(`landing.banners.${currentBanner}.title`)}</h2>
+          <p>{t(`landing.banners.${currentBanner}.subtitle`)}</p>
+          <button className="hero-cta">{t(`landing.banners.${currentBanner}.cta`)}</button>
         </div>
         <div className="carousel-dots">
-          {banners.map((_, idx) => (
+          {[0, 1].map((idx) => (
             <span 
               key={idx} 
               className={`dot ${idx === currentBanner ? 'active' : ''}`}
@@ -143,161 +126,134 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Quick Action Strip */}
       <div className="quick-actions-strip">
-        <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}><Globe size={16} /> Online SB Account</a>
-        <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}><User size={16} /> Investor Relations</a>
-        <a href="#" onClick={(e) => { e.preventDefault(); setShowMapModal(true); }}><MapPin size={16} /> Branch/ATM Locator</a>
-        <a href="#" onClick={(e) => { e.preventDefault(); setShowHelplineModal(true); }}><HelpCircle size={16} /> Helpline</a>
+        <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}><Globe size={16} /> {t('landing.quickActions.sbAccount')}</a>
+        <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}><User size={16} /> {t('landing.quickActions.investor')}</a>
+        <a href="#" onClick={(e) => { e.preventDefault(); setShowMapModal(true); }}><MapPin size={16} /> {t('landing.quickActions.locator')}</a>
+        <a href="#" onClick={(e) => { e.preventDefault(); setShowHelplineModal(true); }}><HelpCircle size={16} /> {t('landing.quickActions.helpline')}</a>
       </div>
 
-      {/* News Ticker */}
       <div className="news-ticker">
         <div className="ticker-label">
-          <span className="badge">NEW</span> What's new!
+          <span className="badge">{t('landing.news.new')}</span> {t('landing.news.whatsNew')}
         </div>
         <div className="ticker-content-wrapper">
           <div className="ticker-content">
-            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>Security Update: Advanced LSTM Autoencoder deployed for insider threat detection.</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.news.items.0')}</a>
             <span className="divider">|</span>
-            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>Important Notice regarding PQC-secured audit logging implementation.</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.news.items.1')}</a>
             <span className="divider">|</span>
-            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>System Maintenance scheduled for this weekend.</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.news.items.2')}</a>
           </div>
         </div>
       </div>
 
-      {/* Main Layout Grid */}
       <div className="main-layout">
-        
-        {/* Left/Center Content */}
         <div className="content-area">
           <section className="quick-links-section">
-            <h2 className="section-title">What are you looking for?</h2>
+            <h2 className="section-title">{t('landing.quickLinks.title')}</h2>
             <div className="quick-links-grid">
               <div className="link-card" onClick={handleLogin}>
-                <Home className="link-icon" />
-                <span>Home Loans</span>
+                <Home className="link-icon" /><span>{t('landing.quickLinks.homeLoans')}</span>
               </div>
               <div className="link-card" onClick={handleLogin}>
-                <Car className="link-icon" />
-                <span>Car Loan</span>
+                <Car className="link-icon" /><span>{t('landing.quickLinks.carLoan')}</span>
               </div>
               <div className="link-card" onClick={handleLogin}>
-                <Gem className="link-icon" />
-                <span>Gold Loan</span>
+                <Gem className="link-icon" /><span>{t('landing.quickLinks.goldLoan')}</span>
               </div>
               <div className="link-card" onClick={handleLogin}>
-                <Percent className="link-icon" />
-                <span>Deposit Rates</span>
+                <Percent className="link-icon" /><span>{t('landing.quickLinks.depositRates')}</span>
               </div>
               <div className="link-card" onClick={handleLogin}>
-                <Building2 className="link-icon" />
-                <span>Corporate</span>
+                <Building2 className="link-icon" /><span>{t('landing.quickLinks.corporate')}</span>
               </div>
               <div className="link-card" onClick={handleLogin}>
-                <CreditCard className="link-icon" />
-                <span>Credit Cards</span>
+                <CreditCard className="link-icon" /><span>{t('landing.quickLinks.creditCards')}</span>
               </div>
               <div className="link-card" onClick={handleLogin}>
-                <Landmark className="link-icon" />
-                <span>Govt Schemes</span>
+                <Landmark className="link-icon" /><span>{t('landing.quickLinks.govtSchemes')}</span>
               </div>
               <div className="link-card" onClick={handleLogin}>
-                <FileText className="link-icon" />
-                <span>Downloads</span>
+                <FileText className="link-icon" /><span>{t('landing.quickLinks.downloads')}</span>
               </div>
             </div>
           </section>
 
           <section className="ancillary-products">
-            <h2 className="section-title">Ancillary Products</h2>
+            <h2 className="section-title">{t('landing.ancillary.title')}</h2>
             <div className="products-carousel">
-              <div className="product-card" onClick={handleLogin}>Lockers</div>
-              <div className="product-card" onClick={handleLogin}>Insurance</div>
-              <div className="product-card" onClick={handleLogin}>Pension System</div>
-              <div className="product-card" onClick={handleLogin}>Trading Services</div>
+              <div className="product-card" onClick={handleLogin}>{t('landing.ancillary.lockers')}</div>
+              <div className="product-card" onClick={handleLogin}>{t('landing.ancillary.insurance')}</div>
+              <div className="product-card" onClick={handleLogin}>{t('landing.ancillary.pension')}</div>
+              <div className="product-card" onClick={handleLogin}>{t('landing.ancillary.trading')}</div>
             </div>
           </section>
         </div>
 
-        {/* Right Sidebar */}
         <div className="sidebar">
           <div className="sidebar-tabs">
-            <div className="tab active">Interest Rates</div>
-            <div className="tab">Apply Online</div>
-            <div className="tab">Calculators</div>
+            <div className="tab active">{t('landing.sidebar.tabs.rates')}</div>
+            <div className="tab">{t('landing.sidebar.tabs.apply')}</div>
+            <div className="tab">{t('landing.sidebar.tabs.calculators')}</div>
           </div>
           <div className="sidebar-content">
-            <div className="rate-row">
-              <span className="rate-name">Housing Loan</span>
-              <span className="rate-value">7.10% P.A*</span>
-              <button className="apply-btn" onClick={handleLogin}>Apply Now!</button>
-            </div>
-            <div className="rate-row">
-              <span className="rate-name">Car Loan</span>
-              <span className="rate-value">7.45% P.A*</span>
-              <button className="apply-btn" onClick={handleLogin}>Apply Now!</button>
-            </div>
-            <div className="rate-row">
-              <span className="rate-name">Gold Loan</span>
-              <span className="rate-value">8.50% P.A*</span>
-              <button className="apply-btn" onClick={handleLogin}>Apply Now!</button>
-            </div>
-            <div className="rate-row">
-              <span className="rate-name">Deposit Schemes</span>
-              <span className="rate-value">7.15% P.A*</span>
-              <button className="apply-btn blue" onClick={handleLogin}>Know More</button>
-            </div>
+            {[0,1,2,3].map(i => (
+              <div className="rate-row" key={i}>
+                <span className="rate-name">{t(`landing.sidebar.rates.${i}.name`)}</span>
+                <span className="rate-value">{t(`landing.sidebar.rates.${i}.value`)}</span>
+                <button className={`apply-btn ${i===3?'blue':''}`} onClick={handleLogin}>
+                  {i===3 ? t('landing.sidebar.knowMore') : t('landing.sidebar.applyNow')}
+                </button>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Footer */}
       <footer className="main-footer">
         <div className="footer-columns">
           <div className="footer-col">
-            <h3>Disclosure</h3>
-            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>Basel II Disclosure</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>ESG Disclosures</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>RTI</a>
+            <h3>{t('landing.footer.disclosure')}</h3>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.footer.basel')}</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.footer.esg')}</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.footer.rti')}</a>
           </div>
           <div className="footer-col">
-            <h3>Compliance</h3>
-            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>Citizen Charter</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>Complaint Mechanism</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>Important Policies</a>
+            <h3>{t('landing.footer.compliance')}</h3>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.footer.citizen')}</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.footer.complaint')}</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.footer.policies')}</a>
           </div>
           <div className="footer-col">
-            <h3>Important Links</h3>
-            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>KYC Compliance Check</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>Wilful Defaulters</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>Verify CheckSum Value</a>
+            <h3>{t('landing.footer.links')}</h3>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.footer.kyc')}</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.footer.defaulters')}</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.footer.checksum')}</a>
           </div>
           <div className="footer-col">
-            <h3>Get In Touch</h3>
-            <p>Bank of Captcha Head Office<br/>Tech Park, Cyber City<br/>Sector-5, 411005</p>
+            <h3>{t('landing.footer.contact')}</h3>
+            <p dangerouslySetInnerHTML={{__html: t('landing.footer.address')}}></p>
           </div>
         </div>
         
         <div className="security-banner">
-          <strong>Important:</strong> Bank of Captcha never asks for Bank account details for any purpose through phone call/email/SMS. Never share your CVV/PIN No. of Debit/Credit card to anyone.
+          <strong>{t('landing.footer.securityBanner').split(':')[0]}:</strong> {t('landing.footer.securityBanner').substring(t('landing.footer.securityBanner').indexOf(':')+1)}
         </div>
         
         <div className="footer-bottom">
-          <div className="copyright">© 2026 Bank of Captcha. All Rights Reserved</div>
+          <div className="copyright">{t('landing.footer.copyright')}</div>
           <div className="footer-links">
-            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>Disclaimer</a> | <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>Privacy Policy</a> | <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>Terms & Conditions</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.footer.disclaimer')}</a> | <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.footer.privacy')}</a> | <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.footer.terms')}</a>
           </div>
         </div>
       </footer>
 
-      {/* Modals */}
       {showMapModal && (
         <div className="modal-overlay" onClick={() => setShowMapModal(false)}>
           <div className="modal-content map-modal" onClick={e => e.stopPropagation()}>
             <button className="close-btn" onClick={() => setShowMapModal(false)}>×</button>
-            <h2>Branch / ATM Locator</h2>
+            <h2>{t('landing.modals.locator')}</h2>
             <div className="globe-container" style={{ width: '100%', height: '100%', backgroundColor: '#000', borderRadius: '8px', overflow: 'hidden' }}>
               <ReactGlobe
                 ref={globeEl}
@@ -334,21 +290,22 @@ const Landing = () => {
         <div className="modal-overlay" onClick={() => setShowHelplineModal(false)}>
           <div className="modal-content info-modal" onClick={e => e.stopPropagation()}>
             <button className="close-btn" onClick={() => setShowHelplineModal(false)}>×</button>
-            <h2>24/7 Helpline & Support</h2>
+            <h2>{t('landing.modals.helplineTitle')}</h2>
             <div className="helpline-info">
-              <p>Welcome to Bank of Captcha Support. We are here to assist you.</p>
+              <p>{t('landing.modals.helplineWelcome')}</p>
               <div className="contact-details">
-                <div className="contact-row"><Phone size={20} /> <strong>Toll-Free:</strong> 1800-CAPTCHA-BANK (1800-227-8242)</div>
-                <div className="contact-row"><Mail size={20} /> <strong>Email:</strong> support@bankofcaptcha.com</div>
-                <div className="contact-row"><Globe size={20} /> <strong>International:</strong> +91-22-6666-8888</div>
+                <div className="contact-row"><Phone size={20} /> <strong>{t('landing.modals.tollFreeLabel')}</strong> 1800-CAPTCHA-BANK (1800-227-8242)</div>
+                <div className="contact-row"><Mail size={20} /> <strong>{t('landing.modals.emailLabel')}</strong> support@bankofcaptcha.com</div>
+                <div className="contact-row"><Globe size={20} /> <strong>{t('landing.modals.intlLabel')}</strong> +91-22-6666-8888</div>
               </div>
-              <p className="note">For immediate blocking of lost/stolen debit cards, please press 1 on the IVR.</p>
-              <button className="apply-btn" onClick={() => setShowHelplineModal(false)}>Close</button>
+              <p className="note">{t('landing.modals.note')}</p>
+              <button className="apply-btn" onClick={() => setShowHelplineModal(false)}>{t('landing.modals.close')}</button>
             </div>
           </div>
         </div>
       )}
     </div>
-  );};
+  );
+};
 
 export default Landing;

@@ -1,0 +1,110 @@
+{
+  "landing": {
+    "tollFree": "Toll Free",
+    "supportEmail": "support@bankofcaptcha.com",
+    "langEn": "English",
+    "langHi": "हिन्दी",
+    "langMr": "मराठी",
+    "bankName": "Bank of Captcha",
+    "tagline": "One Family One Bank",
+    "nav": {
+      "personal": "Personal",
+      "corporate": "Corporate",
+      "msme": "MSME",
+      "agriculture": "Agriculture",
+      "digitalBanking": "Digital Banking",
+      "login": "LOG-IN"
+    },
+    "banners": [
+      {
+        "title": "Quantum-Secure AI Banking",
+        "subtitle": "Experience the next generation of financial security with our PQC-secured audit logging.",
+        "cta": "Learn More"
+      },
+      {
+        "title": "Real-time Threat Detection",
+        "subtitle": "Our PyTorch-based AI module ensures your assets are protected against insider threats 24/7.",
+        "cta": "Explore Security"
+      }
+    ],
+    "quickActions": {
+      "sbAccount": "Online SB Account",
+      "investor": "Investor Relations",
+      "locator": "Branch/ATM Locator",
+      "helpline": "Helpline"
+    },
+    "news": {
+      "new": "NEW",
+      "whatsNew": "What's new!",
+      "items": [
+        "Security Update: Advanced LSTM Autoencoder deployed for insider threat detection.",
+        "Important Notice regarding PQC-secured audit logging implementation.",
+        "System Maintenance scheduled for this weekend."
+      ]
+    },
+    "quickLinks": {
+      "title": "What are you looking for?",
+      "homeLoans": "Home Loans",
+      "carLoan": "Car Loan",
+      "goldLoan": "Gold Loan",
+      "depositRates": "Deposit Rates",
+      "corporate": "Corporate",
+      "creditCards": "Credit Cards",
+      "govtSchemes": "Govt Schemes",
+      "downloads": "Downloads"
+    },
+    "ancillary": {
+      "title": "Ancillary Products",
+      "lockers": "Lockers",
+      "insurance": "Insurance",
+      "pension": "Pension System",
+      "trading": "Trading Services"
+    },
+    "sidebar": {
+      "tabs": {
+        "rates": "Interest Rates",
+        "apply": "Apply Online",
+        "calculators": "Calculators"
+      },
+      "rates": [
+        { "name": "Housing Loan", "value": "7.10% P.A*" },
+        { "name": "Car Loan", "value": "7.45% P.A*" },
+        { "name": "Gold Loan", "value": "8.50% P.A*" },
+        { "name": "Deposit Schemes", "value": "7.15% P.A*" }
+      ],
+      "applyNow": "Apply Now!",
+      "knowMore": "Know More"
+    },
+    "footer": {
+      "disclosure": "Disclosure",
+      "basel": "Basel II Disclosure",
+      "esg": "ESG Disclosures",
+      "rti": "RTI",
+      "compliance": "Compliance",
+      "citizen": "Citizen Charter",
+      "complaint": "Complaint Mechanism",
+      "policies": "Important Policies",
+      "links": "Important Links",
+      "kyc": "KYC Compliance Check",
+      "defaulters": "Wilful Defaulters",
+      "checksum": "Verify CheckSum Value",
+      "contact": "Get In Touch",
+      "address": "Bank of Captcha Head Office<br/>Tech Park, Cyber City<br/>Sector-5, 411005",
+      "securityBanner": "Important: Bank of Captcha never asks for Bank account details for any purpose through phone call/email/SMS. Never share your CVV/PIN No. of Debit/Credit card to anyone.",
+      "copyright": "© 2026 Bank of Captcha. All Rights Reserved",
+      "disclaimer": "Disclaimer",
+      "privacy": "Privacy Policy",
+      "terms": "Terms & Conditions"
+    },
+    "modals": {
+      "locator": "Branch / ATM Locator",
+      "helplineTitle": "24/7 Helpline & Support",
+      "helplineWelcome": "Welcome to Bank of Captcha Support. We are here to assist you.",
+      "tollFreeLabel": "Toll-Free:",
+      "emailLabel": "Email:",
+      "intlLabel": "International:",
+      "note": "For immediate blocking of lost/stolen debit cards, please press 1 on the IVR.",
+      "close": "Close"
+    }
+  }
+}
