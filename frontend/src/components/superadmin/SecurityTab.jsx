@@ -63,7 +63,7 @@ const AlertDescriptionCell = ({ description }) => {
   const parsed = parseAlertDescription(description);
 
   if (!parsed) {
-    return <span style={{ color: '#6b7280', fontSize: '12px' }}>{description || '—'}</span>;
+    return <span style={{ color: 'var(--text-light)', fontSize: '12px' }}>{description || '—'}</span>;
   }
 
   const riskColors = {
@@ -97,7 +97,7 @@ const AlertDescriptionCell = ({ description }) => {
           }}>
             {sig.label}
           </span>
-          <span style={{ fontSize: '11px', color: '#374151' }}>{sig.short}</span>
+          <span style={{ fontSize: '11px', color: 'var(--text-light)' }}>{sig.short}</span>
         </div>
       ))}
     </div>
