@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from '../../i18n/LanguageContext';
 import { AlertTriangle, Activity, Search, Filter, ThumbsDown } from 'lucide-react';
 import Pagination from '../../components/shared/Pagination';
 import RiskActivityGraph from '../../components/RiskActivityGraph';
@@ -11,6 +12,7 @@ import * as api from '../../api/client';
  * Shows: Risk graphs, summary cards, AI alerts table with filters.
  */
 const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionRequests }) => {
+  const { t } = useTranslation();
   const [alertFilter, setAlertFilter] = useState({ search: '', severity: '', status: '', role: '' });
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedMatrix, setSelectedMatrix] = useState(null);
@@ -122,21 +124,21 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
         <div className="summary-card">
           <div className="summary-card-header">
             <AlertTriangle size={20} className="icon-yellow" />
-            <h3>Filtered Alerts</h3>
+            <h3>{t('dashboard.filteredAlerts')}</h3>
           </div>
           <div className="summary-card-value">{filteredAlerts.length}</div>
         </div>
         <div className="summary-card">
           <div className="summary-card-header">
             <Activity size={20} className="icon-blue" />
-            <h3>Filtered Audit Logs</h3>
+            <h3>{t('dashboard.filteredAuditLogs')}</h3>
           </div>
           <div className="summary-card-value">{filteredLogs.length}</div>
         </div>
         <div className="summary-card">
           <div className="summary-card-header">
             <Activity size={20} className="icon-blue" />
-            <h3>Pending Requests</h3>
+            <h3>{t('dashboard.pendingRequests')}</h3>
           </div>
           <div className="summary-card-value">{transactionRequests.length}</div>
         </div>
@@ -169,7 +171,7 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
           <Search size={16} className="filter-icon" />
           <input
             type="text"
-            placeholder="Search by username..."
+            placeholder={t("dashboard.searchUsername")}
             value={alertFilter.search}
             onChange={(e) => setAlertFilter({ ...alertFilter, search: e.target.value })}
             className="filter-input"
@@ -178,30 +180,30 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
         <div className="filter-group">
           <Filter size={16} className="filter-icon" />
           <select value={alertFilter.role} onChange={(e) => setAlertFilter({ ...alertFilter, role: e.target.value })} className="filter-select">
-            <option value="">All Roles</option>
-            <option value="CUSTOMER">Customer</option>
-            <option value="TELLER">Teller</option>
-            <option value="BRANCH_MANAGER">Branch Manager</option>
-            <option value="ADMIN">Admin</option>
-            <option value="SUPER_ADMIN">Super Admin</option>
-            <option value="COMPLIANCE_OFFICER">Compliance Officer</option>
+            <option value="">{t('dashboard.allRoles')}</option>
+            <option value="CUSTOMER">{t('dashboard.roleCustomer')}</option>
+            <option value="TELLER">{t('dashboard.roleTeller')}</option>
+            <option value="BRANCH_MANAGER">{t('dashboard.roleBranchManager')}</option>
+            <option value="ADMIN">{t('dashboard.roleAdmin')}</option>
+            <option value="SUPER_ADMIN">{t('dashboard.roleSuperAdmin')}</option>
+            <option value="COMPLIANCE_OFFICER">{t('dashboard.roleComplianceOfficer')}</option>
           </select>
         </div>
         <div className="filter-group">
           <Filter size={16} className="filter-icon" />
           <select value={alertFilter.severity} onChange={(e) => setAlertFilter({ ...alertFilter, severity: e.target.value })} className="filter-select">
-            <option value="">All Severities</option>
-            <option value="HIGH">High</option>
-            <option value="MEDIUM">Medium</option>
-            <option value="LOW">Low</option>
+            <option value="">{t('dashboard.allSeverities')}</option>
+            <option value="HIGH">{t('dashboard.high')}</option>
+            <option value="MEDIUM">{t('dashboard.medium')}</option>
+            <option value="LOW">{t('dashboard.low')}</option>
           </select>
         </div>
         <div className="filter-group">
           <Filter size={16} className="filter-icon" />
           <select value={alertFilter.status} onChange={(e) => setAlertFilter({ ...alertFilter, status: e.target.value })} className="filter-select">
-            <option value="">All Statuses</option>
-            <option value="OPEN">Open</option>
-            <option value="RESOLVED">Resolved</option>
+            <option value="">{t('dashboard.allStatuses')}</option>
+            <option value="OPEN">{t('dashboard.statusOpen')}</option>
+            <option value="RESOLVED">{t('dashboard.statusResolved')}</option>
           </select>
         </div>
       </div>
@@ -212,19 +214,19 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
           <thead>
             <tr>
               <th>ID</th>
-              <th>Flagged User</th>
-              <th>User Role</th>
-              <th>Severity</th>
-              <th>Description</th>
-              <th>Status</th>
-              <th>Timestamp</th>
+              <th>{t('dashboard.flaggedUser')}</th>
+              <th>{t('dashboard.userRole')}</th>
+              <th>{t('dashboard.severity')}</th>
+              <th>{t('dashboard.description')}</th>
+              <th>{t('dashboard.status')}</th>
+              <th>{t('dashboard.timestamp')}</th>
               {showFeedbackColumn && (
                 <th style={{ whiteSpace: 'nowrap' }}>
                   <ThumbsDown size={13} style={{ marginRight: '5px', verticalAlign: 'middle' }} />
                   AI Feedback
                 </th>
               )}
-              <th>Actions</th>
+              <th>{t('dashboard.actions')}</th>
             </tr>
           </thead>
           <tbody>

@@ -1,8 +1,10 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from '../i18n/LanguageContext';
 import { Calendar } from 'lucide-react';
 import './RiskActivityGraph.css';
 
 const RiskActivityGraph = ({ alerts = [], onDateSelect, selectedDate }) => {
+    const { t } = useTranslation();
     const days = 90;
     
     const { activityMap, startDate, endDate, dateArray } = useMemo(() => {
@@ -84,7 +86,7 @@ const RiskActivityGraph = ({ alerts = [], onDateSelect, selectedDate }) => {
         <div className="risk-visualizer-card">
             <div className="risk-visualizer-header">
                 <Calendar size={20} className="icon-blue" />
-                <h3>Risk Activity Calendar</h3>
+                <h3>{t('dashboard.riskActivityCalendar')}</h3>
                 {selectedDate && (
                     <button className="clear-filter-btn" onClick={() => onDateSelect(null)}>
                         Clear Date Filter
@@ -130,11 +132,11 @@ const RiskActivityGraph = ({ alerts = [], onDateSelect, selectedDate }) => {
             </div>
             
             <div className="activity-legend">
-                <span className="legend-text">Peak Severity:</span>
-                <div className="activity-cell color-low" style={{opacity: 1}}></div> <span className="legend-label">Low</span>
-                <div className="activity-cell color-medium" style={{opacity: 1}}></div> <span className="legend-label">Medium</span>
-                <div className="activity-cell color-high" style={{opacity: 1}}></div> <span className="legend-label">High</span>
-                <span className="legend-text" style={{marginLeft: '15px'}}>Opacity = Volume</span>
+                <span className="legend-text">{t('dashboard.peakSeverity')}:</span>
+                <div className="activity-cell color-low" style={{opacity: 1}}></div> <span className="legend-label">{t('dashboard.low')}</span>
+                <div className="activity-cell color-medium" style={{opacity: 1}}></div> <span className="legend-label">{t('dashboard.medium')}</span>
+                <div className="activity-cell color-high" style={{opacity: 1}}></div> <span className="legend-label">{t('dashboard.high')}</span>
+                <span className="legend-text" style={{marginLeft: '15px'}}>{t('dashboard.opacityVolume')}</span>
             </div>
         </div>
     );

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from '../../i18n/LanguageContext';
 import { Search, Filter, FileText } from 'lucide-react';
 import Pagination from './Pagination';
 import * as api from '../../api/client';
@@ -83,13 +84,13 @@ const AuditLogTable = ({ logs, users, token, selectedDate = null }) => {
             onChange={(e) => setFilter({ ...filter, role: e.target.value })}
             className="filter-select"
           >
-            <option value="">All Roles</option>
-            <option value="CUSTOMER">Customer</option>
-            <option value="TELLER">Teller</option>
-            <option value="BRANCH_MANAGER">Branch Manager</option>
-            <option value="ADMIN">Admin</option>
-            <option value="SUPER_ADMIN">Super Admin</option>
-            <option value="COMPLIANCE_OFFICER">Compliance Officer</option>
+            <option value="">{t('dashboard.allRoles')}</option>
+            <option value="CUSTOMER">{t('dashboard.roleCustomer')}</option>
+            <option value="TELLER">{t('dashboard.roleTeller')}</option>
+            <option value="BRANCH_MANAGER">{t('dashboard.roleBranchManager')}</option>
+            <option value="ADMIN">{t('dashboard.roleAdmin')}</option>
+            <option value="SUPER_ADMIN">{t('dashboard.roleSuperAdmin')}</option>
+            <option value="COMPLIANCE_OFFICER">{t('dashboard.roleComplianceOfficer')}</option>
           </select>
         </div>
       </div>
@@ -99,9 +100,9 @@ const AuditLogTable = ({ logs, users, token, selectedDate = null }) => {
           <tr>
             <th>ID</th>
             <th>User</th>
-            <th>User Role</th>
-            <th>Action</th>
-            <th>Timestamp</th>
+            <th>{t('dashboard.userRole')}</th>
+            <th>{t('dashboard.action')}</th>
+            <th>{t('dashboard.timestamp')}</th>
             <th>Verify</th>
           </tr>
         </thead>

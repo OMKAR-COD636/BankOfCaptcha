@@ -1,8 +1,10 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from '../i18n/LanguageContext';
 import { Activity } from 'lucide-react';
 import './RiskHeatmap.css';
 
 const RiskHeatmap = ({ alerts = [], onMatrixSelect, selectedMatrix }) => {
+    const { t } = useTranslation();
     const severities = ['HIGH', 'MEDIUM', 'LOW'];
     const frequencies = ['Low', 'Medium', 'High'];
 
@@ -40,7 +42,7 @@ const RiskHeatmap = ({ alerts = [], onMatrixSelect, selectedMatrix }) => {
         <div className="risk-visualizer-card">
             <div className="risk-visualizer-header">
                 <Activity size={20} className="icon-red" />
-                <h3>Risk Severity Matrix</h3>
+                <h3>{t('dashboard.riskSeverityMatrix')}</h3>
                 {selectedMatrix && (
                     <button className="clear-filter-btn" onClick={() => onMatrixSelect(null)}>
                         Clear Matrix Filter

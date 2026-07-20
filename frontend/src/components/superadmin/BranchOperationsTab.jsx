@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from '../../i18n/LanguageContext';
 import { Building } from 'lucide-react';
 import * as api from '../../api/client';
 
@@ -7,6 +8,7 @@ import * as api from '../../api/client';
  * Shows: Create new branch form.
  */
 const BranchOperationsTab = ({ branches, setBranches, token }) => {
+  const { t } = useTranslation();
   const [createBranchForm, setCreateBranchForm] = useState({ name: '', location: '' });
 
   const handleCreateBranch = async (e) => {

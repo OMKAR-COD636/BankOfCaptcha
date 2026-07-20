@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from '../../i18n/LanguageContext';
 import { Users } from 'lucide-react';
 import * as api from '../../api/client';
 
@@ -7,6 +8,7 @@ import * as api from '../../api/client';
  * Shows: Create staff form, Assign staff to branch form.
  */
 const StaffManagementTab = ({ users, branches, token }) => {
+  const { t } = useTranslation();
   const [createStaffForm, setCreateStaffForm] = useState({
     username: '', password: '', role: 'ROLE_TELLER', branchId: '',
   });
