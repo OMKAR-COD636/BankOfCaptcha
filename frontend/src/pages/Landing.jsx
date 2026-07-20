@@ -10,6 +10,7 @@ import {
 import './Landing.css';
 import DarkModeToggle from '../components/shared/DarkModeToggle';
 import { useTranslation } from '../i18n/LanguageContext';
+import useAuth from '../hooks/useAuth';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const Landing = () => {
   const [showHelplineModal, setShowHelplineModal] = useState(false);
   const globeEl = useRef();
   const [globeSize, setGlobeSize] = useState({ width: 800, height: 400 });
+  const auth = useAuth();
 
   useEffect(() => {
     if (showMapModal) {
@@ -62,7 +64,14 @@ const Landing = () => {
       setCurrentBanner((prev) => (prev + 1) % 2); // 2 banners
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [banners.length]);
+
+  // Log out user if they navigate back to the landing page
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      auth.logout();
+    }
+  }, [auth.isAuthenticated, auth.logout]);
 
   useEffect(() => {
     const theme = localStorage.getItem('theme') || 'light';

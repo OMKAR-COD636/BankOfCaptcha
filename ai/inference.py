@@ -679,21 +679,123 @@ def analyze_logs():
         severity = score_to_severity(fused_score)
 
         if severity is not None and valid_elements >= 3:
-            # Build enriched multi-signal description
-            desc_parts = [f"4-Signal Insider Threat Detection — Fused Risk: {fused_score:.2f}"]
+            # ---------------------------------------------------------------
+            # Human-readable description builder — one plain-English sentence
+            # per triggered signal, severity-aware wording throughout.
+            # ---------------------------------------------------------------
+            signal_messages = []
 
-            desc_parts.append(f"S1 LSTM: {lstm_normalized:.2f} (MSE: {reconstruction_error:.4f}, Threshold: {GLOBAL_THRESHOLD:.4f})")
+            # --- S1: LSTM Behavioral Sequence Anomaly ---
+            if lstm_normalized >= 0.7:
+                signal_messages.append(
+                    f"[S1 – Behavioral Anomaly] {username} ({user_role}) is performing an unusual sequence "
+                    f"of actions that strongly deviates from their normal behavioral pattern. "
+                    f"The AI model flagged this as highly suspicious for someone in the {user_role} role."
+                )
+            elif lstm_normalized >= 0.5:
+                signal_messages.append(
+                    f"[S1 – Behavioral Anomaly] {username} ({user_role}) has been performing actions that "
+                    f"deviate moderately from their typical behavior pattern. This may indicate unusual "
+                    f"activity or a shift in how they are using the system."
+                )
+            elif lstm_normalized > 0.2:
+                signal_messages.append(
+                    f"[S1 – Behavioral Anomaly] {username} ({user_role}) shows a slight deviation from "
+                    f"their expected activity pattern. No immediate concern, but worth monitoring."
+                )
 
+            # --- S2: Role-Action Violation ---
             if role_violation_explanation:
-                desc_parts.append(f"S2 Role-Violation: {role_violation_score:.2f} — {role_violation_explanation}")
+                if role_violation_score >= 0.7:
+                    signal_messages.append(
+                        f"[S2 – Role Violation] {username} ({user_role}) is performing actions that are "
+                        f"NOT permitted for their role. This is a serious policy breach — "
+                        f"{role_violation_explanation.split('[')[0].strip()}. "
+                        f"Immediate review is recommended."
+                    )
+                elif role_violation_score >= 0.4:
+                    signal_messages.append(
+                        f"[S2 – Role Violation] {username} ({user_role}) has performed several actions "
+                        f"outside the boundaries of their assigned role. "
+                        f"{role_violation_explanation.split('[')[0].strip()}. This warrants investigation."
+                    )
+                else:
+                    signal_messages.append(
+                        f"[S2 – Role Violation] {username} ({user_role}) attempted at least one action "
+                        f"that falls outside their permitted role scope. "
+                        f"{role_violation_explanation.split('[')[0].strip()}."
+                    )
 
+            # --- S3: Statistical Transaction Profiler ---
             if stat_explanation:
-                desc_parts.append(f"S3 Statistical: {stat_score:.2f} — {stat_explanation}")
+                if "Massive transaction" in stat_explanation:
+                    signal_messages.append(
+                        f"[S3 – Transaction Anomaly] {username} ({user_role}) initiated an extremely large "
+                        f"financial transaction with little to no prior transaction history to compare against. "
+                        f"Detail: {stat_explanation}. This may indicate account takeover or fraudulent activity."
+                    )
+                elif "std deviations" in stat_explanation:
+                    signal_messages.append(
+                        f"[S3 – Transaction Anomaly] {username} ({user_role}) processed a transaction that "
+                        f"is significantly larger than their usual amounts. {stat_explanation}. "
+                        f"This is statistically unusual for this user and may indicate unauthorized transfer."
+                    )
+                elif "Insider Burst" in stat_explanation or "high-risk actions" in stat_explanation:
+                    signal_messages.append(
+                        f"[S3 – Activity Burst] {username} ({user_role}) performed a rapid burst of "
+                        f"high-risk financial or write operations in a very short time window. "
+                        f"Detail: {stat_explanation}. This pattern is consistent with data exfiltration "
+                        f"or fraudulent transaction sequences."
+                    )
+                else:
+                    signal_messages.append(
+                        f"[S3 – Transaction Anomaly] {username} ({user_role}) shows unusual financial "
+                        f"activity. Detail: {stat_explanation}."
+                    )
 
+            # --- S4: Temporal Anomaly ---
             if temporal_explanation:
-                desc_parts.append(f"S4 Temporal: {temporal_score:.2f} — {temporal_explanation}")
+                if "outside" in temporal_explanation and "business hours" in temporal_explanation:
+                    bh_start, bh_end = temporal_analyzer.business_hours
+                    signal_messages.append(
+                        f"[S4 – Off-Hours Access] {username} ({user_role}) was active outside normal "
+                        f"business hours ({bh_start}:00–{bh_end}:00). "
+                        f"Detail: {temporal_explanation}. Unauthorized or after-hours access is a key "
+                        f"indicator of insider threat or compromised credentials."
+                    )
+                elif "diversity spike" in temporal_explanation or "diversity" in temporal_explanation:
+                    signal_messages.append(
+                        f"[S4 – Recon Pattern] {username} ({user_role}) suddenly started accessing a "
+                        f"much wider variety of system features than they normally do. "
+                        f"Detail: {temporal_explanation}. This spike in action diversity is consistent "
+                        f"with reconnaissance activity, often a precursor to data theft or escalation."
+                    )
+                else:
+                    signal_messages.append(
+                        f"[S4 – Temporal Anomaly] {username} ({user_role}) shows an unusual time-based "
+                        f"activity pattern. Detail: {temporal_explanation}."
+                    )
 
-            full_desc = " | ".join(desc_parts)
+            # Final description — lead with severity summary, then list triggered signals
+            if severity == "HIGH":
+                summary = (
+                    f"HIGH RISK — Insider threat indicators detected for {username} ({user_role}). "
+                    f"Immediate action required. Overall risk score: {int(fused_score * 100)}%."
+                )
+            elif severity == "MEDIUM":
+                summary = (
+                    f"MEDIUM RISK — Suspicious activity detected for {username} ({user_role}). "
+                    f"Investigate promptly. Overall risk score: {int(fused_score * 100)}%."
+                )
+            else:
+                summary = (
+                    f"LOW RISK — Minor anomaly detected for {username} ({user_role}). "
+                    f"Monitor for escalation. Overall risk score: {int(fused_score * 100)}%."
+                )
+
+            full_desc = summary
+            if signal_messages:
+                full_desc += " | " + " | ".join(signal_messages)
 
             print(f"[!] THREAT DETECTED: {username} ({user_role}) - Severity: {severity} - Fused: {fused_score:.2f}")
             print(f"    S1 LSTM:           {lstm_normalized:.2f} (raw MSE: {reconstruction_error:.4f})")

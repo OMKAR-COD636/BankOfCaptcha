@@ -7,6 +7,103 @@ import RiskHeatmap from '../../components/RiskHeatmap';
 import AlertReviewModal from '../../components/AlertReviewModal';
 import * as api from '../../api/client';
 
+// ---------------------------------------------------------------------------
+// Description Parser — converts the pipe-delimited AI description string into
+// a structured object: { riskLevel, riskScore, signals: [{label, short}] }
+// ---------------------------------------------------------------------------
+const SIGNAL_LABELS = {
+  'S1': 'S1 · Behavioral',
+  'S2': 'S2 · Role Violation',
+  'S3': 'S3 · Transaction',
+  'S4': 'S4 · Temporal',
+};
+
+// Extracts a concise one-liner from a full signal sentence.
+const shortenSignal = (text) => {
+  // Remove the bracketed label prefix, e.g. "[S1 – Behavioral Anomaly] john (TELLER) ..."
+  const withoutBracket = text.replace(/^\[.*?\]\s*/, '');
+  // Take up to the first sentence or 90 chars, whichever comes first.
+  const firstSentence = withoutBracket.split(/\.\s/)[0];
+  return firstSentence.length > 90 ? firstSentence.slice(0, 87) + '…' : firstSentence;
+};
+
+const parseAlertDescription = (description) => {
+  if (!description) return null;
+
+  const parts = description.split(' | ').map((s) => s.trim()).filter(Boolean);
+  if (parts.length === 0) return null;
+
+  // First part is always the severity summary line
+  const summaryLine = parts[0];
+
+  // Extract risk level keyword
+  let riskLevel = 'UNKNOWN';
+  if (summaryLine.startsWith('HIGH')) riskLevel = 'HIGH';
+  else if (summaryLine.startsWith('MEDIUM')) riskLevel = 'MEDIUM';
+  else if (summaryLine.startsWith('LOW')) riskLevel = 'LOW';
+
+  // Extract risk score percentage
+  const scoreMatch = summaryLine.match(/(\d+)%/);
+  const riskScore = scoreMatch ? scoreMatch[1] : null;
+
+  // Remaining parts are signal messages — identify by bracket label
+  const signals = parts.slice(1).map((part) => {
+    // Detect which signal this belongs to
+    const labelMatch = part.match(/^\[(S[1-4])\s*[–-]/);
+    const signalKey = labelMatch ? labelMatch[1] : null;
+    const label = signalKey ? (SIGNAL_LABELS[signalKey] || signalKey) : 'Signal';
+    return { label, short: shortenSignal(part) };
+  });
+
+  return { riskLevel, riskScore, signals };
+};
+
+// Compact description cell shown in the table
+const AlertDescriptionCell = ({ description }) => {
+  const parsed = parseAlertDescription(description);
+
+  if (!parsed) {
+    return <span style={{ color: '#6b7280', fontSize: '12px' }}>{description || '—'}</span>;
+  }
+
+  const riskColors = {
+    HIGH:   { bg: '#fef2f2', border: '#fca5a5', text: '#b91c1c' },
+    MEDIUM: { bg: '#fffbeb', border: '#fcd34d', text: '#b45309' },
+    LOW:    { bg: '#f0fdf4', border: '#86efac', text: '#15803d' },
+  };
+  const colors = riskColors[parsed.riskLevel] || { bg: '#f9fafb', border: '#e5e7eb', text: '#374151' };
+
+  return (
+    <div style={{ minWidth: '220px', maxWidth: '300px' }}>
+      {/* Risk level badge */}
+      <div style={{
+        display: 'inline-flex', alignItems: 'center', gap: '5px',
+        padding: '2px 8px', borderRadius: '10px', marginBottom: '6px',
+        background: colors.bg, border: `1px solid ${colors.border}`,
+        color: colors.text, fontWeight: '700', fontSize: '11px', letterSpacing: '0.04em',
+      }}>
+        {parsed.riskLevel} RISK{parsed.riskScore ? ` · ${parsed.riskScore}%` : ''}
+      </div>
+
+      {/* Per-signal short lines */}
+      {parsed.signals.map((sig, i) => (
+        <div key={i} style={{ display: 'flex', gap: '6px', marginBottom: '3px', lineHeight: '1.3' }}>
+          <span style={{
+            flexShrink: 0, fontSize: '10px', fontWeight: '700',
+            color: colors.text, background: colors.bg,
+            border: `1px solid ${colors.border}`,
+            borderRadius: '4px', padding: '1px 5px', whiteSpace: 'nowrap',
+            alignSelf: 'flex-start', marginTop: '1px',
+          }}>
+            {sig.label}
+          </span>
+          <span style={{ fontSize: '11px', color: '#374151' }}>{sig.short}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 /**
  * SuperAdmin — Security & Intelligence Tab
  * Shows: Risk graphs, summary cards, AI alerts table with filters.
@@ -236,7 +333,7 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
                 <td><strong>{alert.flaggedUsername}</strong></td>
                 <td><span className="role-badge">{getUserRole(alert.flaggedUsername)}</span></td>
                 <td><span className={`severity-badge ${alert.severity.toLowerCase()}`}>{alert.severity}</span></td>
-                <td>{alert.description}</td>
+                <td><AlertDescriptionCell description={alert.description} /></td>
                 <td><strong>{alert.status}</strong></td>
                 <td>{new Date(alert.timestamp + 'Z').toLocaleString()}</td>
                 {showFeedbackColumn && (
