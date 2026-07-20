@@ -134,3 +134,15 @@ export const fetchUsers = (token) =>
 // ──────────────────────────────────────────────
 export const createStaff = (token, data) =>
   request('POST', '/api/admin/staff', { token, body: data });
+
+// ──────────────────────────────────────────────
+// AI Training (IT Admin)
+// ──────────────────────────────────────────────
+export const fetchAiTrainingMetrics = (token) =>
+  request('GET', '/api/ai/training/metrics', { token });
+
+export const triggerAdaptiveTraining = (token) =>
+  request('POST', '/api/ai/training/trigger', { token });
+
+export const updateAlertFeedback = (token, id, isFalsePositive) =>
+  request('PUT', `/api/ai/alerts/${id}/feedback`, { token, body: { isFalsePositive } });

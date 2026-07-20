@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { AlertTriangle, Activity, Search, Filter } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { AlertTriangle, Activity, Search, Filter, ThumbsDown } from 'lucide-react';
 import Pagination from '../../components/shared/Pagination';
 import RiskActivityGraph from '../../components/RiskActivityGraph';
 import RiskHeatmap from '../../components/RiskHeatmap';
@@ -16,6 +16,10 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
   const [selectedMatrix, setSelectedMatrix] = useState(null);
   const [selectedAlertForReview, setSelectedAlertForReview] = useState(null);
   const [alertPage, setAlertPage] = useState(1);
+  // Tracks which alert IDs are currently mid-request (disables toggle during flight)
+  const [pendingFeedback, setPendingFeedback] = useState(new Set());
+  // Hidden by default — user must explicitly opt in to see the AI Feedback column
+  const [showFeedbackColumn, setShowFeedbackColumn] = useState(false);
   const itemsPerPage = 20;
 
   const getUserRole = (username) =>
@@ -61,6 +65,33 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
       alert(err.error || 'Failed to resolve all alerts.');
     }
   };
+
+  /**
+   * Toggles the isFalsePositive flag for an alert.
+   * Calls PUT /api/ai/alerts/{id}/feedback → AlertService.setFeedback()
+   * Alerts marked as false positives are consumed by the AI engine
+   * during the next adaptive training run (triggered from the IT Admin panel).
+   */
+  const handleToggleFalsePositive = useCallback(async (alertId, currentValue) => {
+    // Mark as in-flight to disable the toggle
+    setPendingFeedback((prev) => new Set(prev).add(alertId));
+    try {
+      await api.updateAlertFeedback(token, alertId, !currentValue);
+      // Optimistically update local state on success
+      setAiAlerts((prev) =>
+        prev.map((a) => (a.id === alertId ? { ...a, isFalsePositive: !currentValue } : a))
+      );
+    } catch (err) {
+      console.error('Failed to update alert feedback:', err);
+      alert(err.error || 'Failed to save feedback. Please try again.');
+    } finally {
+      setPendingFeedback((prev) => {
+        const next = new Set(prev);
+        next.delete(alertId);
+        return next;
+      });
+    }
+  }, [token, setAiAlerts]);
 
   return (
     <div className="admin-tab-content animated-fade-in">
@@ -116,9 +147,20 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
         <h2 className="section-title" style={{ marginBottom: 0 }}>
           <AlertTriangle size={24} className="icon-yellow" /> AI Security Alerts
         </h2>
-        <button onClick={handleResolveAllAlerts} className="btn-primary">
-          Resolve & Unfreeze All
-        </button>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          {/* Opt-in chip — column is hidden by default to keep the table clean */}
+          <button
+            className={`fp-opt-in-btn${showFeedbackColumn ? ' fp-opt-in-btn--active' : ''}`}
+            onClick={() => setShowFeedbackColumn((v) => !v)}
+            title="Toggle the AI Feedback column to mark alerts as false positives for model training"
+          >
+            <ThumbsDown size={13} />
+            {showFeedbackColumn ? 'Hide AI Feedback' : 'AI Feedback'}
+          </button>
+          <button onClick={handleResolveAllAlerts} className="btn-primary">
+            Resolve & Unfreeze All
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -176,6 +218,12 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
               <th>Description</th>
               <th>Status</th>
               <th>Timestamp</th>
+              {showFeedbackColumn && (
+                <th style={{ whiteSpace: 'nowrap' }}>
+                  <ThumbsDown size={13} style={{ marginRight: '5px', verticalAlign: 'middle' }} />
+                  AI Feedback
+                </th>
+              )}
               <th>Actions</th>
             </tr>
           </thead>
@@ -189,6 +237,37 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
                 <td>{alert.description}</td>
                 <td><strong>{alert.status}</strong></td>
                 <td>{new Date(alert.timestamp + 'Z').toLocaleString()}</td>
+                {showFeedbackColumn && (
+                  <td>
+                    {/* False Positive toggle — feeds into the next adaptive training cycle */}
+                    <label
+                      className={`fp-toggle-label ${
+                        alert.isFalsePositive ? 'fp-toggle-label--active' : ''
+                      } ${
+                        pendingFeedback.has(alert.id) ? 'fp-toggle-label--pending' : ''
+                      }`}
+                      title={alert.isFalsePositive ? 'Marked as false positive — will be used in next training' : 'Mark as false positive for AI training'}
+                    >
+                      <input
+                        type="checkbox"
+                        className="fp-toggle-input"
+                        checked={!!alert.isFalsePositive}
+                        disabled={pendingFeedback.has(alert.id)}
+                        onChange={() => handleToggleFalsePositive(alert.id, !!alert.isFalsePositive)}
+                      />
+                      <span className="fp-toggle-track">
+                        <span className="fp-toggle-thumb" />
+                      </span>
+                      <span className="fp-toggle-text">
+                        {pendingFeedback.has(alert.id)
+                          ? 'Saving…'
+                          : alert.isFalsePositive
+                            ? 'False Positive'
+                            : 'Not FP'}
+                      </span>
+                    </label>
+                  </td>
+                )}
                 <td>
                   {alert.status === 'OPEN' && (
                     <button className="btn-success" onClick={() => handleResolveAlert(alert.id)} style={{ marginRight: '5px' }}>
@@ -203,7 +282,7 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
             ))}
             {filteredAlerts.length === 0 && (
               <tr>
-                <td colSpan="8" style={{ textAlign: 'center', color: '#6b7280' }}>
+                <td colSpan={showFeedbackColumn ? 9 : 8} style={{ textAlign: 'center', color: '#6b7280' }}>
                   No alerts found matching the current filters.
                 </td>
               </tr>

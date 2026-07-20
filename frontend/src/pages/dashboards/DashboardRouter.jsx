@@ -1,3 +1,4 @@
+import { Navigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import CustomerDashboard from './CustomerDashboard';
 import TellerDashboard from './TellerDashboard';
@@ -5,6 +6,7 @@ import BranchManagerDashboard from './BranchManagerDashboard';
 import AdminDashboard from './AdminDashboard';
 import ComplianceOfficerDashboard from './ComplianceOfficerDashboard';
 import SuperAdminDashboard from './SuperAdminDashboard';
+import ItAdminDashboard from './ItAdminDashboard';
 
 /**
  * DashboardRouter — maps the authenticated user's role to their specific dashboard.
@@ -27,14 +29,13 @@ const DashboardRouter = () => {
       return <ComplianceOfficerDashboard />;
     case 'ROLE_SUPER_ADMIN':
       return <SuperAdminDashboard />;
+    case 'ROLE_IT_ADMIN':
+      return <ItAdminDashboard />;
     default:
-      return (
-        <div style={{ padding: '4rem', textAlign: 'center' }}>
-          <h2>Unknown Role</h2>
-          <p>Your account role "{role}" is not recognized. Contact an administrator.</p>
-        </div>
-      );
+      // Unknown or missing role — send back to login so they see a proper error
+      return <Navigate to="/login" replace />;
   }
 };
 
 export default DashboardRouter;
+
