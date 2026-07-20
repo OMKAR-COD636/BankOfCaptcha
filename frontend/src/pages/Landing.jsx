@@ -64,7 +64,7 @@ const Landing = () => {
       setCurrentBanner((prev) => (prev + 1) % 2); // 2 banners
     }, 5000);
     return () => clearInterval(timer);
-  }, [banners.length]);
+  }, []);
 
   // Log out user if they navigate back to the landing page
   useEffect(() => {
