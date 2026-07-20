@@ -51,6 +51,10 @@ services:
       dockerfile: Dockerfile
     container_name: boc-ai
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '10.0'
     environment:
       - JAVA_BACKEND_URL=http://backend:8080/api
       - AI_SERVICE_KEY=bankofcaptcha-local-ai-service-key-change-before-deployment
