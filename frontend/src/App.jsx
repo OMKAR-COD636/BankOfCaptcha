@@ -5,6 +5,7 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import DashboardRouter from './pages/dashboards/DashboardRouter';
+import SecurityDemo from './pages/SecurityDemo';
 import './App.css';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
           {/* Public routes */}
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/demo" element={<SecurityDemo />} />
 
           {/* Protected route — requires authentication */}
           <Route

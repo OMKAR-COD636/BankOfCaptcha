@@ -198,6 +198,29 @@ const Landing = () => {
               <div className="product-card" onClick={handleLogin}>{t('landing.ancillary.trading')}</div>
             </div>
           </section>
+
+          {/* ── Security Feature Cards ── */}
+          <section className="security-features-section">
+            <h2 className="section-title">🛡️ Advanced Security Technology</h2>
+            <div className="security-features-grid">
+              <div className="security-feature-card">
+                <div className="sf-icon">🧠</div>
+                <h3>Real-Time Threat Detection</h3>
+                <p>Our AI-powered LSTM autoencoder monitors every action in real time, detecting insider threats like smurfing and privilege escalation before damage occurs.</p>
+                <button className="sf-btn" onClick={() => navigate('/demo?tab=insider')}>
+                  Learn More →
+                </button>
+              </div>
+              <div className="security-feature-card">
+                <div className="sf-icon">⚛️</div>
+                <h3>Quantum-Secure Banking</h3>
+                <p>Every transaction is protected with NIST-standardised ML-KEM-768 encryption and ML-DSA-65 digital signatures — immune to quantum computing attacks.</p>
+                <button className="sf-btn sf-btn-pqc" onClick={() => navigate('/demo?tab=pqc')}>
+                  Explore Security →
+                </button>
+              </div>
+            </div>
+          </section>
         </div>
 
         <div className="sidebar">

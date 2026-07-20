@@ -761,3 +761,103 @@ a {
 [data-theme="dark"] .contact-details {
   background: #0F1D36;
 }
+
+/* ─── Security Feature Cards ─── */
+.security-features-section {
+  margin-top: 32px;
+  margin-bottom: 8px;
+}
+
+.security-features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .security-features-grid { grid-template-columns: 1fr; }
+}
+
+.security-feature-card {
+  background: linear-gradient(135deg, #0f1d36 0%, #1a2d50 100%);
+  border: 1px solid rgba(99, 179, 237, 0.2);
+  border-radius: 14px;
+  padding: 28px 24px;
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.security-feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #63b3ed, #9f7aea);
+  border-radius: 14px 14px 0 0;
+}
+
+.security-feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(99, 179, 237, 0.15);
+  border-color: rgba(99, 179, 237, 0.4);
+}
+
+.sf-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.security-feature-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin-bottom: 10px;
+}
+
+.security-feature-card p {
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.sf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 22px;
+  border-radius: 8px;
+  border: 1px solid rgba(99, 179, 237, 0.4);
+  background: rgba(99, 179, 237, 0.12);
+  color: #63b3ed;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sf-btn:hover {
+  background: rgba(99, 179, 237, 0.25);
+  border-color: #63b3ed;
+  color: #fff;
+  transform: translateX(3px);
+}
+
+.sf-btn-pqc {
+  border-color: rgba(159, 122, 234, 0.4);
+  background: rgba(159, 122, 234, 0.12);
+  color: #b794f4;
+}
+
+.sf-btn-pqc:hover {
+  background: rgba(159, 122, 234, 0.25);
+  border-color: #b794f4;
+  color: #fff;
+}
+
+/* Light mode overrides for security cards */
+[data-theme="light"] .security-feature-card {
+  background: linear-gradient(135deg, #1a3c7b 0%, #0d2657 100%);
+}
