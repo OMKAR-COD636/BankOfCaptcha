@@ -226,18 +226,19 @@ sequenceDiagram
     participant DB as PostgreSQL
     participant M as Branch Manager
 
-    T->>BE: POST /api/transactions/transfer (amount ≥ ₹10,000)
-    BE->>BE: RiskEngineService.evaluateTransaction()
-    BE->>DB: Save TransactionRequest (status=PENDING)
-    BE-->>T: "Submitted for Manager approval"
+    T->>BE: POST /api/transactions/transfer
+    Note right of T: Triggers when amount >= 10,000
+    BE->>BE: RiskEngineService evaluateTransaction
+    BE->>DB: Save TransactionRequest as PENDING
+    BE-->>T: Submitted for Manager approval
 
     M->>BE: GET /api/transactions/requests
-    BE-->>M: List of PENDING requests (branch-scoped)
+    BE-->>M: List of PENDING requests
 
-    M->>BE: POST /api/transactions/requests/{id}/approve
+    M->>BE: POST /api/transactions/requests/id/approve
     BE->>DB: Debit source, credit destination
-    BE->>DB: Save Transaction, update status=APPROVED
-    BE-->>M: "Transfer approved and executed"
+    BE->>DB: Save Transaction, update status to APPROVED
+    BE-->>M: Transfer approved and executed
 ```
 
 ---
@@ -472,24 +473,22 @@ sequenceDiagram
     participant DB as PostgreSQL
 
     Client->>Interceptor: Any authenticated mutating HTTP request
-    Interceptor->>PQC: record(username, action, timestamp)
+    Interceptor->>PQC: record username, action, timestamp
 
-    Note over PQC: Step 1 — Canonicalize
-    PQC->>PQC: canonicalEvent = "username\naction\ntimestamp"
+    Note over PQC: Step 1 - Canonicalize
+    PQC->>PQC: Build canonical event string
 
-    Note over PQC: Step 2 — Encrypt (ML-KEM-768)
-    PQC->>PQC: (aesKey, encapsulation) = MLKEMGenerator.generateEncapsulated(publicKey)
-    PQC->>PQC: encryptedPayload = AES-256-GCM(canonicalEvent, aesKey, randomIV)
+    Note over PQC: Step 2 - Encrypt via ML-KEM-768
+    PQC->>PQC: Generate AES key via MLKEMGenerator
+    PQC->>PQC: Encrypt payload with AES-256-GCM
 
-    Note over PQC: Step 3 — Sign (ML-DSA-65)
-    PQC->>PQC: signature = MLDSASigner.sign(canonicalEvent, privateKey)
+    Note over PQC: Step 3 - Sign via ML-DSA-65
+    PQC->>PQC: Sign canonical event with MLDSASigner
 
-    Note over PQC: Step 4 — Zero ephemeral keys
-    PQC->>PQC: Arrays.fill(aesKey, 0); kemSecret.destroy()
+    Note over PQC: Step 4 - Zero ephemeral keys
+    PQC->>PQC: Wipe AES key and destroy KEM secret
 
-    PQC->>DB: Save AuditLog with encrypted_payload, kem_encapsulation, pqc_signature
-
-    style PQC fill:#1a2e1a,color:#e0ffe0,stroke:#22c55e
+    PQC->>DB: Save AuditLog with encrypted payload + KEM encapsulation + PQC signature
 ```
 
 #### Key Management
