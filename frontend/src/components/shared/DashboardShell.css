@@ -1,0 +1,699 @@
+/* ─── Dashboard Shell ─────────────────────────────── */
+.dashboard-container {
+  min-height: 100vh;
+  background-color: var(--secondary-bg);
+}
+
+.hero-banner {
+  background-color: var(--primary-bg);
+  padding: 2.5rem 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 2rem;
+}
+
+.hero-banner h1 {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.hero-banner p {
+  font-size: 1.1rem;
+  color: var(--text-light);
+}
+
+.dashboard-main {
+  padding-bottom: 4rem;
+}
+
+/* ─── Shared Dashboard Utilities ──────────────────── */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-color);
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.icon-blue {
+  color: var(--primary-color);
+}
+
+.icon-yellow {
+  color: var(--accent-color);
+}
+
+.icon-red {
+  color: var(--error-text);
+}
+
+.mb-4 {
+  margin-bottom: 2rem;
+}
+
+/* ─── Card Grid ───────────────────────────────────── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* ─── Balance Card ────────────────────────────────── */
+.balance-card {
+  background-color: var(--primary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--secondary-bg);
+  padding-bottom: 0.75rem;
+}
+
+.card-header h3 {
+  font-size: 1rem;
+  color: var(--text-light);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.account-number {
+  font-family: monospace;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.balance-amount {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 1.5rem;
+}
+
+.currency {
+  font-size: 1.5rem;
+  color: var(--text-light);
+  vertical-align: super;
+}
+
+.card-footer {
+  margin-top: auto;
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+
+/* ─── Table Shared Styles ─────────────────────────── */
+.logs-table-container {
+  background: var(--primary-bg);
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
+  overflow-x: auto;
+  margin-bottom: 3rem;
+}
+
+.table-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  background-color: #FAFAFA;
+}
+
+.table-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text-color);
+}
+
+.logs-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.logs-table th, .logs-table td {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.logs-table th {
+  background-color: #FAFAFA;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+
+.logs-table tr:hover {
+  background-color: var(--secondary-bg);
+}
+
+.log-user {
+  background-color: var(--secondary-bg);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid var(--border-color);
+}
+
+.logs-table code {
+  background-color: var(--secondary-bg);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: monospace;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+}
+
+.row-danger {
+  background-color: #FFF5F5 !important;
+}
+
+.severity-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.severity-badge.high {
+  background-color: var(--error-bg);
+  color: var(--error-text);
+}
+
+.severity-badge.medium {
+  background-color: #FEF3C7;
+  color: #D97706;
+}
+
+.severity-badge.low {
+  background-color: var(--success-bg);
+  color: var(--success-text);
+}
+
+.empty-state, .empty-table {
+  text-align: center;
+  padding: 3rem !important;
+  color: var(--text-light);
+  font-style: italic;
+}
+
+/* ─── Filters ─────────────────────────────────────── */
+.alert-filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0 10px;
+  flex: 1;
+}
+
+.filter-icon {
+  color: var(--text-light);
+  margin-right: 8px;
+}
+
+.filter-input, .filter-select {
+  border: none;
+  background: transparent;
+  padding: 10px 0;
+  width: 100%;
+  color: var(--text-color);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.filter-select {
+  cursor: pointer;
+}
+
+/* ─── Verify Button ──────────────────────────────── */
+.verify-btn {
+  padding: 4px 10px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.verify-btn:hover {
+  background: var(--primary-hover);
+}
+
+/* ─── Admin Tabs ──────────────────────────────────── */
+.admin-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  background: var(--secondary-bg);
+  padding: 6px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+}
+
+.admin-tab {
+  flex: 1;
+  padding: 10px 16px;
+  background: transparent;
+  color: var(--text-light);
+  border: none;
+  border-radius: 7px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.admin-tab:hover {
+  background: var(--primary-bg);
+  color: var(--primary-color);
+}
+
+.admin-tab.active {
+  background: var(--primary-bg);
+  color: var(--primary-color);
+  box-shadow: 0 2px 8px rgba(10, 94, 176, 0.12);
+}
+
+.admin-tab-content.animated-fade-in {
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Summary Cards ───────────────────────────────── */
+.summary-cards-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.summary-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+}
+
+.summary-card .summary-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.summary-card .summary-card-header h3 {
+  margin: 0;
+  color: #475569;
+  font-size: 1rem;
+}
+
+.summary-card .summary-card-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #0f172a;
+}
+
+/* ─── Pagination ─────────────────────────────────── */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 8px 0;
+}
+
+.pagination-btn {
+  padding: 6px 16px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-color);
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: var(--primary-color);
+  color: #fff;
+  border-color: var(--primary-color);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-light);
+  user-select: none;
+}
+
+/* ─── Inline form card ────────────────────────────── */
+.form-card {
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 2rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.form-row input,
+.form-row select {
+  padding: 8px;
+  flex: 1;
+}
+
+.btn-primary {
+  padding: 8px 16px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+
+.btn-success {
+  padding: 4px 8px;
+  background: #16a34a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-success:hover {
+  background: #15803d;
+}
+
+.btn-danger {
+  padding: 4px 8px;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+}
+
+.btn-warning {
+  padding: 4px 8px;
+  background: #f59e0b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-warning:hover {
+  background: #d97706;
+}
+
+/* ─── AI Feedback opt-in chip button ─────────────── */
+.fp-opt-in-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: color 0.18s, border-color 0.18s, background 0.18s, box-shadow 0.18s;
+  white-space: nowrap;
+}
+
+.fp-opt-in-btn:hover {
+  color: #b45309;
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.07);
+}
+
+.fp-opt-in-btn--active {
+  color: #b45309;
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+}
+
+[data-theme="dark"] .fp-opt-in-btn {
+  color: #94a3b8;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .fp-opt-in-btn:hover,
+[data-theme="dark"] .fp-opt-in-btn--active {
+  color: #fbbf24;
+  border-color: #d97706;
+  background: rgba(217, 119, 6, 0.12);
+}
+
+
+/* ─── False Positive AI Feedback Toggle ──────────── */
+.fp-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* Hide the native checkbox — we use the custom track+thumb */
+.fp-toggle-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.fp-toggle-track {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: #cbd5e1;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  flex-shrink: 0;
+}
+
+.fp-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  transition: left 0.2s ease, background 0.2s ease;
+}
+
+/* Active (false positive marked) state */
+.fp-toggle-label--active .fp-toggle-track {
+  background: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
+}
+
+.fp-toggle-label--active .fp-toggle-thumb {
+  left: 19px;
+}
+
+.fp-toggle-text {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #64748b;
+  min-width: 74px;
+  transition: color 0.2s;
+}
+
+.fp-toggle-label--active .fp-toggle-text {
+  color: #b45309;
+}
+
+/* Pending (loading) state */
+.fp-toggle-label--pending {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.fp-toggle-label--pending .fp-toggle-track {
+  background: #94a3b8;
+}
+
+.fp-toggle-label--pending .fp-toggle-text {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+
+.alert-message {
+  padding: 10px;
+  background: #e0f2fe;
+  color: #0369a1;
+  margin-bottom: 15px;
+  border-radius: 4px;
+}
+
+/* ═══════════════════════════════════════════════════
+   Dark Mode Overrides
+   ═══════════════════════════════════════════════════ */
+[data-theme="dark"] .table-header,
+[data-theme="dark"] .logs-table th {
+  background-color: #1A2235;
+}
+
+[data-theme="dark"] .alert-filters {
+  background: #1E2433;
+}
+
+[data-theme="dark"] .row-danger {
+  background-color: #3B1E1E !important;
+}
+
+[data-theme="dark"] .summary-card {
+  background: #1E2433 !important;
+  border-color: #2D3748 !important;
+}
+
+[data-theme="dark"] .summary-card .summary-card-header h3 {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .summary-card .summary-card-value {
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .form-card {
+  background: #1E2433;
+  border-color: #2D3748;
+}
+
+[data-theme="dark"] .severity-badge.medium {
+  background-color: #3D2500;
+  color: #F6AD55;
+}
+
+[data-theme="dark"] .admin-tabs {
+  background: #151B27;
+  border-color: #2D3748;
+}
+
+[data-theme="dark"] .admin-tab:hover,
+[data-theme="dark"] .admin-tab.active {
+  background: #1E2433;
+  color: #4A9EE8;
+  box-shadow: 0 2px 8px rgba(74, 158, 232, 0.15);
+}
+
+[data-theme="dark"] .verify-btn {
+  background: #4A9EE8;
+}
+
+[data-theme="dark"] .verify-btn:hover {
+  background: #60B0F5;
+}
+
+[data-theme="dark"] .pagination-btn {
+  background: #1A2235;
+  color: #E2E8F0;
+  border-color: #2D3748;
+}
+
+[data-theme="dark"] .pagination-btn:hover:not(:disabled) {
+  background: #4A9EE8;
+  color: #fff;
+  border-color: #4A9EE8;
+}
+
+[data-theme="dark"] .pagination-info {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .alert-message {
+  background: #1A2235;
+  color: #60A5FA;
+}
+
+/* ─── Dark Mode: False Positive Toggle ───────────── */
+[data-theme="dark"] .fp-toggle-track {
+  background: #334155;
+}
+
+[data-theme="dark"] .fp-toggle-label--active .fp-toggle-track {
+  background: #d97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.25);
+}
+
+[data-theme="dark"] .fp-toggle-label--active .fp-toggle-text {
+  color: #fbbf24;
+}
+
+[data-theme="dark"] .fp-toggle-text {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .fp-toggle-label--pending .fp-toggle-track {
+  background: #1e293b;
+}
+

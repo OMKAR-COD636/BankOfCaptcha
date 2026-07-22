@@ -10,18 +10,25 @@ def main():
     print("  Insider Threat Simulator: Rogue Teller")
     print("=" * 50)
     
-    token = login("teller")
-    if not token:
-        print("Failed to login as Teller.")
+    # First, login as customer to get some real accounts to attack
+    customer_token = login("customer")
+    if not customer_token:
+        print("Failed to login as customer to find target accounts.")
         return
 
-    accounts = discover_accounts(token)
+    accounts = discover_accounts(customer_token)
     if not accounts:
-        print("No accounts available for the teller to attack.")
+        print("No accounts available to attack.")
         return
         
     src = accounts[0]
     dst = accounts[1] if len(accounts) > 1 else accounts[0]
+
+    # Now login as teller to perform the attack
+    token = login("teller")
+    if not token:
+        print("Failed to login as Teller.")
+        return
 
     print("\n[ATTACK 1] Teller Smurfing Attack (Frequency Anomaly)")
     print("Simulating a rogue teller siphoning small amounts rapidly...")
@@ -39,7 +46,6 @@ def main():
         time.sleep(0.05)
 
     print("\n[✓] Teller Insider Threat Simulation Complete.")
-    print("Check your terminal running the AI Engine; you should see HIGH severity alerts!")
 
 if __name__ == "__main__":
     main()

@@ -16,7 +16,13 @@
         "GET /api/ai/alerts":               { "id": 13, "risk_weight": 0.8, "category": "admin",    "description": "View AI alerts" },
         "DELETE /api/admin":                { "id": 14, "risk_weight": 1.0, "category": "admin",    "description": "Admin delete operation" },
         "PUT /api/admin":                   { "id": 15, "risk_weight": 0.7, "category": "admin",    "description": "Admin update operation" },
-        "GET /api/branches":                { "id": 16, "risk_weight": 0.1, "category": "read",     "description": "View branches" }
+        "GET /api/branches":                { "id": 16, "risk_weight": 0.1, "category": "read",     "description": "View branches" },
+        "PUT /api/ai/alerts/{id}/feedback": { "id": 17, "risk_weight": 0.5, "category": "admin",    "description": "Mark AI alert as false positive" },
+        "POST /api/ai/training/trigger":    { "id": 18, "risk_weight": 0.8, "category": "admin",    "description": "Trigger AI adaptive training" },
+        "GET /api/ai/training/status":      { "id": 19, "risk_weight": 0.1, "category": "read",     "description": "View AI training status" },
+        "GET /api/ai/training/metrics":     { "id": 20, "risk_weight": 0.1, "category": "read",     "description": "View AI training metrics" },
+        "GET /api/ai/false-positives":      { "id": 21, "risk_weight": 0.1, "category": "read",     "description": "Fetch AI false positives" },
+        "GET /api/ai/audit-events":         { "id": 22, "risk_weight": 0.2, "category": "read",     "description": "Fetch audit events for AI" }
     },
     "role_permitted_categories": {
         "_comment": "Defines which action categories each role is normally expected to use. Actions outside these categories raise the sequence anomaly score.",
@@ -27,6 +33,16 @@
         "ROLE_IT_ADMIN":            ["auth", "read", "admin"],
         "ROLE_SUPER_ADMIN":         ["auth", "read", "write", "financial", "admin"]
     },
-    "vocabulary_size": 20,
+    "role_id_map": {
+        "_comment": "Maps role strings to integer IDs for the role-conditioned LSTM embedding. id=0 is reserved for UNKNOWN.",
+        "ROLE_CUSTOMER": 1,
+        "ROLE_TELLER": 2,
+        "ROLE_BRANCH_MANAGER": 3,
+        "ROLE_COMPLIANCE": 4,
+        "ROLE_IT_ADMIN": 5,
+        "ROLE_SUPER_ADMIN": 6
+    },
+    "num_roles": 6,
+    "vocabulary_size": 25,
     "_vocabulary_note": "Must be >= max action id + 1. Increase this when adding new actions. id=0 is reserved for padding."
 }

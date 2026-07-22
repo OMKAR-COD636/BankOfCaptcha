@@ -3,9 +3,13 @@ from inference import load_model, run_scheduler, MODEL_PATH
 from train import train_model
 
 def main():
-    print("Starting AI Service (v2 — Dual-Signal Architecture)...")
-    print("  Signal 1: LSTM Sequence Anomaly Detector")
-    print("  Signal 2: Statistical Transaction Profiler")
+    print("=" * 60)
+    print("  BankOfCaptcha AI Engine (v3 — 4-Signal Architecture)")
+    print("=" * 60)
+    print("  S1: LSTM Behavioral Sequence Anomaly (Role-Conditioned)")
+    print("  S2: Role-Action Violation Detector")
+    print("  S3: Statistical Transaction Profiler")
+    print("  S4: Temporal Anomaly Analyzer")
     print()
 
     # Initialize the model only if it doesn't already exist
@@ -16,6 +20,7 @@ def main():
         print(f"Model found at {MODEL_PATH}. Bypassing training.")
 
     # Load the model into the inference engine
+    # (also syncs training metrics to backend automatically)
     success = load_model()
     if not success:
         print("Failed to start AI service. Exiting.")

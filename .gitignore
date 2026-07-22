@@ -1,5 +1,6 @@
 .env
 ai/__pycache__/
+ai/traffic_generators/__pycache__/
 LATEST_RESPONSE.md
 workflow.md
 technical_documentation.md
@@ -8,3 +9,6 @@ CERT_INTEGRATION.md
 bom_landing.md
 user_flow.xml
 diagrams/
+ai/data/model_state.pt
+model_state.pt
+ai_architecture_report.md

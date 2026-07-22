@@ -2,6 +2,109 @@ import React, { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import { X, AlertTriangle, Activity, Database, PieChart as PieChartIcon, BarChart2 } from 'lucide-react';
 import './AlertReviewModal.css';
+import * as api from '../api/client';
+
+// ---------------------------------------------------------------------------
+// Structured description renderer for the modal — shows full signal details
+// ---------------------------------------------------------------------------
+const RISK_COLORS = {
+  HIGH:    { bg: '#fef2f2', border: '#fca5a5', text: '#b91c1c', accent: '#ef4444' },
+  MEDIUM:  { bg: '#fffbeb', border: '#fcd34d', text: '#b45309', accent: '#f59e0b' },
+  LOW:     { bg: '#f0fdf4', border: '#86efac', text: '#15803d', accent: '#22c55e' },
+  UNKNOWN: { bg: '#f9fafb', border: '#e5e7eb', text: '#374151', accent: '#6b7280' },
+};
+
+const SIGNAL_META = {
+  'S1': { label: 'S1 — Behavioral Sequence', icon: '🔍' },
+  'S2': { label: 'S2 — Role Violation',       icon: '🚫' },
+  'S3': { label: 'S3 — Transaction',           icon: '💸' },
+  'S4': { label: 'S4 — Temporal Pattern',      icon: '🕐' },
+};
+
+const parseDescription = (description) => {
+  if (!description) return null;
+  const parts = description.split(' | ').map((s) => s.trim()).filter(Boolean);
+  if (!parts.length) return null;
+
+  const summaryLine = parts[0];
+  let riskLevel = 'UNKNOWN';
+  if (summaryLine.startsWith('HIGH')) riskLevel = 'HIGH';
+  else if (summaryLine.startsWith('MEDIUM')) riskLevel = 'MEDIUM';
+  else if (summaryLine.startsWith('LOW')) riskLevel = 'LOW';
+
+  const scoreMatch = summaryLine.match(/(\d+)%/);
+  const riskScore = scoreMatch ? scoreMatch[1] : null;
+
+  const signals = parts.slice(1).map((part) => {
+    const labelMatch = part.match(/^\[(S[1-4])\s*[–-]/);
+    const signalKey = labelMatch ? labelMatch[1] : null;
+    const meta = signalKey ? (SIGNAL_META[signalKey] || { label: signalKey, icon: '⚠️' }) : { label: 'Signal', icon: '⚠️' };
+    // Strip the bracket prefix for clean display
+    const body = part.replace(/^\[.*?\]\s*/, '');
+    return { ...meta, body };
+  });
+
+  return { riskLevel, riskScore, signals };
+};
+
+const StructuredDescription = ({ description, severity }) => {
+  const parsed = parseDescription(description);
+  if (!parsed) {
+    return <p style={{ fontSize: '13px', color: '#374151' }}><strong>Description:</strong> {description || '—'}</p>;
+  }
+
+  const colors = RISK_COLORS[parsed.riskLevel] || RISK_COLORS.UNKNOWN;
+
+  return (
+    <div style={{ marginTop: '10px' }}>
+      {/* Risk summary header */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '10px',
+        padding: '8px 14px', borderRadius: '8px', marginBottom: '12px',
+        background: colors.bg, border: `1px solid ${colors.border}`,
+      }}>
+        <span style={{ fontSize: '22px' }}>
+          {parsed.riskLevel === 'HIGH' ? '🚨' : parsed.riskLevel === 'MEDIUM' ? '⚠️' : 'ℹ️'}
+        </span>
+        <div>
+          <div style={{ fontWeight: '700', fontSize: '13px', color: colors.text }}>
+            {parsed.riskLevel} RISK
+            {parsed.riskScore && <span style={{ marginLeft: '8px', fontWeight: '400', fontSize: '12px' }}>Overall risk score: {parsed.riskScore}%</span>}
+          </div>
+          <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '2px' }}>
+            Immediate action required for HIGH · Investigate for MEDIUM · Monitor for LOW
+          </div>
+        </div>
+      </div>
+
+      {/* Per-signal cards */}
+      {parsed.signals.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {parsed.signals.map((sig, i) => (
+            <div key={i} style={{
+              display: 'flex', gap: '10px', alignItems: 'flex-start',
+              padding: '8px 12px', borderRadius: '6px',
+              background: '#fafafa', border: '1px solid #e5e7eb',
+            }}>
+              <span style={{ fontSize: '16px', flexShrink: 0, marginTop: '1px' }}>{sig.icon}</span>
+              <div>
+                <div style={{
+                  fontSize: '11px', fontWeight: '700', color: colors.text,
+                  marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.05em',
+                }}>
+                  {sig.label}
+                </div>
+                <div style={{ fontSize: '12px', color: '#374151', lineHeight: '1.5' }}>
+                  {sig.body}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const RiskGauge = ({ value }) => {
   const radius = 20;
@@ -45,20 +148,14 @@ const AlertReviewModal = ({ alert, onClose, token }) => {
     if (!alert) return;
 
     setLoading(true);
-    fetch(`http://localhost:8080/api/admin/users/${alert.flaggedUsername}/activity`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to fetch activity');
-        return res.json();
-      })
+    api.fetchUserActivity(token, alert.flaggedUsername)
       .then(data => {
         setActivityData(data);
         setLoading(false);
       })
       .catch(err => {
         console.error(err);
-        setError(err.message);
+        setError(err.message || 'Failed to fetch activity');
         setLoading(false);
       });
   }, [alert, token]);
@@ -76,7 +173,7 @@ const AlertReviewModal = ({ alert, onClose, token }) => {
   };
 
   const actionSequence = activityData.logs.slice().reverse().map((log) => ({
-    time: new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    time: new Date(log.timestamp + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
     action: log.action,
     risk: getActionRisk(log.action),
     id: log.id
@@ -84,7 +181,7 @@ const AlertReviewModal = ({ alert, onClose, token }) => {
 
   // Prepare Transaction History Data
   const txHistory = activityData.transactions.slice().reverse().map((tx) => ({
-    time: new Date(tx.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    time: new Date(tx.timestamp + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
     amount: parseFloat(tx.amount),
     type: tx.type,
     id: tx.id
@@ -100,7 +197,7 @@ const AlertReviewModal = ({ alert, onClose, token }) => {
   const getFrequencyData = () => {
     const freqMap = {};
     activityData.logs.forEach(log => {
-      const time = new Date(log.timestamp);
+      const time = new Date(log.timestamp + 'Z');
       // Group by Minute for a nice bar chart
       const key = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       freqMap[key] = (freqMap[key] || 0) + 1;
@@ -149,7 +246,7 @@ const AlertReviewModal = ({ alert, onClose, token }) => {
             <h3>Reason for Alert</h3>
             <p><strong>Severity:</strong> <span className={`severity-badge ${alert.severity.toLowerCase()}`}>{alert.severity}</span></p>
             <p><strong>Fused Score:</strong> {((alert.riskScore || 0) / 100).toFixed(2)}</p>
-            <p><strong>Description:</strong> {alert.description}</p>
+            <StructuredDescription description={alert.description} severity={alert.severity} />
           </div>
 
           {loading ? (

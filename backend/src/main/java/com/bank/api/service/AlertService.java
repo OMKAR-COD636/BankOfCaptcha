@@ -59,6 +59,13 @@ public class AlertService {
     }
 
     @Transactional
+    public AiAlert setFeedback(Long alertId, Boolean isFalsePositive) {
+        AiAlert alert = findAlert(alertId);
+        alert.setIsFalsePositive(isFalsePositive);
+        return aiAlertRepository.save(alert);
+    }
+
+    @Transactional
     public void resolveAll() {
         List<User> suspendedUsers = userRepository.findAll().stream()
                 .filter(User::isAccessSuspended)

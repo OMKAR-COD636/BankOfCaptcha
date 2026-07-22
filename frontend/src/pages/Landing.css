@@ -145,6 +145,27 @@ a {
   transform: translateY(-2px);
 }
 
+/* Hero CTA row — kept for backward compat but unused */
+.hero-cta-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Quantum banner CTA — subtle purple tint */
+.hero-cta-pqc-solid {
+  background-color: rgba(159,122,234,0.85);
+  color: white;
+  border: none;
+}
+
+.hero-cta-pqc-solid:hover {
+  background-color: #9f7aea;
+  transform: translateY(-2px);
+}
+
 .carousel-dots {
   position: absolute;
   bottom: 20px;
@@ -508,4 +529,356 @@ a {
   .footer-columns {
     grid-template-columns: 1fr;
   }
+}
+
+/* ═══════════════════════════════════════════════════
+   Dark Mode Overrides — Landing Page
+   ═══════════════════════════════════════════════════ */
+[data-theme="dark"] .landing-container {
+  background-color: #0F1520;
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .landing-container a {
+  color: #60A5FA;
+}
+
+[data-theme="dark"] .utility-bar {
+  background-color: #0A1628;
+}
+
+[data-theme="dark"] .main-header {
+  background-color: #1A2235;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .logo-text h1 {
+  color: #4A9EE8;
+}
+
+[data-theme="dark"] .logo-text span {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .logo-icon {
+  color: #4A9EE8 !important;
+}
+
+[data-theme="dark"] .primary-nav a {
+  color: #CBD5E1;
+}
+
+[data-theme="dark"] .primary-nav a:hover {
+  color: #60A5FA;
+}
+
+[data-theme="dark"] .hero-section {
+  background: linear-gradient(135deg, #0F1D36 0%, #0A1628 100%);
+}
+
+[data-theme="dark"] .quick-actions-strip {
+  background-color: #1A2235;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .quick-actions-strip a {
+  color: #60A5FA;
+}
+
+[data-theme="dark"] .news-ticker {
+  background-color: #1A2235;
+  border-color: #2D3748;
+}
+
+[data-theme="dark"] .ticker-label {
+  color: #60A5FA;
+}
+
+[data-theme="dark"] .ticker-content a {
+  color: #CBD5E1;
+}
+
+[data-theme="dark"] .divider {
+  color: #475569;
+}
+
+[data-theme="dark"] .section-title {
+  color: #60A5FA;
+}
+
+[data-theme="dark"] .link-card {
+  background: #1E2433;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .link-card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .link-icon {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .link-card span {
+  color: #CBD5E1;
+}
+
+[data-theme="dark"] .product-card {
+  background: #1E2433;
+  border-color: #2D3748;
+  color: #60A5FA;
+}
+
+[data-theme="dark"] .product-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .sidebar {
+  background: #1E2433;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .tab {
+  background: #151B27;
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .tab.active {
+  background: #0F1D36;
+  color: #60A5FA;
+}
+
+[data-theme="dark"] .rate-row {
+  border-bottom-color: #2D3748;
+}
+
+[data-theme="dark"] .rate-name {
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .security-banner {
+  background: #3D2500;
+  color: #F6AD55;
+}
+
+[data-theme="dark"] .main-footer {
+  background: #0A1628;
+}
+
+[data-theme="dark"] .footer-bottom {
+  background: #060E1B;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  position: relative;
+  max-width: 90%;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.modal-content.map-modal {
+  width: 90vw;
+  max-width: 1200px;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.globe-container {
+  flex-grow: 1;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.modal-content.info-modal {
+  width: 500px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  line-height: 1;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  color: #1A3C7B;
+  margin-bottom: 20px;
+}
+
+.helpline-info p {
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.contact-details {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.contact-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.contact-row:last-child {
+  margin-bottom: 0;
+}
+
+.helpline-info .note {
+  font-size: 13px;
+  color: #DC3545;
+  font-weight: bold;
+}
+
+[data-theme="dark"] .modal-content {
+  background: #1A2235;
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .modal-content h2 {
+  color: #60A5FA;
+}
+
+[data-theme="dark"] .close-btn {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .close-btn:hover {
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .contact-details {
+  background: #0F1D36;
+}
+
+/* ─── Security Feature Cards ─── */
+.security-features-section {
+  margin-top: 32px;
+  margin-bottom: 8px;
+}
+
+.security-features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .security-features-grid { grid-template-columns: 1fr; }
+}
+
+.security-feature-card {
+  background: linear-gradient(135deg, #0f1d36 0%, #1a2d50 100%);
+  border: 1px solid rgba(99, 179, 237, 0.2);
+  border-radius: 14px;
+  padding: 28px 24px;
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.security-feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #63b3ed, #9f7aea);
+  border-radius: 14px 14px 0 0;
+}
+
+.security-feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(99, 179, 237, 0.15);
+  border-color: rgba(99, 179, 237, 0.4);
+}
+
+.sf-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.security-feature-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin-bottom: 10px;
+}
+
+.security-feature-card p {
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.sf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 22px;
+  border-radius: 8px;
+  border: 1px solid rgba(99, 179, 237, 0.4);
+  background: rgba(99, 179, 237, 0.12);
+  color: #63b3ed;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sf-btn:hover {
+  background: rgba(99, 179, 237, 0.25);
+  border-color: #63b3ed;
+  color: #fff;
+  transform: translateX(3px);
+}
+
+.sf-btn-pqc {
+  border-color: rgba(159, 122, 234, 0.4);
+  background: rgba(159, 122, 234, 0.12);
+  color: #b794f4;
+}
+
+.sf-btn-pqc:hover {
+  background: rgba(159, 122, 234, 0.25);
+  border-color: #b794f4;
+  color: #fff;
+}
+
+/* Light mode overrides for security cards */
+[data-theme="light"] .security-feature-card {
+  background: linear-gradient(135deg, #1a3c7b 0%, #0d2657 100%);
 }

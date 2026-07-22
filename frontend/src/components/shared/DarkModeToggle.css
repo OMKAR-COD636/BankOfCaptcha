@@ -1,0 +1,135 @@
+/* ═══════════════════════════════════════════════════
+   Theme Toggle — Shared across all pages
+   ═══════════════════════════════════════════════════ */
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  border-radius: 24px;
+  padding: 5px 14px 5px 10px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
+  user-select: none;
+  line-height: 1;
+}
+
+/* ─── Variant: Navbar (on dark primary-color background) ─── */
+.theme-toggle--navbar {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  border: none;
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.35);
+}
+
+.theme-toggle--navbar:hover {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.6);
+}
+
+[data-theme="dark"] .theme-toggle--navbar {
+  background: rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, 0.3);
+  color: #fff;
+}
+
+[data-theme="dark"] .theme-toggle--navbar:hover {
+  background: rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, 0.45);
+}
+
+/* ─── Variant: Standalone (for Landing / Login light pages) ─── */
+.theme-toggle--standalone {
+  background: #f1f5f9;
+  color: #334155;
+  box-shadow: inset 0 0 0 1.5px #cbd5e1;
+}
+
+.theme-toggle--standalone:hover {
+  background: #e2e8f0;
+  box-shadow: inset 0 0 0 1.5px #94a3b8;
+}
+
+[data-theme="dark"] .theme-toggle--standalone {
+  background: #1E2433;
+  color: #E2E8F0;
+  box-shadow: inset 0 0 0 1.5px #3B4A63;
+}
+
+[data-theme="dark"] .theme-toggle--standalone:hover {
+  background: #283040;
+  box-shadow: inset 0 0 0 1.5px #4A9EE8;
+}
+
+/* ─── Track ─── */
+.theme-toggle__track {
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  position: relative;
+  transition: background 0.3s ease;
+  flex-shrink: 0;
+}
+
+.theme-toggle--navbar .theme-toggle__track {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="dark"] .theme-toggle--navbar .theme-toggle__track {
+  background: rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.theme-toggle--standalone .theme-toggle__track {
+  background: #cbd5e1;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .theme-toggle--standalone .theme-toggle__track {
+  background: #3B4A63;
+}
+
+/* ─── Knob ─── */
+.theme-toggle__knob {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.3s ease,
+              box-shadow 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.theme-toggle--navbar .theme-toggle__knob {
+  background: #fff;
+}
+
+[data-theme="dark"] .theme-toggle--navbar .theme-toggle__knob {
+  background: #fff;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.theme-toggle--standalone .theme-toggle__knob {
+  background: #fff;
+}
+
+[data-theme="dark"] .theme-toggle--standalone .theme-toggle__knob {
+  background: #4A9EE8;
+  box-shadow: 0 0 6px rgba(74, 158, 232, 0.5);
+}
+
+[data-theme="dark"] .theme-toggle__knob {
+  transform: translateX(16px);
+}
+
+/* ─── Label ─── */
+.theme-toggle__label {
+  letter-spacing: 0.02em;
+}

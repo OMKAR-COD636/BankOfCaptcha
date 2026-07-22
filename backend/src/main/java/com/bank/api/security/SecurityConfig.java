@@ -48,18 +48,21 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/branches").permitAll()
 
                         .requestMatchers("/api/audit/**")
-                        .hasAnyRole("COMPLIANCE_OFFICER", "SUPER_ADMIN")
+                        .hasAnyRole("COMPLIANCE_OFFICER", "SUPER_ADMIN", "IT_ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/ai/alerts").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/ai/audit-events").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/ai/transaction-summary").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/ai/false-positives").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/ai/training/status").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/ai/training/metrics").permitAll()
                         .requestMatchers("/api/ai/**")
-                        .hasAnyRole("COMPLIANCE_OFFICER", "SUPER_ADMIN")
+                        .hasAnyRole("COMPLIANCE_OFFICER", "SUPER_ADMIN", "IT_ADMIN")
 
                         .requestMatchers("/api/admin/**")
                         .hasAnyRole("ADMIN", "SUPER_ADMIN")
 
-                        .requestMatchers(HttpMethod.OPTIONS, "/**")
-                        .permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/error").permitAll()
 
                         .anyRequest().authenticated()
                 )
