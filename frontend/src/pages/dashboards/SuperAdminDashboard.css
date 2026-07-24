@@ -323,14 +323,14 @@
 .sa-branch-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .sa-staff-table th,
 .sa-staff-table td,
 .sa-branch-table th,
 .sa-branch-table td {
-  padding: 10px 14px;
+  padding: 12px 14px;
   text-align: left;
   border-bottom: 1px solid var(--border-color);
 }
@@ -339,7 +339,7 @@
 .sa-branch-table th {
   background: var(--secondary-bg);
   font-weight: 700;
-  font-size: 11px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--text-light);

@@ -112,16 +112,16 @@ const StaffManagementTab = ({ users, branches, token }) => {
       </div>
 
       <h2 className="section-title" style={{ marginTop: '2rem' }}>
-        <Users size={24} className="icon-blue" /> Existing Staff
+        <Users size={24} className="icon-blue" /> {t('dashboard.currentStaff')}
       </h2>
       <div className="logs-table-container">
         <table className="sa-staff-table">
           <thead>
             <tr>
               <th>{t('dashboard.username')}</th>
-              <th>Role</th>
-              <th>Branch Assignment</th>
-              <th>Status</th>
+              <th>{t('dashboard.role')}</th>
+              <th>{t('dashboard.branchAssignment')}</th>
+              <th>{t('dashboard.status')}</th>
             </tr>
           </thead>
           <tbody>
@@ -129,10 +129,10 @@ const StaffManagementTab = ({ users, branches, token }) => {
               <tr key={u.id}>
                 <td><strong>{u.username}</strong></td>
                 <td><span className="role-badge">{u.role.replace('ROLE_', '')}</span></td>
-                <td>{u.branch ? `${u.branch.name} (${u.branch.location})` : <span style={{color: 'var(--text-light)'}}>Unassigned</span>}</td>
+                <td>{u.branch ? `${u.branch.name} (${u.branch.location})` : <span style={{color: 'var(--text-light)'}}>{t('dashboard.unassigned')}</span>}</td>
                 <td>
                   <span className={`sa-access-badge ${u.accountLocked ? 'suspended' : 'active'}`}>
-                    {u.accountLocked ? 'Suspended' : 'Active'}
+                    {u.accountLocked ? t('dashboard.suspended') : t('dashboard.active')}
                   </span>
                 </td>
               </tr>

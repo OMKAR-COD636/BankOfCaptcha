@@ -53,16 +53,16 @@ const BranchOperationsTab = ({ branches, setBranches, token, users = [] }) => {
       </div>
 
       <h2 className="section-title" style={{ marginTop: '2rem' }}>
-        <Building size={24} className="icon-blue" /> Existing Branches
+        <Building size={24} className="icon-blue" /> {t('dashboard.existingBranches')}
       </h2>
       <div className="logs-table-container">
         <table className="sa-branch-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Branch Name</th>
-              <th>Location</th>
-              <th>Assigned Staff</th>
+              <th>{t('dashboard.branchId')}</th>
+              <th>{t('dashboard.branchName')}</th>
+              <th>{t('dashboard.location')}</th>
+              <th>{t('dashboard.assignedStaff')}</th>
             </tr>
           </thead>
           <tbody>
@@ -74,7 +74,7 @@ const BranchOperationsTab = ({ branches, setBranches, token, users = [] }) => {
                   <td><strong>{b.name}</strong></td>
                   <td>{b.location}</td>
                   <td>
-                    <span className="sa-access-badge active">{staffCount} members</span>
+                    <span className="sa-access-badge active">{staffCount} {t('dashboard.members')}</span>
                   </td>
                 </tr>
               );
@@ -82,7 +82,7 @@ const BranchOperationsTab = ({ branches, setBranches, token, users = [] }) => {
             {branches.length === 0 && (
               <tr>
                 <td colSpan="4" style={{ textAlign: 'center', color: '#6b7280' }}>
-                  No branches created yet.
+                  {t('dashboard.noBranchesYet')}
                 </td>
               </tr>
             )}
