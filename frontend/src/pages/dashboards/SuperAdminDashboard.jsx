@@ -381,7 +381,7 @@ const SuperAdminDashboard = () => {
                 <div className="sa-detail-header">
                   <h3>Risk Analysis</h3>
                   <button className="sa-detail-close" onClick={() => setSelectedAlert(null)}>
-                    <X size={14} />
+                    <X size={18} strokeWidth={2.5} />
                   </button>
                 </div>
                 <div className="sa-detail-body">

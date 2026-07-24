@@ -199,15 +199,15 @@
 .sa-detail-close {
   background: var(--secondary-bg);
   border: 1px solid var(--border-color);
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
   border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-light);
-  font-size: 16px;
+  color: var(--text-color);
   transition: all 0.2s;
 }
 
@@ -215,6 +215,7 @@
   background: #EF4444;
   color: white;
   border-color: #EF4444;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
 }
 
 .sa-detail-body {
@@ -815,7 +816,15 @@
 
 [data-theme="dark"] .sa-detail-close {
   background: #1F2937;
-  border-color: #374151;
+  border-color: #4B5563;
+  color: #F9FAFB;
+}
+
+[data-theme="dark"] .sa-detail-close:hover {
+  background: #EF4444;
+  color: white;
+  border-color: #EF4444;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
 }
 
 [data-theme="dark"] .sa-risk-user-card {
