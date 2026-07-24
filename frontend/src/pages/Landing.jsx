@@ -83,10 +83,11 @@ const Landing = () => {
 
   return (
     <div className="landing-container">
+      {/* ── Utility Bar ── */}
       <div className="utility-bar">
         <div className="utility-left">
-          <span className="contact-item"><Phone size={14} /> {t('landing.tollFree')}: 1800-CAPTCHA-BANK</span>
-          <span className="contact-item"><Mail size={14} /> {t('landing.supportEmail')}</span>
+          <span className="contact-item"><Phone size={13} /> {t('landing.tollFree')}: 1800-CAPTCHA-BANK</span>
+          <span className="contact-item"><Mail size={13} /> {t('landing.supportEmail')}</span>
         </div>
         <div className="utility-right">
           <span className="lang-switcher">
@@ -98,9 +99,10 @@ const Landing = () => {
         </div>
       </div>
 
+      {/* ── Sticky Header ── */}
       <header className="main-header">
         <div className="logo-container">
-          <img src={logoUrl} alt="Bank Of Captcha Logo" className="logo-icon" width="32" height="32" />
+          <img src={logoUrl} alt="Bank Of Captcha Logo" className="logo-icon" width="36" height="36" />
           <div className="logo-text">
             <h1>{t('landing.bankName')}</h1>
             <span>{t('landing.tagline')}</span>
@@ -110,15 +112,14 @@ const Landing = () => {
         <nav className="primary-nav">
           <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.nav.personal')}</a>
           <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.nav.corporate')}</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.nav.msme')}</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.nav.agriculture')}</a>
           <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}>{t('landing.nav.digitalBanking')}</a>
           <button className="login-btn" onClick={handleLogin}>
-            {t('landing.nav.login')} <ChevronRight size={16} />
+            {t('landing.nav.login')} <ChevronRight size={15} />
           </button>
         </nav>
       </header>
 
+      {/* ── Hero Section ── */}
       <section className="hero-section">
         <div className="hero-content">
           <h2>{t(`landing.banners.${currentBanner}.title`)}</h2>
@@ -141,13 +142,15 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* ── Quick Actions ── */}
       <div className="quick-actions-strip">
-        <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}><Globe size={16} /> {t('landing.quickActions.sbAccount')}</a>
-        <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}><User size={16} /> {t('landing.quickActions.investor')}</a>
-        <a href="#" onClick={(e) => { e.preventDefault(); setShowMapModal(true); }}><MapPin size={16} /> {t('landing.quickActions.locator')}</a>
-        <a href="#" onClick={(e) => { e.preventDefault(); setShowHelplineModal(true); }}><HelpCircle size={16} /> {t('landing.quickActions.helpline')}</a>
+        <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}><Globe size={15} /> {t('landing.quickActions.sbAccount')}</a>
+        <a href="#" onClick={(e) => { e.preventDefault(); handleLogin(); }}><User size={15} /> {t('landing.quickActions.investor')}</a>
+        <a href="#" onClick={(e) => { e.preventDefault(); setShowMapModal(true); }}><MapPin size={15} /> {t('landing.quickActions.locator')}</a>
+        <a href="#" onClick={(e) => { e.preventDefault(); setShowHelplineModal(true); }}><HelpCircle size={15} /> {t('landing.quickActions.helpline')}</a>
       </div>
 
+      {/* ── News Ticker ── */}
       <div className="news-ticker">
         <div className="ticker-label">
           <span className="badge">{t('landing.news.new')}</span> {t('landing.news.whatsNew')}
@@ -163,8 +166,10 @@ const Landing = () => {
         </div>
       </div>
 
+      {/* ── Main Content ── */}
       <div className="main-layout">
         <div className="content-area">
+          {/* Services Grid */}
           <section className="quick-links-section">
             <h2 className="section-title">{t('landing.quickLinks.title')}</h2>
             <div className="quick-links-grid">
@@ -195,6 +200,7 @@ const Landing = () => {
             </div>
           </section>
 
+          {/* Ancillary Products */}
           <section className="ancillary-products">
             <h2 className="section-title">{t('landing.ancillary.title')}</h2>
             <div className="products-carousel">
@@ -206,6 +212,7 @@ const Landing = () => {
           </section>
         </div>
 
+        {/* Rates Sidebar */}
         <div className="sidebar">
           <div className="sidebar-tabs">
             <div className="tab active">{t('landing.sidebar.tabs.rates')}</div>
@@ -226,6 +233,7 @@ const Landing = () => {
         </div>
       </div>
 
+      {/* ── Footer ── */}
       <footer className="main-footer">
         <div className="footer-columns">
           <div className="footer-col">
@@ -264,6 +272,7 @@ const Landing = () => {
         </div>
       </footer>
 
+      {/* ── Map Modal (Preserved) ── */}
       {showMapModal && (
         <div className="modal-overlay" onClick={() => setShowMapModal(false)}>
           <div className="modal-content map-modal" onClick={e => e.stopPropagation()}>
@@ -301,6 +310,7 @@ const Landing = () => {
         </div>
       )}
 
+      {/* ── Helpline Modal (Preserved) ── */}
       {showHelplineModal && (
         <div className="modal-overlay" onClick={() => setShowHelplineModal(false)}>
           <div className="modal-content info-modal" onClick={e => e.stopPropagation()}>
