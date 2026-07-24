@@ -11,6 +11,7 @@ import './Landing.css';
 import DarkModeToggle from '../components/shared/DarkModeToggle';
 import { useTranslation } from '../i18n/LanguageContext';
 import useAuth from '../hooks/useAuth';
+import logoUrl from '../assets/logo.svg';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -99,7 +100,7 @@ const Landing = () => {
 
       <header className="main-header">
         <div className="logo-container">
-          <Shield className="logo-icon" size={32} color="#1A3C7B" />
+          <img src={logoUrl} alt="Bank Of Captcha Logo" className="logo-icon" width="32" height="32" />
           <div className="logo-text">
             <h1>{t('landing.bankName')}</h1>
             <span>{t('landing.tagline')}</span>
