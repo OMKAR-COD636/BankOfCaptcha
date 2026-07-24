@@ -882,3 +882,221 @@ a {
 [data-theme="light"] .security-feature-card {
   background: linear-gradient(135deg, #1a3c7b 0%, #0d2657 100%);
 }
+
+/* ═══════════════════════════════════════════════════
+   Dark Mode Overrides — Landing Page
+   ═══════════════════════════════════════════════════ */
+
+[data-theme="dark"] .landing-container {
+  background-color: #151B27;
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .main-header {
+  background-color: #1E2433;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  border-bottom: 1px solid #2D3748;
+}
+
+[data-theme="dark"] .logo-text h1 {
+  color: #60B0F5;
+}
+
+[data-theme="dark"] .logo-text span {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .primary-nav a {
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .primary-nav a:hover {
+  color: #4A9EE8;
+}
+
+[data-theme="dark"] .main-layout {
+  background-color: #151B27;
+}
+
+[data-theme="dark"] .quick-links-section,
+[data-theme="dark"] .ancillary-products {
+  background-color: transparent;
+}
+
+[data-theme="dark"] .link-card {
+  background-color: #1E2433;
+  border-color: #2D3748;
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .link-card:hover {
+  background-color: #283040;
+  border-color: #4A9EE8;
+}
+
+[data-theme="dark"] .link-icon {
+  color: #4A9EE8;
+}
+
+[data-theme="dark"] .product-card {
+  background-color: #1E2433;
+  border-color: #2D3748;
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .product-card:hover {
+  background-color: #283040;
+}
+
+[data-theme="dark"] .sidebar {
+  background-color: #1E2433;
+  border-color: #2D3748;
+}
+
+[data-theme="dark"] .sidebar-tabs {
+  background-color: #1A2235;
+  border-color: #2D3748;
+}
+
+[data-theme="dark"] .tab {
+  color: #94A3B8;
+  border-color: #2D3748;
+}
+
+[data-theme="dark"] .tab.active {
+  color: #E2E8F0;
+  border-color: #4A9EE8;
+  background-color: #1E2433;
+}
+
+[data-theme="dark"] .sidebar-content {
+  background-color: #1E2433;
+}
+
+[data-theme="dark"] .rate-row {
+  border-color: #2D3748;
+}
+
+[data-theme="dark"] .rate-name {
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .rate-value {
+  color: #4A9EE8;
+}
+
+[data-theme="dark"] .apply-btn {
+  background-color: #2D3748;
+  color: #E2E8F0;
+  border-color: #4A9EE8;
+}
+
+[data-theme="dark"] .apply-btn:hover {
+  background-color: #4A9EE8;
+  color: #fff;
+}
+
+[data-theme="dark"] .news-ticker {
+  background-color: #1E2433;
+  border-color: #2D3748;
+}
+
+[data-theme="dark"] .ticker-label {
+  background-color: #1A2235;
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .ticker-content a {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .ticker-content a:hover {
+  color: #4A9EE8;
+}
+
+[data-theme="dark"] .main-footer {
+  background-color: #1E2433;
+  border-color: #2D3748;
+}
+
+[data-theme="dark"] .footer-col h3 {
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .footer-col a,
+[data-theme="dark"] .footer-col p {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .footer-col a:hover {
+  color: #4A9EE8;
+}
+
+[data-theme="dark"] .footer-bottom {
+  background-color: #151B27;
+  border-color: #2D3748;
+}
+
+[data-theme="dark"] .copyright,
+[data-theme="dark"] .footer-links a {
+  color: #94A3B8;
+}
+
+/* Landing modals dark mode */
+[data-theme="dark"] .modal-overlay {
+  background-color: rgba(0, 0, 0, 0.75);
+}
+
+[data-theme="dark"] .modal-content {
+  background-color: #1E2433;
+  border-color: #2D3748;
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .modal-content h2 {
+  color: #60B0F5;
+}
+
+[data-theme="dark"] .close-btn {
+  background-color: #2D3748;
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .close-btn:hover {
+  background-color: #4A9EE8;
+}
+
+[data-theme="dark"] .helpline-info {
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .contact-row {
+  border-color: #2D3748;
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .note {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .section-title {
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .quick-actions-strip {
+  background-color: #1E2433;
+  border-color: #2D3748;
+}
+
+[data-theme="dark"] .quick-actions-strip a {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .quick-actions-strip a:hover {
+  color: #4A9EE8;
+  background-color: #283040;
+}
+
+[data-theme="dark"] .lang-switcher {
+  color: #E2E8F0;
+}

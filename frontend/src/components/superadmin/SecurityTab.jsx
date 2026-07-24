@@ -5,6 +5,7 @@ import Pagination from '../../components/shared/Pagination';
 import RiskActivityGraph from '../../components/RiskActivityGraph';
 import RiskHeatmap from '../../components/RiskHeatmap';
 import AlertReviewModal from '../../components/AlertReviewModal';
+import { useToast } from '../../components/shared/ToastContext';
 import * as api from '../../api/client';
 
 // ---------------------------------------------------------------------------
@@ -110,6 +111,7 @@ const AlertDescriptionCell = ({ description }) => {
  */
 const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionRequests }) => {
   const { t } = useTranslation();
+  const showToast = useToast();
   const [alertFilter, setAlertFilter] = useState({ search: '', severity: '', status: '', role: '' });
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedMatrix, setSelectedMatrix] = useState(null);
@@ -148,20 +150,20 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
   const handleResolveAlert = async (id) => {
     try {
       const data = await api.resolveAlert(token, id);
-      alert(data.message);
+      showToast(data.message, 'success');
       setAiAlerts((prev) => prev.map((a) => (a.id === id ? { ...a, status: 'RESOLVED' } : a)));
     } catch (err) {
-      alert(err.error || 'Failed to resolve alert.');
+      showToast(err.error || 'Failed to resolve alert.', 'error');
     }
   };
 
   const handleResolveAllAlerts = async () => {
     try {
       const data = await api.resolveAllAlerts(token);
-      alert(data.message);
+      showToast(data.message, 'success');
       setAiAlerts((prev) => prev.map((a) => ({ ...a, status: 'RESOLVED' })));
     } catch (err) {
-      alert(err.error || 'Failed to resolve all alerts.');
+      showToast(err.error || 'Failed to resolve all alerts.', 'error');
     }
   };
 
@@ -182,7 +184,7 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
       );
     } catch (err) {
       console.error('Failed to update alert feedback:', err);
-      alert(err.error || 'Failed to save feedback. Please try again.');
+      showToast(err.error || 'Failed to save feedback. Please try again.', 'error');
     } finally {
       setPendingFeedback((prev) => {
         const next = new Set(prev);

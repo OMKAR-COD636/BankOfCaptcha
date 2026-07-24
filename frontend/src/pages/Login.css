@@ -365,3 +365,15 @@
     display: none;
   }
 }
+
+/* ─── Registration form select ─── */
+.form-group select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+}
+
+/* ─── Login tab switcher buttons (inline-styled in JSX — override for dark mode) ─── */
+[data-theme="dark"] .login-tab-btn-inactive {
+  background: #2D3748 !important;
+  color: #94A3B8 !important;
+}

@@ -5,6 +5,7 @@ import DashboardShell from '../../components/shared/DashboardShell';
 import AccountsTable from '../../components/shared/AccountsTable';
 import Pagination from '../../components/shared/Pagination';
 import useAuth from '../../hooks/useAuth';
+import { useToast } from '../../components/shared/ToastContext';
 import * as api from '../../api/client';
 
 /**
@@ -14,6 +15,7 @@ import * as api from '../../api/client';
 const TellerDashboard = () => {
   const { t } = useTranslation();
   const { token } = useAuth();
+  const showToast = useToast();
   const [accounts, setAccounts] = useState([]);
   const [kycRequests, setKycRequests] = useState([]);
   const [transferForm, setTransferForm] = useState({ source: '', dest: '', amount: '' });
@@ -46,10 +48,10 @@ const TellerDashboard = () => {
   const handleApproveKyc = async (id) => {
     try {
       const data = await api.approveKyc(token, id);
-      alert(data.message + (data.accountNumber ? ` (Acc: ${data.accountNumber})` : ''));
+      showToast(data.message + (data.accountNumber ? ` (Acc: ${data.accountNumber})` : ''), 'success');
       setKycRequests((prev) => prev.filter((r) => r.id !== id));
     } catch {
-      alert('Failed to approve KYC');
+      showToast('Failed to approve KYC', 'error');
     }
   };
 

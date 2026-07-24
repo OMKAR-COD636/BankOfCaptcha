@@ -70,6 +70,40 @@ input:focus {
   box-shadow: 0 0 0 3px rgba(10, 94, 176, 0.1);
 }
 
+/* ─── Select — theme-aware globally ─── */
+select {
+  background-color: var(--primary-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+  color-scheme: inherit; /* inherit the document's color-scheme so native dropdown matches */
+}
+
+select:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(10, 94, 176, 0.1);
+}
+
+select option {
+  background-color: var(--primary-bg);
+  color: var(--text-color);
+}
+
+[data-theme="dark"] select {
+  background-color: #1A2235;
+  color: #E2E8F0;
+  border-color: #2D3748;
+}
+
+[data-theme="dark"] select option {
+  background-color: #1A2235;
+  color: #E2E8F0;
+}
+
 button {
   background-color: var(--primary-color);
   color: #FFFFFF;

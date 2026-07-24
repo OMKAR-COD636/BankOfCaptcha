@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { Users } from 'lucide-react';
+import { useToast } from '../shared/ToastContext';
 import * as api from '../../api/client';
 
 /**
@@ -9,6 +10,7 @@ import * as api from '../../api/client';
  */
 const StaffManagementTab = ({ users, branches, token }) => {
   const { t } = useTranslation();
+  const showToast = useToast();
   const [createStaffForm, setCreateStaffForm] = useState({
     username: '', password: '', role: 'ROLE_TELLER', branchId: '',
   });
@@ -18,10 +20,10 @@ const StaffManagementTab = ({ users, branches, token }) => {
     e.preventDefault();
     try {
       const data = await api.createStaff(token, createStaffForm);
-      alert(data.message);
+      showToast(data.message, 'success');
       setCreateStaffForm({ username: '', password: '', role: 'ROLE_TELLER', branchId: '' });
     } catch (err) {
-      alert(err.error || 'Failed to create staff');
+      showToast(err.error || 'Failed to create staff', 'error');
     }
   };
 
@@ -29,9 +31,9 @@ const StaffManagementTab = ({ users, branches, token }) => {
     e.preventDefault();
     try {
       const data = await api.assignStaffToBranch(token, assignForm.branchId, assignForm.userId);
-      alert(data.message);
+      showToast(data.message, 'success');
     } catch (err) {
-      alert(err.error || 'Failed to assign staff');
+      showToast(err.error || 'Failed to assign staff', 'error');
     }
   };
 

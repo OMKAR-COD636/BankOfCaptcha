@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { Search, Filter, FileText } from 'lucide-react';
 import Pagination from './Pagination';
+import { useToast } from './ToastContext';
 import * as api from '../../api/client';
 
 /**
@@ -15,6 +16,7 @@ import * as api from '../../api/client';
  */
 const AuditLogTable = ({ logs, users, token, selectedDate = null }) => {
   const { t } = useTranslation();
+  const showToast = useToast();
   const [filter, setFilter] = useState({ search: '', role: '' });
   const [page, setPage] = useState(1);
   const itemsPerPage = 20;
@@ -48,14 +50,15 @@ const AuditLogTable = ({ logs, users, token, selectedDate = null }) => {
     try {
       const data = await api.verifyLogIntegrity(token, id);
       if (data.valid) {
-        alert(
-          `Integrity Verified! \nSignature: ${data.signatureAlgorithm}\nEncryption: ${data.encryptionAlgorithm}`
+        showToast(
+          `Integrity Verified! Signature: ${data.signatureAlgorithm} · Encryption: ${data.encryptionAlgorithm}`,
+          'success'
         );
       } else {
-        alert(`INTEGRITY COMPROMISED!\nReason: ${data.message}`);
+        showToast(`INTEGRITY COMPROMISED! Reason: ${data.message}`, 'error');
       }
     } catch {
-      alert('Verification failed');
+      showToast('Verification failed', 'error');
     }
   };
 

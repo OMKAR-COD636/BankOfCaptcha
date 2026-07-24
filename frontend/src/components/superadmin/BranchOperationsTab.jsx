@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { Building } from 'lucide-react';
+import { useToast } from '../shared/ToastContext';
 import * as api from '../../api/client';
 
 /**
@@ -9,17 +10,18 @@ import * as api from '../../api/client';
  */
 const BranchOperationsTab = ({ branches, setBranches, token }) => {
   const { t } = useTranslation();
+  const showToast = useToast();
   const [createBranchForm, setCreateBranchForm] = useState({ name: '', location: '' });
 
   const handleCreateBranch = async (e) => {
     e.preventDefault();
     try {
       const data = await api.createBranch(token, createBranchForm);
-      alert('Branch created: ' + data.branchId);
+      showToast('Branch created: ' + data.branchId, 'success');
       setBranches([...branches, data]);
       setCreateBranchForm({ name: '', location: '' });
     } catch (err) {
-      alert(err.error || 'Failed to create branch');
+      showToast(err.error || 'Failed to create branch', 'error');
     }
   };
 
