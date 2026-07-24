@@ -6,6 +6,12 @@
     flex: 1;
     min-width: 260px;
     transition: background 0.2s, border-color 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.risk-visualizer-body {
+    margin: auto 0;
 }
 
 .risk-visualizer-header {
@@ -126,6 +132,38 @@
 
 .legend-label {
     margin-right: 6px;
+}
+
+/* ─── Expanded State (Panel Closed) ─── */
+.sa-content-main:not(.with-panel) .risk-visualizer-body {
+    margin: auto;
+}
+
+.sa-content-main:not(.with-panel) .activity-cell {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+}
+
+.sa-content-main:not(.with-panel) .activity-graph-y-labels span {
+    height: 14px;
+    line-height: 14px;
+    font-size: 0.75rem;
+}
+
+.sa-content-main:not(.with-panel) .activity-graph-grid,
+.sa-content-main:not(.with-panel) .activity-graph-column {
+    gap: 4px;
+}
+
+.sa-content-main:not(.with-panel) .activity-graph-wrapper {
+    gap: 12px;
+}
+
+.sa-content-main:not(.with-panel) .activity-legend {
+    font-size: 0.85rem;
+    gap: 8px;
+    margin-top: 16px;
 }
 
 /* ─── Dark Mode ───────────────────────────────────── */

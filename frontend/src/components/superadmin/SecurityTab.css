@@ -98,7 +98,6 @@
   flex-wrap: wrap;
   gap: 20px;
   margin-bottom: 24px;
-  align-items: flex-start;
 }
 
 /* ─── Header Bar (title + actions) ─── */
