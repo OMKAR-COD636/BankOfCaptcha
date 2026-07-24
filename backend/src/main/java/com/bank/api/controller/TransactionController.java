@@ -104,7 +104,7 @@ public class TransactionController {
         if (currentUser.getBranch() == null) {
             return ResponseEntity.badRequest().body("Manager is not assigned to any branch.");
         }
-        return ResponseEntity.ok(transactionRequestRepository.findByStatusAndInitiatorBranchId("PENDING", currentUser.getBranch().getId()));
+        return ResponseEntity.ok(transactionRequestRepository.findByStatusAndInitiatorBranch_Id("PENDING", currentUser.getBranch().getId()));
     }
 
     @PostMapping("/requests/{id}/approve")
