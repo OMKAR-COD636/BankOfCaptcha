@@ -8,7 +8,7 @@ import * as api from '../../api/client';
  * SuperAdmin — Branch Operations Tab
  * Shows: Create new branch form.
  */
-const BranchOperationsTab = ({ branches, setBranches, token }) => {
+const BranchOperationsTab = ({ branches, setBranches, token, users = [] }) => {
   const { t } = useTranslation();
   const showToast = useToast();
   const [createBranchForm, setCreateBranchForm] = useState({ name: '', location: '' });
@@ -50,6 +50,44 @@ const BranchOperationsTab = ({ branches, setBranches, token }) => {
             Create Branch
           </button>
         </form>
+      </div>
+
+      <h2 className="section-title" style={{ marginTop: '2rem' }}>
+        <Building size={24} className="icon-blue" /> Existing Branches
+      </h2>
+      <div className="logs-table-container">
+        <table className="sa-branch-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Branch Name</th>
+              <th>Location</th>
+              <th>Assigned Staff</th>
+            </tr>
+          </thead>
+          <tbody>
+            {branches.map((b) => {
+              const staffCount = users.filter(u => u.branch && u.branch.id === b.id).length;
+              return (
+                <tr key={b.id}>
+                  <td>{b.id}</td>
+                  <td><strong>{b.name}</strong></td>
+                  <td>{b.location}</td>
+                  <td>
+                    <span className="sa-access-badge active">{staffCount} members</span>
+                  </td>
+                </tr>
+              );
+            })}
+            {branches.length === 0 && (
+              <tr>
+                <td colSpan="4" style={{ textAlign: 'center', color: '#6b7280' }}>
+                  No branches created yet.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

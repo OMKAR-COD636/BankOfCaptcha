@@ -109,7 +109,7 @@ const AlertDescriptionCell = ({ description }) => {
  * SuperAdmin — Security & Intelligence Tab
  * Shows: Risk graphs, summary cards, AI alerts table with filters.
  */
-const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionRequests }) => {
+const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionRequests, onAlertClick, selectedAlertId }) => {
   const { t } = useTranslation();
   const showToast = useToast();
   const [alertFilter, setAlertFilter] = useState({ search: '', severity: '', status: '', role: '' });
@@ -330,7 +330,11 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
           </thead>
           <tbody>
             {paginatedAlerts.map((alert) => (
-              <tr key={alert.id} className={alert.severity === 'HIGH' ? 'row-danger' : ''}>
+              <tr 
+                key={alert.id} 
+                className={`sa-clickable-row ${alert.severity === 'HIGH' ? 'row-danger' : ''} ${selectedAlertId === alert.id ? 'selected' : ''}`}
+                onClick={() => onAlertClick && onAlertClick(alert)}
+              >
                 <td>{alert.id}</td>
                 <td><strong>{alert.flaggedUsername}</strong></td>
                 <td><span className="role-badge">{getUserRole(alert.flaggedUsername)}</span></td>
