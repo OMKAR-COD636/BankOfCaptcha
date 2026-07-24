@@ -101,10 +101,10 @@ const LargeRiskGauge = ({ value }) => {
           stroke={`url(#gaugeGrad-${value})`}
           strokeWidth={strokeWidth}
           strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={strokeDashoffset}
+          strokeDasharray={`${(value / 100) * circumference} ${circumference}`}
+          strokeDashoffset={0}
           filter="url(#gaugeShadow)"
-          style={{ transition: 'stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }}
+          style={{ transition: 'stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }}
         />
       </svg>
       <div className="sa-gauge-center half-gauge-center">
@@ -403,7 +403,13 @@ const SuperAdminDashboard = () => {
                       <span>Loading forensic data...</span>
                     </div>
                   ) : activityError ? (
-                    <div className="sa-graph-error">Error: {activityError}</div>
+                    <div className="sa-graph-error">
+                      <AlertTriangle size={24} style={{ marginBottom: '8px', opacity: 0.8 }} />
+                      <div>Forensic data unavailable</div>
+                      <span style={{ fontSize: '11px', fontWeight: 400, opacity: 0.7, marginTop: '4px' }}>
+                        {activityError}
+                      </span>
+                    </div>
                   ) : (
                     <div className="sa-graphs-section">
                       {/* Action Sequence Graph */}

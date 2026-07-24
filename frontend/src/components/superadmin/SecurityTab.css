@@ -5,6 +5,7 @@
 /* ─── Top Summary Bar ─── */
 .sec-summary-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 16px;
   margin-bottom: 24px;
 }
@@ -94,8 +95,10 @@
 /* ─── Graph Row ─── */
 .sec-graphs-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 20px;
   margin-bottom: 24px;
+  align-items: flex-start;
 }
 
 /* ─── Header Bar (title + actions) ─── */

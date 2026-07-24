@@ -85,13 +85,21 @@ const CircularGauge = ({ value, size = 48 }) => {
         <circle
           className="gauge-bg"
           cx={size / 2} cy={size / 2} r={radius}
+          fill="none"
+          stroke="var(--border-color)"
+          strokeWidth="4"
+          opacity="0.3"
         />
         <circle
           className="gauge-fill"
           cx={size / 2} cy={size / 2} r={radius}
+          fill="none"
           stroke={color}
-          strokeDasharray={circumference}
-          strokeDashoffset={strokeDashoffset}
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeDasharray={`${(value / 100) * circumference} ${circumference}`}
+          strokeDashoffset="0"
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
       </svg>
       <div className="gauge-value" style={{ color }}>

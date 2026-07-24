@@ -59,25 +59,25 @@
 }
 
 .activity-graph-y-labels span {
-    height: 9px;
-    line-height: 9px;
+    height: 11px;
+    line-height: 11px;
 }
 
 .activity-graph-grid {
     display: flex;
-    gap: 2px;
+    gap: 3px;
 }
 
 .activity-graph-column {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
 }
 
 .activity-cell {
-    width: 9px;
-    height: 9px;
-    border-radius: 1.5px;
+    width: 11px;
+    height: 11px;
+    border-radius: 2px;
     transition: transform 0.2s, border 0.2s;
     cursor: pointer;
 }
