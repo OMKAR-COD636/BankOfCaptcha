@@ -170,7 +170,7 @@ const Login = () => {
                 <li>Teller: <code>teller</code> / <code>password</code></li>
                 <li>Branch Manager: <code>branch_manager</code> / <code>password</code></li>
                 <li>IT Admin: <code>it_admin</code> / <code>password</code></li>
-                <li>Super Admin: <code>superadmin</code> / <code>password</code></li>
+                <li>Super Admin: <code>superadmin</code>, <code>superadmin1</code>, <code>superadmin2</code> / <code>password</code></li>
               </ul>
             </div>
           )}

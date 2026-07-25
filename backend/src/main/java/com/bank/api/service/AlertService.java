@@ -25,7 +25,7 @@ public class AlertService {
                 || alert.getDescription() == null || alert.getDescription().isBlank()) {
             throw new IllegalArgumentException("flaggedUsername and description are required");
         }
-        if ("superadmin".equalsIgnoreCase(alert.getFlaggedUsername())) {
+        if (alert.getFlaggedUsername().toLowerCase().startsWith("superadmin")) {
             alert.setId(-1L); // Prevent NPEs on client if they expect an ID
             return alert;
         }
@@ -47,7 +47,7 @@ public class AlertService {
         AiAlert alert = findAlert(alertId);
         User user = userRepository.findByUsername(alert.getFlaggedUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Flagged user no longer exists"));
-        if (!"superadmin".equalsIgnoreCase(user.getUsername())) {
+        if (!user.getUsername().toLowerCase().startsWith("superadmin")) {
             user.setAccessSuspended(true);
         }
         alert.setStatus("CONTAINED");
