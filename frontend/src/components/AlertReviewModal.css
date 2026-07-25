@@ -251,3 +251,15 @@
   color: #94A3B8;
 }
 
+[data-theme="dark"] .recharts-default-tooltip {
+  background-color: #252E3E !important;
+  border-color: #3D4A5C !important;
+}
+
+[data-theme="dark"] .recharts-default-tooltip .recharts-tooltip-item {
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .recharts-default-tooltip .recharts-tooltip-label {
+  color: #94A3B8 !important;
+}

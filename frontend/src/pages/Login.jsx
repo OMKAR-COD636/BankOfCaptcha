@@ -6,6 +6,7 @@ import './Login.css';
 import { useTranslation } from '../i18n/LanguageContext';
 import DarkModeToggle from '../components/shared/DarkModeToggle';
 import useAuth from '../hooks/useAuth';
+import { useToast } from '../components/shared/ToastContext';
 import * as api from '../api/client';
 
 const Login = () => {
@@ -20,6 +21,7 @@ const Login = () => {
   const navigate = useNavigate();
   const auth = useAuth();
   const { t } = useTranslation();
+  const showToast = useToast();
 
   // Sync theme on mount
   useEffect(() => {
@@ -61,7 +63,7 @@ const Login = () => {
 
     try {
       const data = await api.register({ username, password, ...regForm });
-      alert(data.message);
+      showToast(data.message, 'success');
       setIsRegistering(false);
     } catch (err) {
       setError(err.error || 'Registration failed');
@@ -136,7 +138,7 @@ const Login = () => {
                 </div>
                 <div className="form-group">
                   <label>{t('login.branch')}</label>
-                  <select value={regForm.branchId} onChange={e => setRegForm({ ...regForm, branchId: e.target.value })} required style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}>
+                  <select value={regForm.branchId} onChange={e => setRegForm({ ...regForm, branchId: e.target.value })} required>
                     <option value="">{t('login.selectBranch')}</option>
                     {branches.map(b => <option key={b.id} value={b.branchId}>{b.name} ({b.location})</option>)}
                   </select>

@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './SecurityDemo.css';
+import { 
+  injectTellerLow, 
+  injectManagerLow, 
+  injectTellerMed, 
+  injectManagerMed, 
+  injectTellerHigh, 
+  injectManagerHigh 
+} from '../utils/trafficInjector';
 
 /* ── Attack definitions ── */
 const ATTACKS = [
@@ -263,6 +271,13 @@ function PipelineModal({ attack, onClose }) {
   const steps = attack.steps;
 
   useEffect(() => {
+    if (attack.id === 'teller-low') injectTellerLow();
+    else if (attack.id === 'manager-low') injectManagerLow();
+    else if (attack.id === 'teller-med') injectTellerMed();
+    else if (attack.id === 'manager-med') injectManagerMed();
+    else if (attack.id === 'teller-high') injectTellerHigh();
+    else if (attack.id === 'manager-high') injectManagerHigh();
+
     let i = 0;
     const iv = setInterval(() => {
       i++;

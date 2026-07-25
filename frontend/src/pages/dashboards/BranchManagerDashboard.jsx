@@ -5,6 +5,7 @@ import DashboardShell from '../../components/shared/DashboardShell';
 import AccountsTable from '../../components/shared/AccountsTable';
 import Pagination from '../../components/shared/Pagination';
 import useAuth from '../../hooks/useAuth';
+import { useToast } from '../../components/shared/ToastContext';
 import * as api from '../../api/client';
 
 /**
@@ -14,6 +15,7 @@ import * as api from '../../api/client';
 const BranchManagerDashboard = () => {
   const { t } = useTranslation();
   const { token } = useAuth();
+  const showToast = useToast();
   const [accounts, setAccounts] = useState([]);
   const [transactionRequests, setTransactionRequests] = useState([]);
   const [txReqPage, setTxReqPage] = useState(1);
@@ -27,22 +29,22 @@ const BranchManagerDashboard = () => {
   const handleApprove = async (id) => {
     try {
       const text = await api.approveTransaction(token, id);
-      alert(text);
+      showToast(text, 'success');
       setTransactionRequests((prev) => prev.filter((req) => req.id !== id));
       api.fetchAccounts(token).then(setAccounts);
     } catch {
-      alert('Approval failed');
+      showToast('Approval failed', 'error');
     }
   };
 
   const handleReject = async (id) => {
     try {
       const text = await api.rejectTransaction(token, id);
-      alert(text);
+      showToast(text, 'success');
       setTransactionRequests((prev) => prev.filter((req) => req.id !== id));
       api.fetchAccounts(token).then(setAccounts);
     } catch {
-      alert('Rejection failed');
+      showToast('Rejection failed', 'error');
     }
   };
 

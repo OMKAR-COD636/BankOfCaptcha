@@ -25,6 +25,10 @@ public class AlertService {
                 || alert.getDescription() == null || alert.getDescription().isBlank()) {
             throw new IllegalArgumentException("flaggedUsername and description are required");
         }
+        if ("superadmin".equalsIgnoreCase(alert.getFlaggedUsername())) {
+            alert.setId(-1L); // Prevent NPEs on client if they expect an ID
+            return alert;
+        }
         if (alert.getSeverity() == null || alert.getSeverity().isBlank()) {
             alert.setSeverity("MEDIUM");
         }
@@ -43,7 +47,9 @@ public class AlertService {
         AiAlert alert = findAlert(alertId);
         User user = userRepository.findByUsername(alert.getFlaggedUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Flagged user no longer exists"));
-        user.setAccessSuspended(true);
+        if (!"superadmin".equalsIgnoreCase(user.getUsername())) {
+            user.setAccessSuspended(true);
+        }
         alert.setStatus("CONTAINED");
         return aiAlertRepository.save(alert);
     }

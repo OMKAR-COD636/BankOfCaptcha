@@ -50,51 +50,53 @@ const RiskHeatmap = ({ alerts = [], onMatrixSelect, selectedMatrix }) => {
                 )}
             </div>
             
-            <div className="heatmap-matrix">
-                {/* Header Row (X-axis) */}
-                <div></div>
-                <div className="matrix-label">Low Freq<br/>(1-4 alerts)</div>
-                <div className="matrix-label">Med Freq<br/>(5-20 alerts)</div>
-                <div className="matrix-label">High Freq<br/>(20+ alerts)</div>
+            <div className="risk-visualizer-body">
+                <div className="heatmap-matrix">
+                    {/* Header Row (X-axis) */}
+                    <div></div>
+                    <div className="matrix-label">Low Freq<br/>(1-4 alerts)</div>
+                    <div className="matrix-label">Med Freq<br/>(5-20 alerts)</div>
+                    <div className="matrix-label">High Freq<br/>(20+ alerts)</div>
 
-                {/* Grid Rows (Y-axis) */}
-                {severities.map(sev => (
-                    <React.Fragment key={sev}>
-                        <div className="matrix-label y-axis">{sev}</div>
-                        {frequencies.map(freq => {
-                            const statData = bucketedData[sev];
-                            const isActive = statData && statData.bucket === freq && statData.count > 0;
-                            const count = isActive ? statData.count : 0;
-                            const baseClass = getBaseColorClass(sev, freq);
-                            const isSelected = selectedMatrix && selectedMatrix.severity === sev && selectedMatrix.frequency === freq;
-                            const dimClass = (selectedMatrix && !isSelected) ? 'dimmed' : '';
-                            
-                            return (
-                                <div 
-                                    key={`${sev}-${freq}`} 
-                                    className={`matrix-cell ${baseClass} ${isActive ? 'active' : ''} ${isSelected ? 'selected' : ''} ${dimClass}`}
-                                    onClick={() => {
-                                        if (isActive) {
-                                            onMatrixSelect(isSelected ? null : { severity: sev, frequency: freq });
-                                        }
-                                    }}
-                                >
-                                    {isActive ? (
-                                        <>
-                                            <span className="cell-count">{count}</span>
-                                            <span className="cell-desc">Alerts</span>
-                                            <div className="cell-tooltip">
-                                                {count} {sev.toLowerCase()} severity alerts detected. Click to filter.
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <span style={{opacity: 0.2}}>-</span>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </React.Fragment>
-                ))}
+                    {/* Grid Rows (Y-axis) */}
+                    {severities.map(sev => (
+                        <React.Fragment key={sev}>
+                            <div className="matrix-label y-axis">{sev}</div>
+                            {frequencies.map(freq => {
+                                const statData = bucketedData[sev];
+                                const isActive = statData && statData.bucket === freq && statData.count > 0;
+                                const count = isActive ? statData.count : 0;
+                                const baseClass = getBaseColorClass(sev, freq);
+                                const isSelected = selectedMatrix && selectedMatrix.severity === sev && selectedMatrix.frequency === freq;
+                                const dimClass = (selectedMatrix && !isSelected) ? 'dimmed' : '';
+                                
+                                return (
+                                    <div 
+                                        key={`${sev}-${freq}`} 
+                                        className={`matrix-cell ${baseClass} ${isActive ? 'active' : ''} ${isSelected ? 'selected' : ''} ${dimClass}`}
+                                        onClick={() => {
+                                            if (isActive) {
+                                                onMatrixSelect(isSelected ? null : { severity: sev, frequency: freq });
+                                            }
+                                        }}
+                                    >
+                                        {isActive ? (
+                                            <>
+                                                <span className="cell-count">{count}</span>
+                                                <span className="cell-desc">Alerts</span>
+                                                <div className="cell-tooltip">
+                                                    {count} {sev.toLowerCase()} severity alerts detected. Click to filter.
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <span style={{opacity: 0.2}}>-</span>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </React.Fragment>
+                    ))}
+                </div>
             </div>
         </div>
     );

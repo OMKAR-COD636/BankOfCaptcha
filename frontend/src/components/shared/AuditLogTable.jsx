@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { Search, Filter, FileText } from 'lucide-react';
 import Pagination from './Pagination';
+import { useToast } from './ToastContext';
 import * as api from '../../api/client';
 
 /**
@@ -15,6 +16,7 @@ import * as api from '../../api/client';
  */
 const AuditLogTable = ({ logs, users, token, selectedDate = null }) => {
   const { t } = useTranslation();
+  const showToast = useToast();
   const [filter, setFilter] = useState({ search: '', role: '' });
   const [page, setPage] = useState(1);
   const itemsPerPage = 20;
@@ -44,18 +46,14 @@ const AuditLogTable = ({ logs, users, token, selectedDate = null }) => {
     page * itemsPerPage
   );
 
+  const [integrityResult, setIntegrityResult] = useState(null);
+
   const handleVerifyLog = async (id) => {
     try {
       const data = await api.verifyLogIntegrity(token, id);
-      if (data.valid) {
-        alert(
-          `Integrity Verified! \nSignature: ${data.signatureAlgorithm}\nEncryption: ${data.encryptionAlgorithm}`
-        );
-      } else {
-        alert(`INTEGRITY COMPROMISED!\nReason: ${data.message}`);
-      }
+      setIntegrityResult(data);
     } catch {
-      alert('Verification failed');
+      showToast('Verification failed', 'error');
     }
   };
 
@@ -146,6 +144,53 @@ const AuditLogTable = ({ logs, users, token, selectedDate = null }) => {
         itemsPerPage={itemsPerPage}
         onPageChange={setPage}
       />
+
+      {integrityResult && (
+        <div className="sa-integrity-overlay" onClick={() => setIntegrityResult(null)}>
+          <div className="sa-integrity-modal" onClick={e => e.stopPropagation()}>
+            <div className="sa-integrity-icon-area">
+              <div className={`sa-integrity-icon-circle ${integrityResult.valid ? 'valid' : 'invalid'}`}>
+                {integrityResult.valid ? (
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                ) : (
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                )}
+              </div>
+              <h3 className="sa-integrity-title">
+                {integrityResult.valid ? 'Integrity Verified' : 'Integrity Compromised'}
+              </h3>
+              <p className="sa-integrity-subtitle">
+                {integrityResult.valid 
+                  ? 'Cryptographic signature matches the original state.'
+                  : integrityResult.message || 'The log has been tampered with or signature is invalid.'}
+              </p>
+            </div>
+            <div className="sa-integrity-details">
+              <div className="sa-integrity-row">
+                <span className="sa-integrity-row-label">Signature Algorithm</span>
+                <span className="sa-integrity-row-value">{integrityResult.signatureAlgorithm || 'N/A'}</span>
+              </div>
+              <div className="sa-integrity-row">
+                <span className="sa-integrity-row-label">Encryption</span>
+                <span className="sa-integrity-row-value">{integrityResult.encryptionAlgorithm || 'N/A'}</span>
+              </div>
+            </div>
+            <div className="sa-integrity-footer">
+              <button 
+                className={`sa-integrity-close-btn ${integrityResult.valid ? 'valid' : 'invalid'}`}
+                onClick={() => setIntegrityResult(null)}
+              >
+                Close Verification
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -50,7 +50,7 @@ public class AccountController {
             if (user.getBranch() == null) {
                 return ResponseEntity.badRequest().body("Staff member is not assigned to any branch.");
             }
-            return ResponseEntity.ok(accountRepository.findByUserBranchId(user.getBranch().getId()));
+            return ResponseEntity.ok(accountRepository.findByUserBranch_Id(user.getBranch().getId()));
         }
         
         List<Account> accounts = accountRepository.findByUserId(user.getId());

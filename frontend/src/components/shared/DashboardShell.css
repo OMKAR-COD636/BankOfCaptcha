@@ -125,7 +125,7 @@
 .table-header {
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--border-color);
-  background-color: #FAFAFA;
+  background-color: var(--primary-bg);
 }
 
 .table-header h3 {
@@ -149,7 +149,7 @@
 }
 
 .logs-table th {
-  background-color: #FAFAFA;
+  background-color: var(--secondary-bg);
   font-weight: 600;
   color: var(--text-light);
   text-transform: uppercase;
@@ -218,7 +218,7 @@
   display: flex;
   gap: 15px;
   margin-bottom: 20px;
-  background: white;
+  background: var(--primary-bg);
   padding: 15px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -248,10 +248,15 @@
   color: var(--text-color);
   font-size: 0.9rem;
   outline: none;
+  font-family: 'Inter', sans-serif;
 }
 
 .filter-select {
   cursor: pointer;
+  /* Override the global select border/bg since filter-group provides its own border */
+  border: none !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
 }
 
 /* ─── Verify Button ──────────────────────────────── */
@@ -324,10 +329,10 @@
 }
 
 .summary-card {
-  background: white;
+  background: var(--primary-bg);
   padding: 20px;
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color);
   box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
 }
 
@@ -340,14 +345,14 @@
 
 .summary-card .summary-card-header h3 {
   margin: 0;
-  color: #475569;
+  color: var(--text-light);
   font-size: 1rem;
 }
 
 .summary-card .summary-card-value {
   font-size: 2rem;
   font-weight: bold;
-  color: #0f172a;
+  color: var(--text-color);
 }
 
 /* ─── Pagination ─────────────────────────────────── */
@@ -393,7 +398,7 @@
 /* ─── Inline form card ────────────────────────────── */
 .form-card {
   padding: 20px;
-  background: white;
+  background: var(--primary-bg);
   border-radius: 8px;
   border: 1px solid var(--border-color);
   margin-bottom: 2rem;

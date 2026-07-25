@@ -1,25 +1,32 @@
 .risk-visualizer-card {
-    padding: 20px;
+    padding: 12px 14px;
     background: white;
-    border-radius: 8px;
+    border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     flex: 1;
-    min-width: 300px;
+    min-width: 260px;
     transition: background 0.2s, border-color 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.risk-visualizer-body {
+    margin: auto 0;
 }
 
 .risk-visualizer-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 8px;
+    margin-bottom: 12px;
     position: relative;
 }
 
 .risk-visualizer-header h3 {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     color: #1f2937;
+    font-weight: 700;
 }
 
 .icon-blue {
@@ -43,23 +50,23 @@
 
 .activity-graph-wrapper {
     display: flex;
-    gap: 10px;
+    gap: 6px;
     overflow-x: auto;
-    padding-bottom: 10px;
+    padding-bottom: 8px;
 }
 
 .activity-graph-y-labels {
     display: flex;
     flex-direction: column;
-    gap: 3px;
-    font-size: 0.75rem;
+    gap: 2px;
+    font-size: 0.65rem;
     color: #6b7280;
-    margin-right: 5px;
+    margin-right: 3px;
 }
 
 .activity-graph-y-labels span {
-    height: 12px;
-    line-height: 12px;
+    height: 11px;
+    line-height: 11px;
 }
 
 .activity-graph-grid {
@@ -74,8 +81,8 @@
 }
 
 .activity-cell {
-    width: 12px;
-    height: 12px;
+    width: 11px;
+    height: 11px;
     border-radius: 2px;
     transition: transform 0.2s, border 0.2s;
     cursor: pointer;
@@ -113,9 +120,9 @@
 .activity-legend {
     display: flex;
     align-items: center;
-    gap: 5px;
-    margin-top: 15px;
-    font-size: 0.8rem;
+    gap: 4px;
+    margin-top: 10px;
+    font-size: 0.75rem;
     color: #6b7280;
 }
 
@@ -124,7 +131,39 @@
 }
 
 .legend-label {
-    margin-right: 10px;
+    margin-right: 6px;
+}
+
+/* ─── Expanded State (Panel Closed) ─── */
+.sa-content-main:not(.with-panel) .risk-visualizer-body {
+    margin: auto;
+}
+
+.sa-content-main:not(.with-panel) .activity-cell {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+}
+
+.sa-content-main:not(.with-panel) .activity-graph-y-labels span {
+    height: 14px;
+    line-height: 14px;
+    font-size: 0.75rem;
+}
+
+.sa-content-main:not(.with-panel) .activity-graph-grid,
+.sa-content-main:not(.with-panel) .activity-graph-column {
+    gap: 4px;
+}
+
+.sa-content-main:not(.with-panel) .activity-graph-wrapper {
+    gap: 12px;
+}
+
+.sa-content-main:not(.with-panel) .activity-legend {
+    font-size: 0.85rem;
+    gap: 8px;
+    margin-top: 16px;
 }
 
 /* ─── Dark Mode ───────────────────────────────────── */

@@ -6,7 +6,7 @@
  *  - Error handling is consistent
  */
 
-const API_BASE = 'http://localhost:8080';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 /**
  * Build standard headers, optionally including the JWT token.
@@ -84,6 +84,9 @@ export const fetchKycQueue = (token) =>
 export const approveKyc = (token, id) =>
   request('POST', `/api/kyc/${id}/approve`, { token });
 
+export const applyKyc = (token, branchId, data) =>
+  request('POST', `/api/kyc/apply/${branchId}`, { token, body: data });
+
 // ──────────────────────────────────────────────
 // Audit Logs
 // ──────────────────────────────────────────────
@@ -101,6 +104,9 @@ export const fetchAiAlerts = (token) =>
 
 export const resolveAlert = (token, id) =>
   request('POST', `/api/admin/alerts/${id}/release`, { token });
+
+export const containAlert = (token, id) =>
+  request('POST', `/api/admin/alerts/${id}/contain`, { token });
 
 export const resolveAllAlerts = (token) =>
   request('POST', '/api/admin/alerts/resolve-all', { token });
@@ -134,6 +140,9 @@ export const fetchUsers = (token) =>
 // ──────────────────────────────────────────────
 export const createStaff = (token, data) =>
   request('POST', '/api/admin/staff', { token, body: data });
+
+export const fetchAdminStaff = (token) =>
+  request('GET', '/api/admin/staff', { token });
 
 // ──────────────────────────────────────────────
 // AI Training (IT Admin)

@@ -8,7 +8,7 @@ const AiModelTab = ({ aiMetrics, triggerAdaptiveTraining }) => {
     <div className="admin-tab-content animated-fade-in">
       <h2 className="section-title"><Activity size={24} className="icon-blue" /> {t('dashboard.aiModelTraining')}</h2>
       
-      <div className="card mb-4" style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
+      <div className="form-card mb-4">
         <h3 style={{ marginTop: 0 }}>{t('dashboard.modelDescription')}</h3>
         <p><strong>{t('dashboard.architecture')}:</strong> InsiderThreatLSTM (Role-Conditioned, MSE Loss, Positional Encoding)</p>
         <p><strong>{t('dashboard.version')}:</strong> v3 — 4-Signal Architecture</p>
@@ -20,43 +20,43 @@ const AiModelTab = ({ aiMetrics, triggerAdaptiveTraining }) => {
       </div>
 
       <div className="summary-cards-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '30px' }}>
-        <div className="summary-card" style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+        <div className="summary-card">
+          <div className="summary-card-header">
             <Activity size={20} className="icon-blue" />
-            <h3 style={{ margin: 0, color: '#475569', fontSize: '1rem' }}>{t('dashboard.overallDetectionRate')}</h3>
+            <h3>{t('dashboard.overallDetectionRate')}</h3>
           </div>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#0f172a' }}>
+          <div className="summary-card-value">
             {aiMetrics?.overallDetectionRate != null ? `${(aiMetrics.overallDetectionRate * 100).toFixed(1)}%` : 'N/A'}
           </div>
         </div>
-        <div className="summary-card" style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+        <div className="summary-card">
+          <div className="summary-card-header">
             <Activity size={20} className="icon-blue" />
-            <h3 style={{ margin: 0, color: '#475569', fontSize: '1rem' }}>{t('dashboard.validationLoss')}</h3>
+            <h3>{t('dashboard.validationLoss')}</h3>
           </div>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#0f172a' }}>
+          <div className="summary-card-value">
             {aiMetrics?.mseLoss != null ? aiMetrics.mseLoss.toFixed(4) : 'N/A'}
           </div>
         </div>
-        <div className="summary-card" style={{ background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+        <div className="summary-card">
+          <div className="summary-card-header">
             <Activity size={20} className="icon-blue" />
-            <h3 style={{ margin: 0, color: '#475569', fontSize: '1rem' }}>{t('dashboard.dynamicThreshold')}</h3>
+            <h3>{t('dashboard.dynamicThreshold')}</h3>
           </div>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#0f172a' }}>
+          <div className="summary-card-value">
             {aiMetrics?.threshold != null ? aiMetrics.threshold.toFixed(4) : 'N/A'}
           </div>
         </div>
       </div>
 
-      <div className="card mb-4" style={{ padding: '20px', background: 'white', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="form-card mb-4" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h3 style={{ margin: '0 0 10px 0' }}>{t('dashboard.adaptiveTraining')}</h3>
-          <p style={{ margin: 0, color: '#475569' }}>
+          <p style={{ margin: 0, color: 'var(--text-light)' }}>
             {t('dashboard.status')}: <strong>{aiMetrics?.status || 'UNKNOWN'}</strong> 
             {aiMetrics?.lastTrainedAt && ` (Last trained: ${new Date(aiMetrics.lastTrainedAt + 'Z').toLocaleString()})`}
           </p>
-          <p style={{ margin: '10px 0 0 0', color: '#64748b', fontSize: '0.9rem' }}>
+          <p style={{ margin: '10px 0 0 0', color: 'var(--text-light)', fontSize: '0.9rem' }}>
             {t('dashboard.triggerTrainingText')} marked as False Positives and incorporate them into the model to prevent future false alarms.
           </p>
         </div>

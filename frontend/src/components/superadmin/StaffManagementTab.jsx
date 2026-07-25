@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { Users } from 'lucide-react';
+import { useToast } from '../shared/ToastContext';
 import * as api from '../../api/client';
 
 /**
@@ -9,6 +10,7 @@ import * as api from '../../api/client';
  */
 const StaffManagementTab = ({ users, branches, token }) => {
   const { t } = useTranslation();
+  const showToast = useToast();
   const [createStaffForm, setCreateStaffForm] = useState({
     username: '', password: '', role: 'ROLE_TELLER', branchId: '',
   });
@@ -18,10 +20,10 @@ const StaffManagementTab = ({ users, branches, token }) => {
     e.preventDefault();
     try {
       const data = await api.createStaff(token, createStaffForm);
-      alert(data.message);
+      showToast(data.message, 'success');
       setCreateStaffForm({ username: '', password: '', role: 'ROLE_TELLER', branchId: '' });
     } catch (err) {
-      alert(err.error || 'Failed to create staff');
+      showToast(err.error || 'Failed to create staff', 'error');
     }
   };
 
@@ -29,9 +31,9 @@ const StaffManagementTab = ({ users, branches, token }) => {
     e.preventDefault();
     try {
       const data = await api.assignStaffToBranch(token, assignForm.branchId, assignForm.userId);
-      alert(data.message);
+      showToast(data.message, 'success');
     } catch (err) {
-      alert(err.error || 'Failed to assign staff');
+      showToast(err.error || 'Failed to assign staff', 'error');
     }
   };
 
@@ -107,6 +109,36 @@ const StaffManagementTab = ({ users, branches, token }) => {
           </select>
           <button type="submit" className="btn-primary">{t('dashboard.assignStaffBtn')}</button>
         </form>
+      </div>
+
+      <h2 className="section-title" style={{ marginTop: '2rem' }}>
+        <Users size={24} className="icon-blue" /> {t('dashboard.currentStaff')}
+      </h2>
+      <div className="logs-table-container">
+        <table className="sa-staff-table">
+          <thead>
+            <tr>
+              <th>{t('dashboard.username')}</th>
+              <th>{t('dashboard.role')}</th>
+              <th>{t('dashboard.branchAssignment')}</th>
+              <th>{t('dashboard.status')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.filter(u => u.role !== 'ROLE_CUSTOMER' && u.role !== 'ROLE_SUPER_ADMIN').map((u) => (
+              <tr key={u.id}>
+                <td><strong>{u.username}</strong></td>
+                <td><span className="role-badge">{u.role.replace('ROLE_', '')}</span></td>
+                <td>{u.branch ? `${u.branch.name} (${u.branch.location})` : <span style={{color: 'var(--text-light)'}}>{t('dashboard.unassigned')}</span>}</td>
+                <td>
+                  <span className={`sa-access-badge ${u.accountLocked ? 'suspended' : 'active'}`}>
+                    {u.accountLocked ? t('dashboard.suspended') : t('dashboard.active')}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

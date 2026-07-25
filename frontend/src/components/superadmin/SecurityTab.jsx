@@ -1,11 +1,12 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from '../../i18n/LanguageContext';
-import { AlertTriangle, Activity, Search, Filter, ThumbsDown } from 'lucide-react';
+import { AlertTriangle, Activity, Search, Filter, ThumbsDown, ShieldAlert } from 'lucide-react';
 import Pagination from '../../components/shared/Pagination';
 import RiskActivityGraph from '../../components/RiskActivityGraph';
 import RiskHeatmap from '../../components/RiskHeatmap';
-import AlertReviewModal from '../../components/AlertReviewModal';
+import { useToast } from '../../components/shared/ToastContext';
 import * as api from '../../api/client';
+import './SecurityTab.css';
 
 // ---------------------------------------------------------------------------
 // Description Parser — converts the pipe-delimited AI description string into
@@ -44,7 +45,7 @@ const parseAlertDescription = (description) => {
 
   // Extract risk score percentage
   const scoreMatch = summaryLine.match(/(\d+)%/);
-  const riskScore = scoreMatch ? scoreMatch[1] : null;
+  const riskScore = scoreMatch ? parseInt(scoreMatch[1]) : null;
 
   // Remaining parts are signal messages — identify by bracket label
   const signals = parts.slice(1).map((part) => {
@@ -58,62 +59,67 @@ const parseAlertDescription = (description) => {
   return { riskLevel, riskScore, signals };
 };
 
-// Compact description cell shown in the table
-const AlertDescriptionCell = ({ description }) => {
-  const parsed = parseAlertDescription(description);
+// Parse risk score from alert description
+const parseRiskScore = (description) => {
+  if (!description) return null;
+  const match = description.match(/(\d+)%/);
+  return match ? parseInt(match[1]) : null;
+};
 
-  if (!parsed) {
-    return <span style={{ color: 'var(--text-light)', fontSize: '12px' }}>{description || '—'}</span>;
-  }
+// ---------------------------------------------------------------------------
+// Circular Risk Gauge (compact, for card list)
+// ---------------------------------------------------------------------------
+const CircularGauge = ({ value, size = 48 }) => {
+  const radius = (size - 8) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (value / 100) * circumference;
 
-  const riskColors = {
-    HIGH:   { bg: '#fef2f2', border: '#fca5a5', text: '#b91c1c' },
-    MEDIUM: { bg: '#fffbeb', border: '#fcd34d', text: '#b45309' },
-    LOW:    { bg: '#f0fdf4', border: '#86efac', text: '#15803d' },
-  };
-  const colors = riskColors[parsed.riskLevel] || { bg: '#f9fafb', border: '#e5e7eb', text: '#374151' };
+  let color = '#22C55E'; // green
+  if (value >= 70) color = '#EF4444'; // red
+  else if (value >= 50) color = '#F59E0B'; // amber
+  else if (value >= 30) color = '#3B82F6'; // blue
 
   return (
-    <div style={{ minWidth: '220px', maxWidth: '300px' }}>
-      {/* Risk level badge */}
-      <div style={{
-        display: 'inline-flex', alignItems: 'center', gap: '5px',
-        padding: '2px 8px', borderRadius: '10px', marginBottom: '6px',
-        background: colors.bg, border: `1px solid ${colors.border}`,
-        color: colors.text, fontWeight: '700', fontSize: '11px', letterSpacing: '0.04em',
-      }}>
-        {parsed.riskLevel} RISK{parsed.riskScore ? ` · ${parsed.riskScore}%` : ''}
+    <div className="sec-card-gauge" style={{ width: size, height: size }}>
+      <svg width={size} height={size}>
+        <circle
+          className="gauge-bg"
+          cx={size / 2} cy={size / 2} r={radius}
+          fill="none"
+          stroke="var(--border-color)"
+          strokeWidth="4"
+          opacity="0.3"
+        />
+        <circle
+          className="gauge-fill"
+          cx={size / 2} cy={size / 2} r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeDasharray={`${(value / 100) * circumference} ${circumference}`}
+          strokeDashoffset="0"
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        />
+      </svg>
+      <div className="gauge-value" style={{ color }}>
+        {value}%
       </div>
-
-      {/* Per-signal short lines */}
-      {parsed.signals.map((sig, i) => (
-        <div key={i} style={{ display: 'flex', gap: '6px', marginBottom: '3px', lineHeight: '1.3' }}>
-          <span style={{
-            flexShrink: 0, fontSize: '10px', fontWeight: '700',
-            color: colors.text, background: colors.bg,
-            border: `1px solid ${colors.border}`,
-            borderRadius: '4px', padding: '1px 5px', whiteSpace: 'nowrap',
-            alignSelf: 'flex-start', marginTop: '1px',
-          }}>
-            {sig.label}
-          </span>
-          <span style={{ fontSize: '11px', color: 'var(--text-light)' }}>{sig.short}</span>
-        </div>
-      ))}
     </div>
   );
 };
 
 /**
  * SuperAdmin — Security & Intelligence Tab
- * Shows: Risk graphs, summary cards, AI alerts table with filters.
+ * Shows: Risk graphs, summary cards, flagged-user card-list with circular gauges.
+ * Clicking a card triggers the detail panel in the parent (SuperAdminDashboard).
  */
-const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionRequests }) => {
+const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionRequests, onAlertClick, selectedAlertId }) => {
   const { t } = useTranslation();
+  const showToast = useToast();
   const [alertFilter, setAlertFilter] = useState({ search: '', severity: '', status: '', role: '' });
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedMatrix, setSelectedMatrix] = useState(null);
-  const [selectedAlertForReview, setSelectedAlertForReview] = useState(null);
   const [alertPage, setAlertPage] = useState(1);
   // Tracks which alert IDs are currently mid-request (disables toggle during flight)
   const [pendingFeedback, setPendingFeedback] = useState(new Set());
@@ -145,23 +151,13 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
 
   const paginatedAlerts = filteredAlerts.slice((alertPage - 1) * itemsPerPage, alertPage * itemsPerPage);
 
-  const handleResolveAlert = async (id) => {
-    try {
-      const data = await api.resolveAlert(token, id);
-      alert(data.message);
-      setAiAlerts((prev) => prev.map((a) => (a.id === id ? { ...a, status: 'RESOLVED' } : a)));
-    } catch (err) {
-      alert(err.error || 'Failed to resolve alert.');
-    }
-  };
-
   const handleResolveAllAlerts = async () => {
     try {
       const data = await api.resolveAllAlerts(token);
-      alert(data.message);
+      showToast(data.message, 'success');
       setAiAlerts((prev) => prev.map((a) => ({ ...a, status: 'RESOLVED' })));
     } catch (err) {
-      alert(err.error || 'Failed to resolve all alerts.');
+      showToast(err.error || 'Failed to resolve all alerts.', 'error');
     }
   };
 
@@ -182,7 +178,7 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
       );
     } catch (err) {
       console.error('Failed to update alert feedback:', err);
-      alert(err.error || 'Failed to save feedback. Please try again.');
+      showToast(err.error || 'Failed to save feedback. Please try again.', 'error');
     } finally {
       setPendingFeedback((prev) => {
         const next = new Set(prev);
@@ -194,16 +190,39 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
 
   return (
     <div className="admin-tab-content animated-fade-in">
-      {selectedAlertForReview && (
-        <AlertReviewModal
-          alert={selectedAlertForReview}
-          token={token}
-          onClose={() => setSelectedAlertForReview(null)}
-        />
-      )}
+      {/* ── Summary Cards Row ── */}
+      <div className="sec-summary-row">
+        <div className="sec-summary-card alerts">
+          <div className="sec-summary-icon alerts">
+            <AlertTriangle size={22} />
+          </div>
+          <div className="sec-summary-info">
+            <h4>{t('dashboard.filteredAlerts')}</h4>
+            <div className="sec-summary-value">{filteredAlerts.length}</div>
+          </div>
+        </div>
+        <div className="sec-summary-card logs">
+          <div className="sec-summary-icon logs">
+            <Activity size={22} />
+          </div>
+          <div className="sec-summary-info">
+            <h4>{t('dashboard.filteredAuditLogs')}</h4>
+            <div className="sec-summary-value">{filteredLogs.length}</div>
+          </div>
+        </div>
+        <div className="sec-summary-card pending">
+          <div className="sec-summary-icon pending">
+            <Activity size={22} />
+          </div>
+          <div className="sec-summary-info">
+            <h4>{t('dashboard.pendingRequests')}</h4>
+            <div className="sec-summary-value">{transactionRequests.length}</div>
+          </div>
+        </div>
+      </div>
 
-      {/* Risk Intelligence Center */}
-      <div style={{ display: 'flex', gap: '20px', marginBottom: '30px' }}>
+      {/* ── Risk Intelligence Graphs ── */}
+      <div className="sec-graphs-row">
         <RiskActivityGraph
           alerts={aiAlerts}
           onDateSelect={setSelectedDate}
@@ -216,38 +235,14 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
         />
       </div>
 
-      {/* Summary Cards */}
-      <div className="summary-cards-container">
-        <div className="summary-card">
-          <div className="summary-card-header">
-            <AlertTriangle size={20} className="icon-yellow" />
-            <h3>{t('dashboard.filteredAlerts')}</h3>
-          </div>
-          <div className="summary-card-value">{filteredAlerts.length}</div>
-        </div>
-        <div className="summary-card">
-          <div className="summary-card-header">
-            <Activity size={20} className="icon-blue" />
-            <h3>{t('dashboard.filteredAuditLogs')}</h3>
-          </div>
-          <div className="summary-card-value">{filteredLogs.length}</div>
-        </div>
-        <div className="summary-card">
-          <div className="summary-card-header">
-            <Activity size={20} className="icon-blue" />
-            <h3>{t('dashboard.pendingRequests')}</h3>
-          </div>
-          <div className="summary-card-value">{transactionRequests.length}</div>
-        </div>
-      </div>
-
-      {/* AI Security Alerts */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '30px' }}>
-        <h2 className="section-title" style={{ marginBottom: 0 }}>
-          <AlertTriangle size={24} className="icon-yellow" /> AI Security Alerts
+      {/* ── Flagged Users Header ── */}
+      <div className="sec-header-bar">
+        <h2 className="sec-title">
+          <AlertTriangle size={22} className="icon-yellow" />
+          AI Security Alerts
         </h2>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          {/* Opt-in chip — column is hidden by default to keep the table clean */}
+        <div className="sec-header-actions">
+          {/* AI Feedback opt-in chip */}
           <button
             className={`fp-opt-in-btn${showFeedbackColumn ? ' fp-opt-in-btn--active' : ''}`}
             onClick={() => setShowFeedbackColumn((v) => !v)}
@@ -262,21 +257,20 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="alert-filters">
-        <div className="filter-group">
-          <Search size={16} className="filter-icon" />
+      {/* ── Compact Filters ── */}
+      <div className="sec-filters">
+        <div className="sec-filter-group">
+          <Search size={15} className="filter-icon" />
           <input
             type="text"
             placeholder={t("dashboard.searchUsername")}
             value={alertFilter.search}
             onChange={(e) => setAlertFilter({ ...alertFilter, search: e.target.value })}
-            className="filter-input"
           />
         </div>
-        <div className="filter-group">
-          <Filter size={16} className="filter-icon" />
-          <select value={alertFilter.role} onChange={(e) => setAlertFilter({ ...alertFilter, role: e.target.value })} className="filter-select">
+        <div className="sec-filter-group">
+          <Filter size={15} className="filter-icon" />
+          <select value={alertFilter.role} onChange={(e) => setAlertFilter({ ...alertFilter, role: e.target.value })}>
             <option value="">{t('dashboard.allRoles')}</option>
             <option value="CUSTOMER">{t('dashboard.roleCustomer')}</option>
             <option value="TELLER">{t('dashboard.roleTeller')}</option>
@@ -286,18 +280,18 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
             <option value="COMPLIANCE_OFFICER">{t('dashboard.roleComplianceOfficer')}</option>
           </select>
         </div>
-        <div className="filter-group">
-          <Filter size={16} className="filter-icon" />
-          <select value={alertFilter.severity} onChange={(e) => setAlertFilter({ ...alertFilter, severity: e.target.value })} className="filter-select">
+        <div className="sec-filter-group">
+          <Filter size={15} className="filter-icon" />
+          <select value={alertFilter.severity} onChange={(e) => setAlertFilter({ ...alertFilter, severity: e.target.value })}>
             <option value="">{t('dashboard.allSeverities')}</option>
             <option value="HIGH">{t('dashboard.high')}</option>
             <option value="MEDIUM">{t('dashboard.medium')}</option>
             <option value="LOW">{t('dashboard.low')}</option>
           </select>
         </div>
-        <div className="filter-group">
-          <Filter size={16} className="filter-icon" />
-          <select value={alertFilter.status} onChange={(e) => setAlertFilter({ ...alertFilter, status: e.target.value })} className="filter-select">
+        <div className="sec-filter-group">
+          <Filter size={15} className="filter-icon" />
+          <select value={alertFilter.status} onChange={(e) => setAlertFilter({ ...alertFilter, status: e.target.value })}>
             <option value="">{t('dashboard.allStatuses')}</option>
             <option value="OPEN">{t('dashboard.statusOpen')}</option>
             <option value="RESOLVED">{t('dashboard.statusResolved')}</option>
@@ -305,96 +299,91 @@ const SecurityTab = ({ aiAlerts, setAiAlerts, users, token, logs, transactionReq
         </div>
       </div>
 
-      {/* Alerts Table */}
-      <div className="logs-table-container">
-        <table className="logs-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>{t('dashboard.flaggedUser')}</th>
-              <th>{t('dashboard.userRole')}</th>
-              <th>{t('dashboard.severity')}</th>
-              <th>{t('dashboard.description')}</th>
-              <th>{t('dashboard.status')}</th>
-              <th>{t('dashboard.timestamp')}</th>
+      {/* ── Flagged Users Card List ── */}
+      <div className="sec-card-list">
+        {paginatedAlerts.map((alert) => {
+          const riskScore = parseRiskScore(alert.description);
+          const role = getUserRole(alert.flaggedUsername);
+          const isSelected = selectedAlertId === alert.id;
+          const avatarClass = alert.status === 'RESOLVED' ? 'resolved' : alert.severity.toLowerCase();
+          const timeStr = new Date(alert.timestamp + 'Z').toLocaleString([], {
+            month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+          });
+
+          return (
+            <div
+              key={alert.id}
+              className={`sec-alert-card severity-${alert.severity.toLowerCase()} ${isSelected ? 'selected' : ''}`}
+              onClick={() => onAlertClick && onAlertClick(alert)}
+            >
+              {/* Avatar */}
+              <div className={`sec-card-avatar ${avatarClass}`}>
+                {alert.flaggedUsername.slice(0, 2).toUpperCase()}
+              </div>
+
+              {/* Info */}
+              <div className="sec-card-info">
+                <div className="sec-card-name">{alert.flaggedUsername}</div>
+                <div className="sec-card-meta">
+                  <span className="sec-card-role">{role}</span>
+                  <span className={`sec-card-status ${alert.status.toLowerCase()}`}>{alert.status}</span>
+                  <span className="sec-card-time">{timeStr}</span>
+                </div>
+              </div>
+
+              {/* AI Feedback toggle (inline, when enabled) */}
               {showFeedbackColumn && (
-                <th style={{ whiteSpace: 'nowrap' }}>
-                  <ThumbsDown size={13} style={{ marginRight: '5px', verticalAlign: 'middle' }} />
-                  AI Feedback
-                </th>
+                <label
+                  className={`fp-toggle-label ${
+                    alert.isFalsePositive ? 'fp-toggle-label--active' : ''
+                  } ${
+                    pendingFeedback.has(alert.id) ? 'fp-toggle-label--pending' : ''
+                  }`}
+                  title={alert.isFalsePositive ? 'Marked as false positive' : 'Mark as false positive'}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <input
+                    type="checkbox"
+                    className="fp-toggle-input"
+                    checked={!!alert.isFalsePositive}
+                    disabled={pendingFeedback.has(alert.id)}
+                    onChange={() => handleToggleFalsePositive(alert.id, !!alert.isFalsePositive)}
+                  />
+                  <span className="fp-toggle-track">
+                    <span className="fp-toggle-thumb" />
+                  </span>
+                </label>
               )}
-              <th>{t('dashboard.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedAlerts.map((alert) => (
-              <tr key={alert.id} className={alert.severity === 'HIGH' ? 'row-danger' : ''}>
-                <td>{alert.id}</td>
-                <td><strong>{alert.flaggedUsername}</strong></td>
-                <td><span className="role-badge">{getUserRole(alert.flaggedUsername)}</span></td>
-                <td><span className={`severity-badge ${alert.severity.toLowerCase()}`}>{alert.severity}</span></td>
-                <td><AlertDescriptionCell description={alert.description} /></td>
-                <td><strong>{alert.status}</strong></td>
-                <td>{new Date(alert.timestamp + 'Z').toLocaleString()}</td>
-                {showFeedbackColumn && (
-                  <td>
-                    {/* False Positive toggle — feeds into the next adaptive training cycle */}
-                    <label
-                      className={`fp-toggle-label ${
-                        alert.isFalsePositive ? 'fp-toggle-label--active' : ''
-                      } ${
-                        pendingFeedback.has(alert.id) ? 'fp-toggle-label--pending' : ''
-                      }`}
-                      title={alert.isFalsePositive ? 'Marked as false positive — will be used in next training' : 'Mark as false positive for AI training'}
-                    >
-                      <input
-                        type="checkbox"
-                        className="fp-toggle-input"
-                        checked={!!alert.isFalsePositive}
-                        disabled={pendingFeedback.has(alert.id)}
-                        onChange={() => handleToggleFalsePositive(alert.id, !!alert.isFalsePositive)}
-                      />
-                      <span className="fp-toggle-track">
-                        <span className="fp-toggle-thumb" />
-                      </span>
-                      <span className="fp-toggle-text">
-                        {pendingFeedback.has(alert.id)
-                          ? 'Saving…'
-                          : alert.isFalsePositive
-                            ? 'False Positive'
-                            : 'Not FP'}
-                      </span>
-                    </label>
-                  </td>
-                )}
-                <td>
-                  {alert.status === 'OPEN' && (
-                    <button className="btn-success" onClick={() => handleResolveAlert(alert.id)} style={{ marginRight: '5px' }}>
-                      Resolve
-                    </button>
-                  )}
-                  <button className="btn-warning" onClick={() => setSelectedAlertForReview(alert)}>
-                    Review
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {filteredAlerts.length === 0 && (
-              <tr>
-                <td colSpan={showFeedbackColumn ? 9 : 8} style={{ textAlign: 'center', color: '#6b7280' }}>
-                  No alerts found matching the current filters.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-        <Pagination
-          currentPage={alertPage}
-          totalItems={filteredAlerts.length}
-          itemsPerPage={itemsPerPage}
-          onPageChange={setAlertPage}
-        />
+
+              {/* Circular Risk Gauge */}
+              {riskScore !== null && (
+                <CircularGauge value={riskScore} />
+              )}
+
+              {/* Severity Badge */}
+              <span className={`severity-badge ${alert.severity.toLowerCase()}`}>
+                {alert.severity}
+              </span>
+            </div>
+          );
+        })}
+
+        {filteredAlerts.length === 0 && (
+          <div className="sec-empty-state">
+            <ShieldAlert size={48} />
+            <p>No alerts found matching the current filters.</p>
+            <span>Try adjusting your search or filter criteria.</span>
+          </div>
+        )}
       </div>
+
+      {/* Pagination */}
+      <Pagination
+        currentPage={alertPage}
+        totalItems={filteredAlerts.length}
+        itemsPerPage={itemsPerPage}
+        onPageChange={setAlertPage}
+      />
     </div>
   );
 };

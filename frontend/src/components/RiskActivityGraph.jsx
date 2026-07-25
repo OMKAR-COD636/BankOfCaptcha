@@ -94,49 +94,51 @@ const RiskActivityGraph = ({ alerts = [], onDateSelect, selectedDate }) => {
                 )}
             </div>
             
-            <div className="activity-graph-wrapper">
-                <div className="activity-graph-y-labels">
-                    <span>Sun</span>
-                    <span>Mon</span>
-                    <span>Tue</span>
-                    <span>Wed</span>
-                    <span>Thu</span>
-                    <span>Fri</span>
-                    <span>Sat</span>
+            <div className="risk-visualizer-body">
+                <div className="activity-graph-wrapper">
+                    <div className="activity-graph-y-labels">
+                        <span>Sun</span>
+                        <span>Mon</span>
+                        <span>Tue</span>
+                        <span>Wed</span>
+                        <span>Thu</span>
+                        <span>Fri</span>
+                        <span>Sat</span>
+                    </div>
+                    
+                    <div className="activity-graph-grid">
+                        {weeks.map((week, wIndex) => (
+                            <div key={wIndex} className="activity-graph-column">
+                                {week.map((dateStr, dIndex) => {
+                                    if (!dateStr) {
+                                        return <div key={dIndex} className="activity-cell empty-cell"></div>;
+                                    }
+                                    const data = activityMap.get(dateStr);
+                                    const isSelected = selectedDate === dateStr;
+                                    const tooltip = `${dateStr}\nTotal: ${data.total}\nHigh: ${data.HIGH} | Med: ${data.MEDIUM} | Low: ${data.LOW}`;
+                                    
+                                    return (
+                                        <div 
+                                            key={dateStr} 
+                                            className={`activity-cell ${getSeverityClass(data)} ${isSelected ? 'selected' : ''} ${(selectedDate && !isSelected) ? 'dimmed' : ''}`}
+                                            style={{ opacity: selectedDate && !isSelected ? 0.2 : getOpacity(data.total) }}
+                                            title={tooltip}
+                                            onClick={() => onDateSelect && onDateSelect(isSelected ? null : dateStr)}
+                                        ></div>
+                                    );
+                                })}
+                            </div>
+                        ))}
+                    </div>
                 </div>
                 
-                <div className="activity-graph-grid">
-                    {weeks.map((week, wIndex) => (
-                        <div key={wIndex} className="activity-graph-column">
-                            {week.map((dateStr, dIndex) => {
-                                if (!dateStr) {
-                                    return <div key={dIndex} className="activity-cell empty-cell"></div>;
-                                }
-                                const data = activityMap.get(dateStr);
-                                const isSelected = selectedDate === dateStr;
-                                const tooltip = `${dateStr}\nTotal: ${data.total}\nHigh: ${data.HIGH} | Med: ${data.MEDIUM} | Low: ${data.LOW}`;
-                                
-                                return (
-                                    <div 
-                                        key={dateStr} 
-                                        className={`activity-cell ${getSeverityClass(data)} ${isSelected ? 'selected' : ''} ${(selectedDate && !isSelected) ? 'dimmed' : ''}`}
-                                        style={{ opacity: selectedDate && !isSelected ? 0.2 : getOpacity(data.total) }}
-                                        title={tooltip}
-                                        onClick={() => onDateSelect && onDateSelect(isSelected ? null : dateStr)}
-                                    ></div>
-                                );
-                            })}
-                        </div>
-                    ))}
+                <div className="activity-legend">
+                    <span className="legend-text">{t('dashboard.peakSeverity')}:</span>
+                    <div className="activity-cell color-low" style={{opacity: 1}}></div> <span className="legend-label">{t('dashboard.low')}</span>
+                    <div className="activity-cell color-medium" style={{opacity: 1}}></div> <span className="legend-label">{t('dashboard.medium')}</span>
+                    <div className="activity-cell color-high" style={{opacity: 1}}></div> <span className="legend-label">{t('dashboard.high')}</span>
+                    <span className="legend-text" style={{marginLeft: '15px'}}>{t('dashboard.opacityVolume')}</span>
                 </div>
-            </div>
-            
-            <div className="activity-legend">
-                <span className="legend-text">{t('dashboard.peakSeverity')}:</span>
-                <div className="activity-cell color-low" style={{opacity: 1}}></div> <span className="legend-label">{t('dashboard.low')}</span>
-                <div className="activity-cell color-medium" style={{opacity: 1}}></div> <span className="legend-label">{t('dashboard.medium')}</span>
-                <div className="activity-cell color-high" style={{opacity: 1}}></div> <span className="legend-label">{t('dashboard.high')}</span>
-                <span className="legend-text" style={{marginLeft: '15px'}}>{t('dashboard.opacityVolume')}</span>
             </div>
         </div>
     );
